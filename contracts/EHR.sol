@@ -29,4 +29,11 @@ contract EHR {
         records[newEhrId] = newEhr; //commit to state variable
         return newEhrId;   //return new diceId
     }
+
+    //modifier to ensure a function is callable only by patient   
+    modifier patientOnly(uint256 ehrId) {
+        require(records[ehrId].patient == msg.sender);
+        _;
+    }
+
 }
