@@ -9,4 +9,6 @@ contract EHR {
         address patient;
     }
     
+    mapping(uint256 => ehr) public records;
+
 }
