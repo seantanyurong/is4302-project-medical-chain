@@ -36,4 +36,10 @@ contract EHR {
         _;
     }
 
+    // ensure valid record ID
+    modifier validEHRId(uint256 ehrId) {
+        require(ehrId < numEHR);
+        _;
+    }
+
 }
