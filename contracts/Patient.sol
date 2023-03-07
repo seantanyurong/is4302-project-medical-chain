@@ -24,6 +24,31 @@ contract Patient {
         secondaryUser = _secondaryUser;
     }
 
+    function updateFirstName(string memory newFirstName) public {
+        require(msg.sender == owner, "This patient record does not belong to you!");
+        setFirstName(newFirstName);
+    }
+
+    function updateLastName(string memory newLastName) public {
+        require(msg.sender == owner, "This patient record does not belong to you!");
+        setLastName(newLastName);
+    }
+
+    function updateEmailAddress(string memory newEmailAddress) public {
+        require(msg.sender == owner, "This patient record does not belong to you!");
+        setEmailAddress(newEmailAddress);
+    }
+
+    function updateDOB(string memory newDOB) public {
+        require(msg.sender == owner, "This patient record does not belong to you!");
+        setDob(newDOB);
+    }
+
+    function updateSecondaryUser(address newSecondaryUser) public {
+        require(msg.sender == owner, "This patient record does not belong to you!");
+        setSecondaryUser(newSecondaryUser);
+    }
+    
     function getPatientId() public view returns(uint256) {
         return patientId;
     }
