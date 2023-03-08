@@ -12,7 +12,9 @@ contract medicalChain {
 
   struct Patient {
     address id;
-    Record[] records;
+    mapping(uint256 => Record) records;
+    mapping(address => Doctor) doctorsWithAccess;
+    mapping(address => Nurse) nursesWithAccess;
   }
 
   struct Doctor {
@@ -41,6 +43,16 @@ contract medicalChain {
     _;
   }
 
+  modifier doctorExists(address doctorId) {
+    require(doctors[doctorId].id == doctorId, "Doctor does not exist");
+    _;
+  }
+
+  modifier nurseExists(address nurseId) {
+    require(nurses[nurseId].id == nurseId, "Nurse does not exist");
+    _;
+  }
+
   modifier senderIsDoctor {
     require(doctors[msg.sender].id == msg.sender, "Sender is not a doctor");
     _;
@@ -52,31 +64,83 @@ contract medicalChain {
     _;
   }
 
+  modifier senderIsPatient(address patientId) {
+    require(patientId == msg.sender, "Sender is not the patient");
+    _;
+  }
+
   // prevent doctor from self-diagnosing, doctor cannot write on their own record
   modifier doctorIsNotPatient(address patientId, address doctorId) {
     require(patientId != doctorId, "Doctor should not self-diagnose");
     _;
   }
 
-  function addPatient(address _patientId) public senderIsDoctor {
-    require(patients[_patientId].id != _patientId, "This patient already exists.");
-    patients[_patientId].id = _patientId;
+  // msg.sender will be the patient
+  function addPatient() public {
+    require(patients[msg.sender].id != msg.sender, "This patient already exists.");
 
-    emit PatientAdded(_patientId);
+    Patient memory newPatient = Patient({
+      id: msg.sender
+    });
+    patients[msg.sender] = newPatient;
+
+    emit PatientAdded(msg.sender);
   }
 
+  // msg.sender will be the doctor
   function addDoctor() public {
     require(doctors[msg.sender].id != msg.sender, "This doctor already exists.");
-    doctors[msg.sender].id = msg.sender;
+
+    Doctor memory newDoctor = Doctor({
+      id: msg.sender
+    });
+    doctors[msg.sender] = newDoctor;
 
     emit DoctorAdded(msg.sender);
   }
 
+  // msg.sender will be the nurse
   function addNurse() public {
     require(nurses[msg.sender].id != msg.sender, "This nurse already exists.");
-    nurses[msg.sender].id = msg.sender;
+
+    Nurse memory newNurse = Nurse({
+      id: msg.sender
+    });
+    nurses[msg.sender] = newNurse;
 
     emit NurseAdded(msg.sender);
+  }
+
+  // patient calls the function
+  function giveDoctorAccess(address doctorId) public 
+    senderIsPatient(msg.sender) doctorIsNotPatient(msg.sender, doctorId) patientExists(msg.sender) doctorExists(doctorId) {
+    Patient storage p = patients[msg.sender];
+    Doctor memory d = doctors[doctorId];
+
+    p.doctorsWithAccess[doctorId] = d;
+  }
+
+  // patient calls the function
+  function giveNurseAccess(address nurseId) public 
+    senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
+    Patient storage p = patients[msg.sender];
+    Nurse memory n = nurses[nurseId];
+
+    p.nursesWithAccess[nurseId] = n;
+  }
+
+  // patient calls the function
+  function removeDoctorAccess(address doctorId) public 
+    senderIsPatient(msg.sender) doctorIsNotPatient(msg.sender, doctorId) patientExists(msg.sender) doctorExists(doctorId) {
+    Patient storage p = patients[msg.sender];
+    delete p.doctorsWithAccess[doctorId];
+  }
+
+  // patient calls the function
+  function removeNurseAccess(address nurseId) public 
+    senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
+    Patient storage p = patients[msg.sender];
+    delete p.nursesWithAccess[nurseId];
   }
 
   function getSenderRole() public view returns (string memory) {
