@@ -12,6 +12,7 @@ contract medicalChain {
 
   struct Patient {
     address id;
+    uint256 noOfRecords;
     mapping(uint256 => Record) records;
     mapping(address => Doctor) doctorsWithAccess;
     mapping(address => Nurse) nursesWithAccess;
@@ -75,12 +76,32 @@ contract medicalChain {
     _;
   }
 
+  // to ensure record exists (to clarify what is cid)
+  /*
+  modifier recordExists(address patientId, uint256 recordId) {
+    
+  }
+  */
+
+  modifier senderIsAuthorised(address patientId) {
+    string memory role = getSenderRole();
+    if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
+        require(patients[patientId].doctorsWithAccess[msg.sender].id == msg.sender);
+    } else if (keccak256(bytes(role)) == keccak256(bytes("nurse"))) {
+        require(patients[patientId].nursesWithAccess[msg.sender].id == msg.sender);
+    } else if (keccak256(bytes(role)) == keccak256(bytes("patient"))) {
+      
+    }
+    _;
+  }
+
   // msg.sender will be the patient
   function addPatient() public {
     require(patients[msg.sender].id != msg.sender, "This patient already exists.");
 
     Patient memory newPatient = Patient({
-      id: msg.sender
+      id: msg.sender,
+      noOfRecords: 0
     });
     patients[msg.sender] = newPatient;
 
@@ -141,6 +162,33 @@ contract medicalChain {
     senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
     Patient storage p = patients[msg.sender];
     delete p.nursesWithAccess[nurseId];
+  }
+
+  // patient calls to view all his/her record
+  function viewAllRecords() public view senderIsPatient(msg.sender) patientExists(msg.sender) {
+    Patient storage p = patients[msg.sender];
+    for (uint i = 0; i < p.noOfRecords; i++) {
+      // do something with below code (to confirm again)
+      // p.records[i]
+    }
+  }
+
+  // nurses or doctors call to get a patient's record
+  function getRecord(uint256 recordId, address patientAddress) public patientExists(patientAddress) senderIsAuthorised(patientAddress) view
+  returns (
+    string memory _cid,
+    string memory _fileName,
+    address _patientId,
+    address _doctorId,
+    uint256 _timeAdded
+  )
+    {
+    Patient storage p = patients[msg.sender];
+    _cid = p.records[recordId].cid;
+    _fileName = p.records[recordId].fileName;
+    _patientId = p.records[recordId].patientId;
+    _doctorId = p.records[recordId].doctorId;
+    _timeAdded = p.records[recordId].timeAdded;
   }
 
   function getSenderRole() public view returns (string memory) {
