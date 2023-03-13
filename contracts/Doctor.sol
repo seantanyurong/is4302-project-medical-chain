@@ -24,7 +24,10 @@ contract Doctor {
 
     uint256 practitionerId;
     PublicProfile publicProfile;
-    string[] patients;
+    address[] patients;
     EHR[] medicalRecords;
 
+    function addPatient(address patient) public {
+        patients.push(patient);
+    }
 }
