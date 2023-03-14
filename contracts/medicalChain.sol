@@ -1,5 +1,9 @@
 pragma solidity ^0.5.0;
 
+import "./Doctor.sol";
+import "./Patient.sol";
+import "./Nurse.sol";
+
 contract medicalChain {
     
   struct Record { 
