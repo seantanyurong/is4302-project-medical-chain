@@ -1,9 +1,13 @@
 pragma solidity ^0.5.0;
 import "./Patient.sol";
+import "./Doctor.sol";
+import "./Nurse.sol";
 
 contract medicalChain {
 
   Patient patient;
+  Doctor doctor;
+  Nurse nurse;
     
   struct Record { 
     string cid;
@@ -20,17 +24,17 @@ contract medicalChain {
   //   mapping(address => Nurse) nursesWithAccess;
   // }
 
-  struct Doctor {
-    address id;
-  }
+  // struct Doctor {
+  //   address id;
+  // }
 
-  struct Nurse {
-    address id;
-  }
+  // struct Nurse {
+  //   address id;
+  // }
 
   // mapping (address => Patient) public patients;
-  mapping (address => Doctor) public doctors;
-  mapping (address => Nurse) public nurses;
+  // mapping (address => Doctor) public doctors;
+  // mapping (address => Nurse) public nurses;
 
   event PatientAdded(address patientId);
   event DoctorAdded(address doctorId);
@@ -46,20 +50,20 @@ contract medicalChain {
   //   _;
   // }
 
-  modifier doctorExists(address doctorId) {
-    require(doctors[doctorId].id == doctorId, "Doctor does not exist");
-    _;
-  }
+  // modifier doctorExists(address doctorId) {
+  //   require(doctors[doctorId].id == doctorId, "Doctor does not exist");
+  //   _;
+  // }
 
-  modifier nurseExists(address nurseId) {
-    require(nurses[nurseId].id == nurseId, "Nurse does not exist");
-    _;
-  }
+  // modifier nurseExists(address nurseId) {
+  //   require(nurses[nurseId].id == nurseId, "Nurse does not exist");
+  //   _;
+  // }
 
-  modifier senderIsDoctor {
-    require(doctors[msg.sender].id == msg.sender, "Sender is not a doctor");
-    _;
-  }
+  // modifier senderIsDoctor {
+  //   require(doctors[msg.sender].id == msg.sender, "Sender is not a doctor");
+  //   _;
+  // }
 
   // to ensure sender is the one who wrote on the chain (for secondary access)
   modifier senderIsWriter(Record memory record) {
@@ -91,28 +95,28 @@ contract medicalChain {
   // }
 
   // msg.sender will be the doctor
-  function addDoctor() public {
-    require(doctors[msg.sender].id != msg.sender, "This doctor already exists.");
+  // function addDoctor() public {
+  //   require(doctors[msg.sender].id != msg.sender, "This doctor already exists.");
 
-    Doctor memory newDoctor = Doctor({
-      id: msg.sender
-    });
-    doctors[msg.sender] = newDoctor;
+  //   Doctor memory newDoctor = Doctor({
+  //     id: msg.sender
+  //   });
+  //   doctors[msg.sender] = newDoctor;
 
-    emit DoctorAdded(msg.sender);
-  }
+  //   emit DoctorAdded(msg.sender);
+  // }
 
   // msg.sender will be the nurse
-  function addNurse() public {
-    require(nurses[msg.sender].id != msg.sender, "This nurse already exists.");
+  // function addNurse() public {
+  //   require(nurses[msg.sender].id != msg.sender, "This nurse already exists.");
 
-    Nurse memory newNurse = Nurse({
-      id: msg.sender
-    });
-    nurses[msg.sender] = newNurse;
+  //   Nurse memory newNurse = Nurse({
+  //     id: msg.sender
+  //   });
+  //   nurses[msg.sender] = newNurse;
 
-    emit NurseAdded(msg.sender);
-  }
+  //   emit NurseAdded(msg.sender);
+  // }
 
 
 
@@ -167,11 +171,11 @@ contract medicalChain {
   // }
 
   function getSenderRole() public view returns (string memory) {
-    if (doctors[msg.sender].id == msg.sender) {
+    if (doctor.isSender(msg.sender)) {
       return "doctor";
     } else if (patient.isSender(msg.sender)) {
       return "patient";
-    } else if (nurses[msg.sender].id == msg.sender) {
+    } else if (nurse.isSender(msg.sender)) {
       return "nurse";
     } else {
       return "unknown";
