@@ -12,11 +12,12 @@ contract Patient {
         mapping(uint256 => bool) approvedDoctors;
         mapping(uint256 => bool) approvedNurses;
         mapping(uint256 => bool) records;
-        address secondaryUser;
     }
 
     uint256 public numPatients = 0;
     mapping(uint256 => patient) public patients;
+    mapping(uint256 => address) secondaryUser;
+    
 
     // function to create patient
     function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, address _secondaryUser) public returns(uint256) {
@@ -30,9 +31,9 @@ contract Patient {
         newPatient.lastName = _lastName;
         newPatient.emailAddress = _emailAddress;
         newPatient.dob = _dob;
-        newPatient.secondaryUser = _secondaryUser;
 
         patients[newPatientId] = newPatient;
+        secondaryUser[newPatientId] = _secondaryUser;
         return newPatientId;
     }
 
@@ -40,6 +41,11 @@ contract Patient {
 
     modifier ownerOnly(uint256 patientId) {
         require(patients[patientId].owner == tx.origin);
+        _;
+    }
+
+    modifier approvedOnly(uint256 patientId) {
+        require(patients[patientId].owner == tx.origin || secondaryUser[patientId] == tx.origin);
         _;
     }
 
@@ -70,25 +76,25 @@ contract Patient {
         return false;
     }
 
-    function giveDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) ownerOnly(patientId) {
+    function giveDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) approvedOnly(patientId) {
         patients[patientId].approvedDoctors[doctorId] = true;
     }
 
-    function removeDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) ownerOnly(patientId) {
+    function removeDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) approvedOnly(patientId) {
         patients[patientId].approvedDoctors[doctorId] = false;
     }
 
-    function giveNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) ownerOnly(patientId) {
+    function giveNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) approvedOnly(patientId) {
         patients[patientId].approvedNurses[nurseId] = true;
     }
 
-    function removeNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) ownerOnly(patientId) {
+    function removeNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) approvedOnly(patientId) {
         patients[patientId].approvedNurses[nurseId] = false;
     }
 
     // Getters and setters
 
-    function getFirstName(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+    function getFirstName(uint256 patientId) public view validPatientId(patientId) approvedOnly(patientId) returns(string memory) {
         return patients[patientId].firstName;
     }
 
@@ -96,7 +102,7 @@ contract Patient {
         patients[patientId].firstName = _firstName;
     }
 
-    function getLastName(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+    function getLastName(uint256 patientId) public view validPatientId(patientId) approvedOnly(patientId) returns(string memory) {
         return patients[patientId].lastName;
     }
 
@@ -104,7 +110,7 @@ contract Patient {
         patients[patientId].lastName = _lastName;
     }
 
-    function getEmailAddress(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+    function getEmailAddress(uint256 patientId) public view validPatientId(patientId) approvedOnly(patientId) returns(string memory) {
         return patients[patientId].emailAddress;
     }
 
@@ -112,7 +118,7 @@ contract Patient {
         patients[patientId].emailAddress = _emailAddress;
     }
 
-    function getDob(uint256 patientId) public view  validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+    function getDob(uint256 patientId) public view  validPatientId(patientId) approvedOnly(patientId) returns(string memory) {
         return patients[patientId].dob;
     }
 
@@ -120,11 +126,11 @@ contract Patient {
         patients[patientId].dob = _dob;
     }
 
-    function getSecondaryUser(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(address) {
-        return patients[patientId].secondaryUser;
+    function getSecondaryUser(uint256 patientId) public view validPatientId(patientId) approvedOnly(patientId) returns(address) {
+        return secondaryUser[patientId];
     }
 
     function setSecondaryUser(uint256 patientId, address _secondaryUser) public validPatientId(patientId) ownerOnly(patientId)  {
-        patients[patientId].secondaryUser = _secondaryUser;
+        secondaryUser[patientId] = _secondaryUser;
     }
 }
