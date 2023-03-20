@@ -195,11 +195,11 @@ contract medicalChain {
   }
 
   // Request to view specific record
-  function viewRecord(uint256 recordId) public view returns (EHR record) {
+  function viewRecordByRecordID(uint256 recordId) public view returns (EHR record) {
       // Check if msg.sender is doctor or nurse
       // Check if msg.sender inside record's doctors or nurses
       // return record
   }
-  
+
 }
 
