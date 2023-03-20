@@ -187,7 +187,10 @@ contract medicalChain {
 
   // Add new EHR
   function addNewEHR(uint256 patientId, uint256 doctorId) public view returns (uint256 recordId) {
-
+      // Check if doctorId is inside patient's approvedDoctors
+      // Check if patientId inside doctor's patients
+      // Add new EHR
+      // add recordId into patient and doctors records
   }
 }
 
