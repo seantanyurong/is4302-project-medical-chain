@@ -2,10 +2,7 @@ pragma solidity ^0.5.0;
 import "./Patient.sol";
 import "./Doctor.sol";
 import "./Nurse.sol";
-
-import "./Doctor.sol";
-import "./Patient.sol";
-import "./Nurse.sol";
+import "./EHR.sol";
 
 contract medicalChain {
 
@@ -188,6 +185,9 @@ contract medicalChain {
 
   // Edit patient profile 
 
-  
+  // Add new EHR
+  function addNewEHR(uint256 patientId, uint256 doctorId) public view returns (uint256 recordId) {
+
+  }
 }
 

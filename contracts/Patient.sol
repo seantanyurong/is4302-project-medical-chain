@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >= 0.5.0;
 
 contract Patient {
 
@@ -126,10 +126,5 @@ contract Patient {
 
     function setSecondaryUser(uint256 patientId, address _secondaryUser) public validPatientId(patientId) ownerOnly(patientId)  {
         patients[patientId].secondaryUser = _secondaryUser;
-    }
-
-    function addPractitioner(address practitioner) public {
-        require(msg.sender == owner, "This patient record does not belong to you!");
-        approvedPractitioners.push(practitioner);
     }
 }
