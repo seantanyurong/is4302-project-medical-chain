@@ -4,98 +4,93 @@ import "./EHR.sol";
 
 contract Doctor {
 
-    address owner;
-    uint256 doctorId;
-    string firstName;
-    string lastName;
-    string emailAddress;
-    string dob;
-    address[] qualifications;
+    struct doctor {
+        address owner;
+        uint256 doctorId;
+        string firstName;
+        string lastName;
+        string emailAddress;
+        string dob;
  
-    address[] patients;
-    EHR[] medicalRecords;
-
-    function getPatients() public view returns (address[] memory) {
-        return patients;
+        mapping(uint256 => bool) patients;
+        mapping(uint256 => bool) records;
     }
 
-    function addPatient(address patient) public {
-        patients.push(patient);
+    uint256 public numDoctors = 0;
+    mapping(uint256 => doctor) public doctors;
+
+    // function to create doctor
+    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob) public returns(uint256) {
+
+        uint256 newDoctorId = numDoctors++;
+
+        doctor memory newDoctor;
+        newDoctor.doctorId = newDoctorId;
+        newDoctor.owner = msg.sender;
+        newDoctor.firstName = _firstName;
+        newDoctor.lastName = _lastName;
+        newDoctor.emailAddress = _emailAddress;
+        newDoctor.dob = _dob;
+
+        doctors[newDoctorId] = newDoctor;
+        return newDoctorId;
     }
 
-    function getEHRs() public view returns (EHR[] memory) {
-        return medicalRecords;
+    // Modifiers
+
+    modifier ownerOnly(uint256 doctorId) {
+        require(doctors[doctorId].owner == tx.origin);
+        _;
     }
 
-    function addEHR(EHR medicalRecord) public {
-        medicalRecords.push(medicalRecord);
+    modifier validDoctorId(uint256 doctorId) {
+        require(doctorId < numDoctors);
+        _;
+    }
+
+    // Functions
+    function isSender(address owner) public view returns(bool) {
+        for (uint i = 0; i < numDoctors; i++) {
+            doctor storage temp = doctors[i];
+            if (temp.owner == owner) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Getters and Setters
 
-    function getDoctorId() public view returns(uint256) {
-        return doctorId;
+    function getFirstName(uint256 doctorId) public view validDoctorId(doctorId) ownerOnly(doctorId) returns(string memory) {
+        return doctors[doctorId].firstName;
     }
 
-    function getFirstName() public view returns(string memory) {
-        return firstName;
+    function setFirstName(uint256 doctorId, string memory _firstName) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].firstName = _firstName;
     }
 
-    function setFirstName(string memory _firstName) public {
-        firstName = _firstName;
+    function getLastName(uint256 doctorId) public view validDoctorId(doctorId) ownerOnly(doctorId) returns(string memory) {
+        return doctors[doctorId].lastName;
     }
 
-    function getLastName() public view returns(string memory) {
-        return firstName;
+    function setLastName(uint256 doctorId, string memory _lastName) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].lastName = _lastName;
     }
 
-    function setLastName(string memory _lastName) public {
-        lastName = _lastName;
+    function getEmailAddress(uint256 doctorId) public view validDoctorId(doctorId) ownerOnly(doctorId) returns(string memory) {
+        return doctors[doctorId].emailAddress;
     }
 
-    function getEmailAddress() public view returns(string memory) {
-        return firstName;
+    function setEmailAddress(uint256 doctorId, string memory _emailAddress) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].emailAddress = _emailAddress;
     }
 
-    function setEmailAddress(string memory _emailAddress) public {
-        emailAddress = _emailAddress;
+    function getDob(uint256 doctorId) public view validDoctorId(doctorId) ownerOnly(doctorId) returns(string memory) {
+        return doctors[doctorId].dob;
     }
 
-    function getDob() public view returns(string memory) {
-        return firstName;
-    }
-
-    function setDob(string memory _dob) public {
-        dob = _dob;
-    }
-
-    function getQualifications() public view returns (address[] memory) {
-        return qualifications;
-    }
-
-    function addQualification(address _qualification) public {
-        qualifications.push(_qualification);
-    }
-
-    // Updating
-
-    function updateFirstName(string memory newFirstName) public {
-        require(msg.sender == owner, "This doctor record does not belong to you!");
-        setFirstName(newFirstName);
-    }
-
-    function updateLastName(string memory newLastName) public {
-        require(msg.sender == owner, "This doctor record does not belong to you!");
-        setLastName(newLastName);
-    }
-
-    function updateEmailAddress(string memory newEmailAddress) public {
-        require(msg.sender == owner, "This doctor record does not belong to you!");
-        setEmailAddress(newEmailAddress);
-    }
-
-    function updateDOB(string memory newDOB) public {
-        require(msg.sender == owner, "This doctor record does not belong to you!");
-        setDob(newDOB);
+    function setDob(uint256 doctorId, string memory _dob) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].dob = _dob;
     }
 }
