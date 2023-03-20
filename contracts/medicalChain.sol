@@ -9,13 +9,13 @@ contract medicalChain {
   Doctor doctor;
   Nurse nurse;
     
-  struct Record { 
-    string cid;
-    string fileName; 
-    address patientId;
-    address doctorId;
-    uint256 timeAdded;
-  }
+  // struct Record { 
+  //   string cid;
+  //   string fileName; 
+  //   address patientId;
+  //   address doctorId;
+  //   uint256 timeAdded;
+  // }
 
   // struct Patient {
   //   address id;
@@ -66,10 +66,10 @@ contract medicalChain {
   // }
 
   // to ensure sender is the one who wrote on the chain (for secondary access)
-  modifier senderIsWriter(Record memory record) {
-    require(record.doctorId == msg.sender, "Sender is not the writer(doctor) of the Record");
-    _;
-  }
+  // modifier senderIsWriter(Record memory record) {
+  //   require(record.doctorId == msg.sender, "Sender is not the writer(doctor) of the Record");
+  //   _;
+  // }
 
   // modifier senderIsPatient(uint256 patientId) {
   //   require(Patient.senderIsPatient(patientId), "Sender is not the patient");
