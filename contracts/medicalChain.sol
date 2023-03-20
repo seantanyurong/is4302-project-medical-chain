@@ -186,11 +186,20 @@ contract medicalChain {
   // Edit patient profile 
 
   // Add new EHR
-  function addNewEHR(uint256 patientId, uint256 doctorId) public view returns (uint256 recordId) {
-      // Check if doctorId is inside patient's approvedDoctors
+  function addNewEHR(uint256 patientId, string memory filename) public view returns (uint256 recordId) {
+      // Check if msg.sender is doctor or nurse
+      // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
       // Check if patientId inside doctor's patients
       // Add new EHR
       // add recordId into patient and doctors records
   }
+
+  // Request to view specific record
+  function viewRecord(uint256 recordId) public view returns (EHR record) {
+      // Check if msg.sender is doctor or nurse
+      // Check if msg.sender inside record's doctors or nurses
+      // return record
+  }
+  
 }
 
