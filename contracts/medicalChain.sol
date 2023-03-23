@@ -6,10 +6,11 @@ import "./EHR.sol";
 
 contract medicalChain {
 
-  Patient patient;
-  Doctor doctor;
-  Nurse nurse;
-    
+  Patient patientContract;
+  Doctor doctorContract;
+  Nurse nurseContract;
+  EHR ehrContract;
+
   // struct Record { 
   //   string cid;
   //   string fileName; 

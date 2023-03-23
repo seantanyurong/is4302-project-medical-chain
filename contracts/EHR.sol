@@ -1,4 +1,5 @@
 pragma solidity ^0.5.0;
+pragma experimental ABIEncoderV2; // need to return ehr as a function
 
 contract EHR {
 
@@ -51,5 +52,9 @@ contract EHR {
 
     function getDoctorAddress(uint256 recordId) public view returns(address) {
         return records[recordId].doctorAddress;
+    }
+
+    function getEHRById(uint256 recordId) public view returns(ehr memory) {
+        return records[recordId];
     }    
 }
