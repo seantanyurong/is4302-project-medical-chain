@@ -173,11 +173,11 @@ contract medicalChain {
   // }
 
   function getSenderRole() public view returns (string memory) {
-    if (doctor.isSender(msg.sender)) {
+    if (doctorContract.isSender(msg.sender)) {
       return "doctor";
-    } else if (patient.isSender(msg.sender)) {
+    } else if (patientContract.isSender(msg.sender)) {
       return "patient";
-    } else if (nurse.isSender(msg.sender)) {
+    } else if (nurseContract.isSender(msg.sender)) {
       return "nurse";
     } else {
       return "unknown";
