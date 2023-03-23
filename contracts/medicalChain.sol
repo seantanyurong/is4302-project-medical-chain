@@ -196,10 +196,11 @@ contract medicalChain {
   }
 
   // Request to view specific record
-  function viewRecordFileNameByRecordID(uint256 recordId) public view returns () {
+  function viewRecordFileNameByRecordID(uint256 recordId) public view returns (string memory fileName) {
       // Check if msg.sender is doctor or nurse
       // Check if msg.sender inside record's doctors or nurses
       // return record
+      return ehrContract.getFileName(recordId);
   }
 
 }
