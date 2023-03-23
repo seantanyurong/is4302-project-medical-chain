@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 import "./Patient.sol";
 import "./Doctor.sol";
 import "./Nurse.sol";
+import "./EHR.sol";
 
 contract medicalChain {
 
@@ -184,6 +185,21 @@ contract medicalChain {
 
   // Edit patient profile 
 
-  
+  // Add new EHR
+  function addNewEHR(uint256 patientId, string memory filename) public view returns (uint256 recordId) {
+      // Check if msg.sender is doctor or nurse
+      // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
+      // Check if patientId inside doctor's patients
+      // Add new EHR
+      // add recordId into patient and doctors records
+  }
+
+  // Request to view specific record
+  function viewRecordByRecordID(uint256 recordId) public view returns (EHR record) {
+      // Check if msg.sender is doctor or nurse
+      // Check if msg.sender inside record's doctors or nurses
+      // return record
+  }
+
 }
 
