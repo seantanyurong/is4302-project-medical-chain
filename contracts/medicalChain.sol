@@ -132,19 +132,19 @@ contract medicalChain {
   // }
 
   function giveDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.giveDoctorAccess(patientId, doctorId);
+    patientContract.giveDoctorAccess(patientId, doctorId);
   }
 
   function removeDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.removeDoctorAccess(patientId, doctorId);
+    patientContract.removeDoctorAccess(patientId, doctorId);
   }
 
   function giveNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.giveNurseAccess(patientId, nurseId);
+    patientContract.giveNurseAccess(patientId, nurseId);
   }
 
   function removeNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.removeNurseAccess(patientId, nurseId);
+    patientContract.removeNurseAccess(patientId, nurseId);
   }
 
 
