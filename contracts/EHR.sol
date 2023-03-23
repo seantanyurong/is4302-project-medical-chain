@@ -1,5 +1,4 @@
 pragma solidity ^0.5.0;
-pragma experimental ABIEncoderV2; // need to return ehr as a function
 
 contract EHR {
 
@@ -43,6 +42,11 @@ contract EHR {
         require(records[ehrId].patientAddress == msg.sender);
         _;
     }
+    
+    modifier authorisedOnly(uint256 ehrId) {
+        require(records[ehrId].patientAddress == msg.sender || records[ehrId].doctorAddress == msg.sender);
+        _;
+    }
 
     // ensure valid record ID
     modifier validEHRId(uint256 ehrId) {
@@ -50,11 +54,36 @@ contract EHR {
         _;
     }
 
+    // Getters and Setters
+    function getFileName(uint256 recordId) public view returns(string memory) {
+        return records[recordId].fileName;
+    }
+
+    function setFileName(uint256 recordId, string memory _fileName) public authorisedOnly(recordId) {
+        records[recordId].fileName = _fileName;
+    }
+
+    function getPatientAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].patientAddress;
+    }
+
+    function setPatientAddress(uint256 recordId, address _patientAddress) public authorisedOnly(recordId) {
+        records[recordId].patientAddress = _patientAddress;
+    }
+
     function getDoctorAddress(uint256 recordId) public view returns(address) {
         return records[recordId].doctorAddress;
     }
 
-    function getEHRById(uint256 recordId) public view returns(ehr memory) {
-        return records[recordId];
-    }    
+    function setDoctorAddress(uint256 recordId, address _doctorAddress) public authorisedOnly(recordId) {
+        records[recordId].doctorAddress = _doctorAddress;
+    }
+
+    function getTimeAdded(uint256 recordId) public view returns(uint256) {
+        return records[recordId].timeAdded;
+    }
+
+    function setFileName(uint256 recordId, uint256 _timeAdded) public authorisedOnly(recordId) {
+        records[recordId].timeAdded = _timeAdded;
+    }
 }
