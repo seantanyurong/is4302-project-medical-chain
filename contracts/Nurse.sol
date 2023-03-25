@@ -60,6 +60,21 @@ contract Nurse {
         return false;
     }
 
+    function isPatientInListOfPatients(uint256 patientId, address owner) public view returns(bool) {
+        for (uint i = 0; i < numNurses; i++) {
+            nurse storage temp = nurses[i];
+            if (temp.owner == owner) {
+                if (temp.patients[patientId] == true) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
     // Getters and Setters
     function getFirstName(uint256 nurseId) public view validNurseId(nurseId) ownerOnly(nurseId) returns(string memory) {
         return nurses[nurseId].firstName;

@@ -6,11 +6,103 @@ import "./EHR.sol";
 
 contract medicalChain {
 
-  Patient patient;
-  Doctor doctor;
-  Nurse nurse;
-    
-  // struct Record { 
+  Patient patientContract;
+  Doctor doctorContract;
+  Nurse nurseContract;
+  EHR ehrContract;
+
+  constructor(Patient patientAddress, Doctor doctorAddress, Nurse nurseAddress, EHR ehrAddress) public {
+    patientContract = patientAddress;
+    doctorContract = doctorAddress;
+    nurseContract = nurseAddress;
+    ehrContract = ehrAddress;
+  }
+
+  event PatientAdded(address patientId);
+  event DoctorAdded(address doctorId);
+  event NurseAdded(address nurseId);
+
+  // prevent doctor from self-diagnosing, doctor cannot write on their own record
+  modifier doctorIsNotPatient(address patientId, address doctorId) {
+    require(patientId != doctorId, "Doctor should not self-diagnose");
+    _;
+  }
+
+  modifier isValidPractioner(uint256 patientId) {
+    string memory role = getSenderRole();
+    if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
+      require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
+    } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
+      require(patientContract.isApprovedNurse(patientId, msg.sender) == true, "Nurse is not in patient's list of approved nurses");
+    }
+    _;
+  }
+
+  modifier isPatientRegisteredWithPractioner(uint256 patientId) {
+    string memory role = getSenderRole();
+    if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
+      require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
+    } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
+      require(nurseContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in nurse's list of patients");
+    }
+    _;
+  }
+
+  modifier isPractionerAbleToViewRecord(uint256 recordId) {
+    require(ehrContract.getDoctorAddress(recordId) == msg.sender, "Doctor/Nurse is not able to view this record as they are not the issuer");
+    _;
+  }
+
+  function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
+    patientContract.giveDoctorAccess(patientId, doctorAddress);
+  }
+
+  function removeDoctorAccess(uint256 patientId, address doctorAddress) public {
+    patientContract.removeDoctorAccess(patientId, doctorAddress);
+  }
+
+  function giveNurseAccess(uint256 patientId, address nurseAddress) public {
+    patientContract.giveNurseAccess(patientId, nurseAddress);
+  }
+
+  function removeNurseAccess(uint256 patientId, address nurseAddress) public {
+    patientContract.removeNurseAccess(patientId, nurseAddress);
+  }
+
+  function getSenderRole() public view returns (string memory) {
+    if (doctorContract.isSender(msg.sender)) {
+      return "doctor";
+    } else if (patientContract.isSender(msg.sender)) {
+      return "patient";
+    } else if (nurseContract.isSender(msg.sender)) {
+      return "nurse";
+    } else {
+      return "unknown";
+    }
+  }
+
+  // Edit patient profile 
+
+  // Add new EHR
+  function addNewEHR(uint256 patientId, string memory filename) public view isValidPractioner(patientId) isPatientRegisteredWithPractioner(patientId) returns (uint256 recordId) {
+
+      // Check if msg.sender is doctor or nurse
+      // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
+      // Check if patientId inside doctor's patients
+      // Add new EHR
+      // add recordId into patient and doctors records
+  }
+
+  // Request to view specific record
+  function viewRecordByRecordID(uint256 recordId) public view isPractionerAbleToViewRecord(recordId) returns (uint256 id,
+        string memory fileName,
+        address patientAddress,
+        address doctorAddress,
+        uint256 timeAdded) {
+      return ehrContract.getRecord(recordId);
+  }
+
+    // struct Record { 
   //   string cid;
   //   string fileName; 
   //   address patientId;
@@ -36,10 +128,6 @@ contract medicalChain {
   // mapping (address => Patient) public patients;
   // mapping (address => Doctor) public doctors;
   // mapping (address => Nurse) public nurses;
-
-  event PatientAdded(address patientId);
-  event DoctorAdded(address doctorId);
-  event NurseAdded(address nurseId);
 
   // modifier senderExists {
   //   require(doctors[msg.sender].id == msg.sender|| nurses[msg.sender].id == msg.sender || patients[msg.sender].id == msg.sender, "Sender does not exist");
@@ -76,12 +164,6 @@ contract medicalChain {
   //   require(Patient.senderIsPatient(patientId), "Sender is not the patient");
   //   _;
   // }
-
-  // prevent doctor from self-diagnosing, doctor cannot write on their own record
-  modifier doctorIsNotPatient(address patientId, address doctorId) {
-    require(patientId != doctorId, "Doctor should not self-diagnose");
-    _;
-  }
 
   // msg.sender will be the patient
   // function addPatient() public {
@@ -130,24 +212,6 @@ contract medicalChain {
   //   p.doctorsWithAccess[doctorId] = d;
   // }
 
-  function giveDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.giveDoctorAccess(patientId, doctorId);
-  }
-
-  function removeDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.removeDoctorAccess(patientId, doctorId);
-  }
-
-  function giveNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.giveNurseAccess(patientId, nurseId);
-  }
-
-  function removeNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.removeNurseAccess(patientId, nurseId);
-  }
-
-
-
   // patient calls the function
   // function giveNurseAccess(address nurseId) public 
   //   senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
@@ -170,36 +234,6 @@ contract medicalChain {
   //   Patient storage p = patients[msg.sender];
   //   delete p.nursesWithAccess[nurseId];
   // }
-
-  function getSenderRole() public view returns (string memory) {
-    if (doctor.isSender(msg.sender)) {
-      return "doctor";
-    } else if (patient.isSender(msg.sender)) {
-      return "patient";
-    } else if (nurse.isSender(msg.sender)) {
-      return "nurse";
-    } else {
-      return "unknown";
-    }
-  }
-
-  // Edit patient profile 
-
-  // Add new EHR
-  function addNewEHR(uint256 patientId, string memory filename) public view returns (uint256 recordId) {
-      // Check if msg.sender is doctor or nurse
-      // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
-      // Check if patientId inside doctor's patients
-      // Add new EHR
-      // add recordId into patient and doctors records
-  }
-
-  // Request to view specific record
-  function viewRecordByRecordID(uint256 recordId) public view returns (EHR record) {
-      // Check if msg.sender is doctor or nurse
-      // Check if msg.sender inside record's doctors or nurses
-      // return record
-  }
 
 }
 

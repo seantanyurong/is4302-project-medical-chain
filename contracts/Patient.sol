@@ -1,4 +1,4 @@
-pragma solidity >= 0.5.0;
+pragma solidity ^0.5.0;
 
 contract Patient {
 
@@ -9,9 +9,9 @@ contract Patient {
         string lastName;
         string emailAddress;
         string dob;
-        mapping(uint256 => bool) approvedDoctors;
-        mapping(uint256 => bool) approvedNurses;
-        mapping(uint256 => bool) records;
+        mapping(address => bool) approvedDoctors;
+        mapping(address => bool) approvedNurses;
+        mapping(address => bool) records;
         address secondaryUser;
     }
 
@@ -23,7 +23,7 @@ contract Patient {
 
         uint256 newPatientId = numPatients++;
 
-        patient memory newPatient;
+        patient storage newPatient = patients[newPatientId];
         newPatient.patientId = newPatientId;
         newPatient.owner = msg.sender;
         newPatient.firstName = _firstName;
@@ -32,7 +32,6 @@ contract Patient {
         newPatient.dob = _dob;
         newPatient.secondaryUser = _secondaryUser;
 
-        patients[newPatientId] = newPatient;
         return newPatientId;
     }
 
@@ -58,6 +57,14 @@ contract Patient {
     //     return patients[patientId].owner == tx.origin;
     // }
 
+    function isApprovedDoctor(uint256 patientId, address doctorAddress) public view returns (bool) {
+        return patients[patientId].approvedDoctors[doctorAddress];
+    }
+
+    function isApprovedNurse(uint256 patientId, address nurseAddress) public view returns (bool) {
+        return patients[patientId].approvedNurses[nurseAddress];
+    }
+
     // Loop through existing senders to check if address is a sender
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numPatients; i++) {
@@ -70,20 +77,20 @@ contract Patient {
         return false;
     }
 
-    function giveDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) ownerOnly(patientId) {
-        patients[patientId].approvedDoctors[doctorId] = true;
+    function giveDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedDoctors[doctorAddress] = true;
     }
 
-    function removeDoctorAccess(uint256 patientId, uint256 doctorId) public validPatientId(patientId) ownerOnly(patientId) {
-        patients[patientId].approvedDoctors[doctorId] = false;
+    function removeDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedDoctors[doctorAddress] = false;
     }
 
-    function giveNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) ownerOnly(patientId) {
-        patients[patientId].approvedNurses[nurseId] = true;
+    function giveNurseAccess(uint256 patientId, address nurseAddress) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedNurses[nurseAddress] = true;
     }
 
-    function removeNurseAccess(uint256 patientId, uint256 nurseId) public validPatientId(patientId) ownerOnly(patientId) {
-        patients[patientId].approvedNurses[nurseId] = false;
+    function removeNurseAccess(uint256 patientId, address nurseAddress) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedNurses[nurseAddress] = false;
     }
 
     // Getters and setters

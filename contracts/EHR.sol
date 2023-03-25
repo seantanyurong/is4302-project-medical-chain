@@ -51,5 +51,13 @@ contract EHR {
 
     function getDoctorAddress(uint256 recordId) public view returns(address) {
         return records[recordId].doctorAddress;
-    }    
+    }
+
+    function getRecord(uint256 recordId) public view returns(uint256 id,
+        string memory fileName,
+        address patientAddress,
+        address doctorAddress,
+        uint256 timeAdded) {
+        return (records[recordId].recordId, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
+    }
 }
