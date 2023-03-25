@@ -5,9 +5,17 @@ import "./Nurse.sol";
 
 contract medicalChain {
 
-  Patient patient;
-  Doctor doctor;
-  Nurse nurse;
+  Patient patientContract;
+  Doctor doctorContract;
+  Nurse nurseContract;
+  EHR ehrContract;
+
+  constructor(Patient patientAddress, Doctor doctorAddress, Nurse nurseAddress, EHR ehrAddress) public {
+        patientContract = patientAddress;
+        doctorContract = doctorAddress;
+        nurseContract = nurseAddress;
+        ehrContract = ehrAddress;
+    }
     
   // struct Record { 
   //   string cid;
@@ -17,7 +25,7 @@ contract medicalChain {
   //   uint256 timeAdded;
   // }
 
-  // struct Patient {
+  // struct patientContract {
   //   address id;
   //   mapping(uint256 => Record) records;
   //   mapping(address => Doctor) doctorsWithAccess;
@@ -32,7 +40,7 @@ contract medicalChain {
   //   address id;
   // }
 
-  // mapping (address => Patient) public patients;
+  // mapping (address => patientContract) public patients;
   // mapping (address => Doctor) public doctors;
   // mapping (address => Nurse) public nurses;
 
@@ -46,7 +54,7 @@ contract medicalChain {
   // }
 
   // modifier patientExists(uint256 patientId) {
-  //   require(Patient.patientExists(patientId), "Patient does not exist");
+  //   require(patientContract.patientExists(patientId), "patientContract does not exist");
   //   _;
   // }
 
@@ -72,7 +80,7 @@ contract medicalChain {
   // }
 
   // modifier senderIsPatient(uint256 patientId) {
-  //   require(Patient.senderIsPatient(patientId), "Sender is not the patient");
+  //   require(patientContract.senderIsPatient(patientId), "Sender is not the patientContract");
   //   _;
   // }
 
@@ -82,11 +90,11 @@ contract medicalChain {
     _;
   }
 
-  // msg.sender will be the patient
+  // msg.sender will be the patientContract
   // function addPatient() public {
-    // require(patients[msg.sender].id != msg.sender, "This patient already exists.");
+    // require(patients[msg.sender].id != msg.sender, "This patientContract already exists.");
 
-    // Patient memory newPatient = Patient({
+    // patientContract memory newPatient = patientContract({
     //   id: msg.sender
     // });
     // patients[msg.sender] = newPatient;
@@ -120,69 +128,82 @@ contract medicalChain {
 
 
 
-  // patient calls the function
+  // patientContract calls the function
   // function giveDoctorAccess(address doctorId) public 
   //   senderIsPatient(msg.sender) doctorIsNotPatient(msg.sender, doctorId) patientExists(msg.sender) doctorExists(doctorId) {
-  //   Patient storage p = patients[msg.sender];
+  //   patientContract storage p = patients[msg.sender];
   //   Doctor memory d = doctors[doctorId];
 
   //   p.doctorsWithAccess[doctorId] = d;
   // }
 
   function giveDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.giveDoctorAccess(patientId, doctorId);
+    patientContract.giveDoctorAccess(patientId, doctorId);
   }
 
   function removeDoctorAccess(uint256 patientId, uint256 doctorId) public {
-    patient.removeDoctorAccess(patientId, doctorId);
+    patientContract.removeDoctorAccess(patientId, doctorId);
   }
 
   function giveNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.giveNurseAccess(patientId, nurseId);
+    patientContract.giveNurseAccess(patientId, nurseId);
   }
 
   function removeNurseAccess(uint256 patientId, uint256 nurseId) public {
-    patient.removeNurseAccess(patientId, nurseId);
+    patientContract.removeNurseAccess(patientId, nurseId);
   }
 
 
-
-  // patient calls the function
+  // patientContract calls the function
   // function giveNurseAccess(address nurseId) public 
   //   senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
-  //   Patient storage p = patients[msg.sender];
+  //   patientContract storage p = patients[msg.sender];
   //   Nurse memory n = nurses[nurseId];
 
   //   p.nursesWithAccess[nurseId] = n;
   // }
 
-  // patient calls the function
+  // patientContract calls the function
   // function removeDoctorAccess(address doctorId) public 
   //   senderIsPatient(msg.sender) doctorIsNotPatient(msg.sender, doctorId) patientExists(msg.sender) doctorExists(doctorId) {
-  //   Patient storage p = patients[msg.sender];
+  //   patientContract storage p = patients[msg.sender];
   //   delete p.doctorsWithAccess[doctorId];
   // }
 
-  // patient calls the function
+  // patientContract calls the function
   // function removeNurseAccess(address nurseId) public 
   //   senderIsPatient(msg.sender) patientExists(msg.sender) nurseExists(nurseId) {
-  //   Patient storage p = patients[msg.sender];
+  //   patientContract storage p = patients[msg.sender];
   //   delete p.nursesWithAccess[nurseId];
   // }
 
   function getSenderRole() public view returns (string memory) {
-    if (doctor.isSender(msg.sender)) {
+    if (doctorContract.isSender(msg.sender)) {
       return "doctor";
-    } else if (patient.isSender(msg.sender)) {
-      return "patient";
-    } else if (nurse.isSender(msg.sender)) {
+    } else if (patientContract.isSender(msg.sender)) {
+      return "patientContract";
+    } else if (nurseContract.isSender(msg.sender)) {
       return "nurse";
     } else {
       return "unknown";
     }
   }
 
-  // Edit patient profile 
+
+  function viewAllRecordsAsDoctor(uint256 patientId) public view {
+    require(patientId < patientContract.numPatients());
+    // require that doctor is approved
+
+    for (uint256 i = 0; i < ehrContract.)
+
+      // for recordids that are approved in the patient's record from Patient
+  // use that recordid to get the record from EHR
+
+  }
+
+  function
+
+  // Edit patientContract profile 
 
   
 }

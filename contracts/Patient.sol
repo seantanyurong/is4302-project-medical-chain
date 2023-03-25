@@ -9,7 +9,7 @@ contract Patient {
         string lastName;
         string emailAddress;
         string dob;
-        mapping(uint256 => bool) approvedDoctors;
+        mapping(uint256 => bool) approvedDoctors; // should this be address => bool instead?
         mapping(uint256 => bool) approvedNurses;
         mapping(uint256 => bool) records;
         address secondaryUser;
@@ -23,7 +23,7 @@ contract Patient {
 
         uint256 newPatientId = numPatients++;
 
-        patient memory newPatient;
+        patient storage newPatient = patients[numPatients++];
         newPatient.patientId = newPatientId;
         newPatient.owner = msg.sender;
         newPatient.firstName = _firstName;
@@ -31,8 +31,6 @@ contract Patient {
         newPatient.emailAddress = _emailAddress;
         newPatient.dob = _dob;
         newPatient.secondaryUser = _secondaryUser;
-
-        patients[newPatientId] = newPatient;
         return newPatientId;
     }
 
