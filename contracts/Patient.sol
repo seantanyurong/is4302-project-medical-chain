@@ -9,6 +9,7 @@ contract Patient {
         string lastName;
         string emailAddress;
         string dob;
+        bool approvedResearcher;
         mapping(address => bool) approvedDoctors;
         mapping(address => bool) approvedNurses;
         mapping(address => bool) records;
@@ -19,7 +20,7 @@ contract Patient {
     mapping(uint256 => patient) public patients;
 
     // function to create patient
-    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, address _secondaryUser) public returns(uint256) {
+    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) public returns(uint256) {
 
         uint256 newPatientId = numPatients++;
 
@@ -30,6 +31,7 @@ contract Patient {
         newPatient.lastName = _lastName;
         newPatient.emailAddress = _emailAddress;
         newPatient.dob = _dob;
+        newPatient.approvedResearcher = _approvedResearcher;
         newPatient.secondaryUser = _secondaryUser;
 
         return newPatientId;
@@ -63,6 +65,11 @@ contract Patient {
 
     function isApprovedNurse(uint256 patientId, address nurseAddress) public view returns (bool) {
         return patients[patientId].approvedNurses[nurseAddress];
+    }
+
+    // Populate this logic here
+    function getResearchPatients() public view returns (uint256 id) {
+        return 100;
     }
 
     // Loop through existing senders to check if address is a sender
@@ -125,6 +132,14 @@ contract Patient {
 
     function setDob(uint256 patientId, string memory _dob) public validPatientId(patientId) ownerOnly(patientId) {
         patients[patientId].dob = _dob;
+    }
+
+    function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) returns(bool) {
+        return patients[patientId].approvedResearcher;
+    }
+
+    function setApprovedResearcher(uint256 patientId, bool _approvedResearcher) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedResearcher = _approvedResearcher;
     }
 
     function getSecondaryUser(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(address) {

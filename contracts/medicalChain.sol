@@ -3,6 +3,8 @@ import "./Patient.sol";
 import "./Doctor.sol";
 import "./Nurse.sol";
 import "./EHR.sol";
+import "./Researcher.sol";
+
 
 contract medicalChain {
 
@@ -10,12 +12,15 @@ contract medicalChain {
   Doctor doctorContract;
   Nurse nurseContract;
   EHR ehrContract;
+  Researcher researcherContract;
 
-  constructor(Patient patientAddress, Doctor doctorAddress, Nurse nurseAddress, EHR ehrAddress) public {
+
+  constructor(Patient patientAddress, Doctor doctorAddress, Nurse nurseAddress, EHR ehrAddress, Researcher researcherAddress) public {
     patientContract = patientAddress;
     doctorContract = doctorAddress;
     nurseContract = nurseAddress;
     ehrContract = ehrAddress;
+    researcherContract = researcherAddress;
   }
 
   event PatientAdded(address patientId);
@@ -101,6 +106,15 @@ contract medicalChain {
         uint256 timeAdded) {
       return ehrContract.getRecord(recordId);
   }
+
+  // View all patients who have approved research access
+  function viewApprovedPatients() public view returns (uint256 id) {
+      return patientContract.getResearchPatients();
+  }
+
+
+}
+
 
     // struct Record { 
   //   string cid;
@@ -234,6 +248,3 @@ contract medicalChain {
   //   Patient storage p = patients[msg.sender];
   //   delete p.nursesWithAccess[nurseId];
   // }
-
-}
-
