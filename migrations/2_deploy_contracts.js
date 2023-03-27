@@ -7,15 +7,14 @@ const Patient = artifacts.require("Patient");
 module.exports = (deployer, network, accounts) => {
   deployer.then(async () => {
     await deployer.deploy(Doctor);
-    await deployer.deploy(medicalChain);
     await deployer.deploy(EHR);
     await deployer.deploy(Nurse);
     await deployer.deploy(Patient);
     await deployer.deploy(
+      medicalChain,
       Patient.address,
       Doctor.address,
       Nurse.address,
-      Patient.address,
       EHR.address
     );
   });
