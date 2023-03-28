@@ -36,7 +36,8 @@ contract Nurse {
         return newNurseId;
     }
 
-    // Modifiers
+
+    /********* MODIFIERS *********/
 
     modifier ownerOnly(uint256 nurseId) {
         require(nurses[nurseId].owner == tx.origin);
@@ -48,7 +49,9 @@ contract Nurse {
         _;
     }
 
-    // Functions
+
+    /********* FUNCTIONS *********/
+
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numNurses; i++) {
             nurse storage temp = nurses[i];
@@ -75,7 +78,9 @@ contract Nurse {
         return false;
     }
 
-    // Getters and Setters
+
+    /********* GETTERS & SETTERS *********/
+
     function getFirstName(uint256 nurseId) public view validNurseId(nurseId) ownerOnly(nurseId) returns(string memory) {
         return nurses[nurseId].firstName;
     }

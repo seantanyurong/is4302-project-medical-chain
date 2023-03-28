@@ -30,7 +30,8 @@ contract Researcher {
         return newResearcherId;
     }
 
-    // Modifiers
+
+    /********* MODIFIERS *********/
 
     modifier ownerOnly(uint256 researcherId) {
         require(researchers[researcherId].owner == tx.origin);
@@ -41,6 +42,9 @@ contract Researcher {
         require(researcherId < numResearchers);
         _;
     }
+
+
+    /********* FUNCTIONS *********/
 
     // Loop through existing senders to check if address is a sender
     function isSender(address owner) public view returns(bool) {
@@ -53,8 +57,9 @@ contract Researcher {
 
         return false;
     }
+    
 
-    // Getters and setters
+    /********* GETTERS & SETTERS *********/
 
     function getFirstName(uint256 researcherId) public view validResearcherId(researcherId) ownerOnly(researcherId) returns(string memory) {
         return researchers[researcherId].firstName;

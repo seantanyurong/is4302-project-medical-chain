@@ -37,7 +37,7 @@ contract Patient {
         return newPatientId;
     }
 
-    // Modifiers
+    /********* MODIFIERS *********/
 
     modifier ownerOnly(uint256 patientId) {
         require(patients[patientId].owner == tx.origin);
@@ -49,15 +49,8 @@ contract Patient {
         _;
     }
 
-    // Functions
 
-    // function patientExists(uint256 patientId) public view validPatientId(patientId) returns(bool) {
-    //     return patientId < numPatients;
-    // }
-
-    // function senderIsPatient(uint256 patientId) public view validPatientId(patientId) returns(bool) {
-    //     return patients[patientId].owner == tx.origin;
-    // }
+    /********* FUNCTIONS *********/
 
     function isApprovedDoctor(uint256 patientId, address doctorAddress) public view returns (bool) {
         return patients[patientId].approvedDoctors[doctorAddress];
@@ -121,7 +114,8 @@ contract Patient {
         patients[patientId].approvedNurses[nurseAddress] = false;
     }
 
-    // Getters and setters
+
+    /********* GETTERS & SETTERS *********/
 
     function getFirstName(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
         return patients[patientId].firstName;
