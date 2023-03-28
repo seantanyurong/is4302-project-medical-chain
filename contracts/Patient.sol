@@ -68,8 +68,29 @@ contract Patient {
     }
 
     // Populate this logic here
-    function getResearchPatients() public view returns (uint256 id) {
-        return 100;
+    function getResearchPatients() public view returns (uint256[] memory) {
+
+        uint256 size = 0;
+
+        // Get size since array size not mutable
+        for (uint i = 0; i < numPatients; i++) {
+            if (patients[i].approvedResearcher) {
+                size++;
+            }
+        }
+
+        uint256[] memory result = new uint256[](size);
+        uint256 count = 0;
+
+        // Loop through patients and feed approved into array
+        for (uint i = 0; i < numPatients; i++) {
+            if (patients[i].approvedResearcher) {
+                result[count] = i;
+                count++;
+            }
+        }
+
+        return result;
     }
 
     // Loop through existing senders to check if address is a sender
@@ -148,5 +169,13 @@ contract Patient {
 
     function setSecondaryUser(uint256 patientId, address _secondaryUser) public validPatientId(patientId) ownerOnly(patientId)  {
         patients[patientId].secondaryUser = _secondaryUser;
+    }
+
+    function getData(uint256 patientId) public view returns(uint256 id,
+        string memory firstName,
+        string memory lastName,
+        string memory emailAddress,
+        string memory dob) {
+        return (patients[patientId].patientId, patients[patientId].firstName, patients[patientId].lastName, patients[patientId].emailAddress, patients[patientId].dob);
     }
 }

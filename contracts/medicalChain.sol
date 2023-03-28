@@ -58,6 +58,16 @@ contract medicalChain {
     _;
   }
 
+  modifier isResearcherAbleToViewRecord(uint256 patientId) {
+    require(patientContract.getApprovedReseacher(patientId), "Patient has not approved data for research purposes");
+    _;
+  }
+
+  modifier isResearcher() {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("researcher"))));
+    _;
+  }
+
   function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
     patientContract.giveDoctorAccess(patientId, doctorAddress);
   }
@@ -81,6 +91,8 @@ contract medicalChain {
       return "patient";
     } else if (nurseContract.isSender(msg.sender)) {
       return "nurse";
+    } else if (researcherContract.isSender(msg.sender)) {
+      return "researcher";
     } else {
       return "unknown";
     }
@@ -108,8 +120,17 @@ contract medicalChain {
   }
 
   // View all patients who have approved research access
-  function viewApprovedPatients() public view returns (uint256 id) {
+  function viewApprovedPatients() public view isResearcher returns (uint256[] memory) {
       return patientContract.getResearchPatients();
+  }
+
+  // Request to view specific patient data
+  function viewPatientByPatientID(uint256 patientID) public view isResearcher isResearcherAbleToViewRecord(patientID) returns (uint256 id,
+        string memory firstName,
+        string memory lastName,
+        string memory emailAddress,
+        string memory dob) {
+      return patientContract.getData(patientID);
   }
 
 
