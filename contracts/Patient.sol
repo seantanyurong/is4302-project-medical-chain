@@ -12,7 +12,7 @@ contract Patient {
         bool approvedResearcher;
         mapping(address => bool) approvedDoctors;
         mapping(address => bool) approvedNurses;
-        mapping(address => bool) records;
+        mapping(uint256 => bool) records;
         address secondaryUser;
     }
 
@@ -36,6 +36,10 @@ contract Patient {
 
         return newPatientId;
     }
+
+    /********* EVENTS *********/
+
+    event AddressDoesNotBelongToAnyPatient();
 
     /********* MODIFIERS *********/
 
@@ -84,6 +88,21 @@ contract Patient {
         }
 
         return result;
+    }
+
+    // Patient verify record
+    function signOffRecord(uint256 patientId, uint256 recordId) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].records[recordId] = true;
+    }
+
+    // get patient's id from their address (used in medicalChain patientAcknowledgeRecord function)
+    function getPatientIdFromPatientAddress(address patientAddress) public returns (uint256) {
+        for (uint i = 0; i < numPatients; i++) {
+            if (patients[i].owner == patientAddress) {
+                return i;
+            }
+        }
+        emit AddressDoesNotBelongToAnyPatient();
     }
 
     // Loop through existing senders to check if address is a sender

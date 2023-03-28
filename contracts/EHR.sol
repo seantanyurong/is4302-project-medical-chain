@@ -3,10 +3,12 @@ pragma solidity ^0.5.0;
 contract EHR {
 
     // enum EHRstate { unverified, verified }
+    enum RecordType{ IMMUNISATION, ALLERGIES, LABORATORY_RESULTS, SCREENING_RECORDS, DISCHARGE_INFORMATION, VITAL_HEALTH_TRACKING, APPOINTMENT_INFORMATION, MEDICATIONS}
     
     struct ehr {
 
         uint256 recordId;
+        RecordType recordType;
         // EHRstate state;
         string fileName; 
         address patientAddress;
@@ -16,8 +18,10 @@ contract EHR {
     
     uint256 public numEHR = 0;
     mapping(uint256 => ehr) public records;
+    // record type -> (record type id -> records)
 
     function add(
+        RecordType recordType,
         string memory fileName,
         address patient,
         address doctor
@@ -27,6 +31,7 @@ contract EHR {
         //new EHR object
         ehr memory newEhr = ehr(
             numEHR,
+            recordType,
             fileName,
             patient,
             doctor,
@@ -60,10 +65,20 @@ contract EHR {
     }
 
     function getRecord(uint256 recordId) public view returns(uint256 id,
+        RecordType recordType,
         string memory fileName,
         address patientAddress,
         address doctorAddress,
         uint256 timeAdded) {
-        return (records[recordId].recordId, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
+        return (records[recordId].recordId, records[recordId].recordType, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
+    }
+
+    function isRecordBelongToPatient(uint256 recordId, address patientAddress) public view returns (bool) {
+        if (records[recordId].patientAddress == patientAddress) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
+

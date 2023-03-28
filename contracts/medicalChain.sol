@@ -49,6 +49,16 @@ contract medicalChain {
     _;
   }
 
+  modifier isCorrectPatient() {
+    require(patientContract.isSender(msg.sender) == true, "Patient is not allowed to view this patient record");
+    _;
+  }
+
+  modifier isRecordBelongToPatient(uint256 recordId) {
+    require(ehrContract.isRecordBelongToPatient(recordId, msg.sender) == true, "Record does not belong to this patient");
+    _;
+  }
+
   modifier isPatientRegisteredWithPractioner(uint256 patientId) {
     string memory role = getSenderRole();
     if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
@@ -119,6 +129,7 @@ contract medicalChain {
 
   // Request to view specific record
   function viewRecordByRecordID(uint256 recordId) public view isPractionerAbleToViewRecord(recordId) returns (uint256 id,
+        EHR.RecordType recordType,
         string memory fileName,
         address patientAddress,
         address doctorAddress,
@@ -140,5 +151,31 @@ contract medicalChain {
       return patientContract.getData(patientID);
   }
 
+  /* 
+To do: Aaron
+
+  function filterRecordsByRecordType(EHR.RecordType recordType) public view isCorrectPatient() returns (records) {
+    // with bool[] of i -> bool, those with true are records with that record type
+    // qns: how to output the records? (concern: multiple)
+  }
+
+  function checkRecordType(EHR.RecordType recordType) public pure returns(bool[] memory){ // change on what you need to return
+
+    bool[] memory checker; // change on what you need to return
+
+    // for loop through length of all records
+    // check for each record that record type = stated record type
+    // mark that id as true
+    // return the bool[]
+    return checker;
+}
+
+*/
+
+// Patient: Acknowledge a record that is added to his medical records
+function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {
+  uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
+  patientContract.signOffRecord(patientId, recordId);
+}
 
 }
