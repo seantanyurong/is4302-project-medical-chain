@@ -38,6 +38,9 @@ contract EHR {
         return newEhrId;   //return new ehrId
     }
 
+
+    /********* MODIFIERS *********/
+
     modifier patientOnly(uint256 ehrId) {
         require(records[ehrId].patientAddress == msg.sender);
         _;
@@ -48,6 +51,9 @@ contract EHR {
         require(ehrId < numEHR);
         _;
     }
+
+
+    /********* FUNCTIONS *********/
 
     function getDoctorAddress(uint256 recordId) public view returns(address) {
         return records[recordId].doctorAddress;
