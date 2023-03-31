@@ -3,10 +3,12 @@ pragma solidity ^0.5.0;
 contract EHR {
 
     // enum EHRstate { unverified, verified }
+    enum RecordType{ IMMUNISATION, ALLERGIES, LABORATORY_RESULTS, SCREENING_RECORDS, DISCHARGE_INFORMATION, VITAL_HEALTH_TRACKING, APPOINTMENT_INFORMATION, MEDICATIONS}
     
     struct ehr {
 
         uint256 recordId;
+        RecordType recordType;
         // EHRstate state;
         string fileName; 
         address patientAddress;
@@ -16,8 +18,10 @@ contract EHR {
     
     uint256 public numEHR = 0;
     mapping(uint256 => ehr) public records;
+    // record type -> (record type id -> records)
 
     function add(
+        RecordType recordType,
         string memory fileName,
         address patient,
         address doctor
@@ -27,6 +31,7 @@ contract EHR {
         //new EHR object
         ehr memory newEhr = ehr(
             numEHR,
+            recordType,
             fileName,
             patient,
             doctor,
@@ -38,13 +43,11 @@ contract EHR {
         return newEhrId;   //return new ehrId
     }
 
+
+    /********* MODIFIERS *********/
+
     modifier patientOnly(uint256 ehrId) {
         require(records[ehrId].patientAddress == msg.sender);
-        _;
-    }
-    
-    modifier authorisedOnly(uint256 ehrId) {
-        require(records[ehrId].patientAddress == msg.sender || records[ehrId].doctorAddress == msg.sender);
         _;
     }
 
@@ -54,36 +57,33 @@ contract EHR {
         _;
     }
 
-    // Getters and Setters
-    function getFileName(uint256 recordId) public view returns(string memory) {
-        return records[recordId].fileName;
-    }
 
-    function setFileName(uint256 recordId, string memory _fileName) public authorisedOnly(recordId) {
-        records[recordId].fileName = _fileName;
-    }
-
-    function getPatientAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].patientAddress;
-    }
-
-    function setPatientAddress(uint256 recordId, address _patientAddress) public authorisedOnly(recordId) {
-        records[recordId].patientAddress = _patientAddress;
-    }
+    /********* FUNCTIONS *********/
 
     function getDoctorAddress(uint256 recordId) public view returns(address) {
         return records[recordId].doctorAddress;
     }
 
-    function setDoctorAddress(uint256 recordId, address _doctorAddress) public authorisedOnly(recordId) {
-        records[recordId].doctorAddress = _doctorAddress;
+    function getRecord(uint256 recordId) public view returns(uint256 id,
+        RecordType recordType,
+        string memory fileName,
+        address patientAddress,
+        address doctorAddress,
+        uint256 timeAdded) {
+        return (records[recordId].recordId, records[recordId].recordType, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
     }
 
-    function getTimeAdded(uint256 recordId) public view returns(uint256) {
-        return records[recordId].timeAdded;
+    function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
+        // Patient & Doctor address and timeAdded should not be editable
+        records[recordId].recordType = recordType;
+        records[recordId].fileName = fileName;
     }
 
-    function setFileName(uint256 recordId, uint256 _timeAdded) public authorisedOnly(recordId) {
-        records[recordId].timeAdded = _timeAdded;
+    function isRecordBelongToPatient(uint256 recordId, address patientAddress) public view returns (bool) {
+        if (records[recordId].patientAddress == patientAddress) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
