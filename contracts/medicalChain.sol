@@ -137,6 +137,11 @@ contract medicalChain {
       return ehrContract.getRecord(recordId);
   }
 
+  // Request to update specific record - update RecordType and fileName
+  function updateRecordByRecordID(uint256 recordId, EHR.RecordType recordType, string memory fileName) public isPractionerAbleToViewRecord(recordId) {
+    ehrContract.updateRecord(recordId, recordType, fileName);
+  }
+
   // Researcher: View all patients who have approved research access
   function viewApprovedPatients() public view isResearcher returns (uint256[] memory) {
       return patientContract.getResearchPatients();
