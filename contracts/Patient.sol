@@ -199,4 +199,8 @@ contract Patient {
         string memory dob) {
         return (patients[patientId].patientId, patients[patientId].firstName, patients[patientId].lastName, patients[patientId].emailAddress, patients[patientId].dob);
     }
+
+    function getPatientAddress(uint256 patientId) public view validPatientId(patientId) returns(address) {
+        return patients[patientId].owner;
+    }
 }
