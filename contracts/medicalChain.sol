@@ -177,6 +177,13 @@ To do: Aaron
 
 */
 
+// View all records belonging to this patient
+/*
+function filterRecordsByPatient(uint256 patientId) public view isCorrectPatient() returns (records) {
+
+}
+*/
+
 // Patient: Acknowledge a record that is added to his medical records
 function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {
   uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
