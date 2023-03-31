@@ -73,6 +73,12 @@ contract EHR {
         return (records[recordId].recordId, records[recordId].recordType, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
     }
 
+    function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
+        // Patient & Doctor address and timeAdded should not be editable
+        records[recordId].recordType = recordType;
+        records[recordId].fileName = fileName;
+    }
+
     function isRecordBelongToPatient(uint256 recordId, address patientAddress) public view returns (bool) {
         if (records[recordId].patientAddress == patientAddress) {
             return true;
