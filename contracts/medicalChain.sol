@@ -24,7 +24,7 @@ contract medicalChain {
   }
 
   uint256[] recordIds;
-
+  uint256[] patientRecordId;
   /********* EVENTS *********/  
 
   event PatientAdded(address patientId);
@@ -132,7 +132,7 @@ contract medicalChain {
       uint256 recordId = ehrContract.add(recordType, filename, patientAddress, msg.sender);
 
       recordIds.push(recordId);
-      
+
       patientContract.addEhr(patientId, recordId);
 
       return recordId;
@@ -189,18 +189,37 @@ To do: Aaron
 */
 
 // View all records belonging to this patient
-/*
-function filterRecordsByPatient(uint256 patientId) public view isCorrectPatient() returns (records) {
-
+// Returns all the recordIds
+function filterRecordsByPatient(uint256 patientId) public isCorrectPatient() returns (uint256[] memory) {
+  delete patientRecordId;
+  for (uint i = 0; i < recordIds.length; i++) {
+    uint256 currRecordId = recordIds[i];
+    address patientAddress = ehrContract.getPatientAddress(currRecordId);
+    uint256 thisPatientId = patientContract.getPatientIdFromPatientAddress(patientAddress);
+    if (thisPatientId == patientId) {
+      patientRecordId.push(currRecordId);
+    }
+  }
+  return patientRecordId;
 }
-*/
+
 
 // View all records signed off by certain practitioner
-/*
-function filterRecordsByPractitioner(uint256 practitionerId) public view isCorrectPatient() returns (records) {
 
-}
-*/
+function filterRecordsByPractitioner(uint256 practitionerId) public isCorrectPatient() returns (uint256[] memory) {
+  delete patientRecordId;
+  for (uint i = 0; i < recordIds.length; i++) {
+    uint256 currRecordId = recordIds[i];
+    address doctorAddress = ehrContract.getDoctorAddress(currRecordId);
+    uint256 thisPractitionerId = doctorContract.getDoctorIdFromDoctorAddress(doctorAddress);
+    if (thisPractitionerId == practitionerId) {
+      patientRecordId.push(currRecordId);
+    }
+  }
+  return patientRecordId;
+  }
+
+
 
 // Patient: Acknowledge a record that is added to his medical records
 function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {
