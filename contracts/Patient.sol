@@ -86,6 +86,10 @@ contract Patient {
         patients[patientId].approvedNurses[nurseId] = false;
     }
 
+    function addEhr(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
+        patients[patientId].records[recordId] = true;
+    }
+
     // Getters and setters
 
     function getFirstName(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
@@ -126,5 +130,9 @@ contract Patient {
 
     function setSecondaryUser(uint256 patientId, address _secondaryUser) public validPatientId(patientId) ownerOnly(patientId)  {
         patients[patientId].secondaryUser = _secondaryUser;
+    }
+
+    function getPatientAddress(uint256 patientId) public view validPatientId(patientId) returns(address) {
+        return patients[patientId].owner;
     }
 }

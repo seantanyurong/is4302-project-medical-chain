@@ -187,12 +187,19 @@ contract medicalChain {
   // Edit patient profile 
 
   // Add new EHR
-  function addNewEHR(uint256 patientId, string memory filename) public view returns (uint256 recordId) {
+  function addNewEHR(uint256 patientId, string memory filename) public payable returns (uint256 recordId) {
       // Check if msg.sender is doctor or nurse
       // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
       // Check if patientId inside doctor's patients
       // Add new EHR
       // add recordId into patient and doctors records
+
+      address patientAddress = patientContract.getPatientAddress(patientId);
+      uint256 recordId = ehrContract.add(filename, patientAddress, msg.sender);
+
+      patientContract.addEhr(patientId, recordId);
+
+      return recordId;
   }
 
   // Request to view specific record
