@@ -64,6 +64,10 @@ contract EHR {
         return records[recordId].doctorAddress;
     }
 
+    function getPatientAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].patientAddress;
+    }
+
     function getRecord(uint256 recordId) public view returns(uint256 id,
         RecordType recordType,
         string memory fileName,

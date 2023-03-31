@@ -70,7 +70,7 @@ contract medicalChain {
   }
 
   modifier isPractionerAbleToViewRecord(uint256 recordId) {
-    require(ehrContract.getDoctorAddress(recordId) == msg.sender, "Doctor/Nurse is not able to view this record as they are not the issuer");
+    require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Doctor/Nurse is not able to view this record as they are not the issuer");
     _;
   }
 

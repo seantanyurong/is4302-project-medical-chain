@@ -172,6 +172,10 @@ contract Patient {
         patients[patientId].dob = _dob;
     }
 
+    function isDoctorApproved(uint256 patientId, address doctorAddress) public view returns(bool) {
+        return patients[patientId].approvedDoctors[doctorAddress];
+    }
+
     function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) returns(bool) {
         return patients[patientId].approvedResearcher;
     }
