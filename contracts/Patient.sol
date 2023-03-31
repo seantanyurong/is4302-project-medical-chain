@@ -86,7 +86,6 @@ contract Patient {
                 count++;
             }
         }
-
         return result;
     }
 

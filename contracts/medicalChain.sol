@@ -23,6 +23,8 @@ contract medicalChain {
     researcherContract = researcherAddress;
   }
 
+  uint256[] recordIds;
+
   /********* EVENTS *********/  
 
   event PatientAdded(address patientId);
@@ -118,7 +120,7 @@ contract medicalChain {
   }
 
   // Add new EHR
-  function addNewEHR(uint256 patientId, string memory filename) public payable isValidPractioner(patientId) isPatientRegisteredWithPractioner(patientId) returns (uint256 recordId) {
+  function addNewEHR(EHR.RecordType recordType, uint256 patientId, string memory filename) public payable isValidPractioner(patientId) isPatientRegisteredWithPractioner(patientId) returns (uint256 recordId) {
 
       // Check if msg.sender is doctor or nurse
       // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
@@ -127,15 +129,17 @@ contract medicalChain {
       // add recordId into patient and doctors records
 
       address patientAddress = patientContract.getPatientAddress(patientId);
-      uint256 recordId = ehrContract.add(filename, patientAddress, msg.sender);
+      uint256 recordId = ehrContract.add(recordType, filename, patientAddress, msg.sender);
 
+      recordIds.push(recordId);
+      
       patientContract.addEhr(patientId, recordId);
 
       return recordId;
   }
 
   // Request to view specific record
-  function viewRecordByRecordID(uint256 recordId) public view isPractionerAbleToViewRecord(recordId) returns (uint256 id,
+  function viewRecordByRecordID(uint256 recordId) public isPractionerAbleToViewRecord(recordId) returns (uint256 id,
         EHR.RecordType recordType,
         string memory fileName,
         address patientAddress,
