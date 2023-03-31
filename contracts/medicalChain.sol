@@ -184,6 +184,13 @@ function filterRecordsByPatient(uint256 patientId) public view isCorrectPatient(
 }
 */
 
+// View all records signed off by certain practitioner
+/*
+function filterRecordsByPractitioner(uint256 practitionerId) public view isCorrectPatient() returns (records) {
+
+}
+*/
+
 // Patient: Acknowledge a record that is added to his medical records
 function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {
   uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
