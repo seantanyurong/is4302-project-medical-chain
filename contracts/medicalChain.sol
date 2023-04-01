@@ -28,6 +28,7 @@ contract medicalChain {
   event PatientAdded(address patientId);
   event DoctorAdded(address doctorId);
   event NurseAdded(address nurseId);
+  event testEvent(uint256 test);
 
 
 
@@ -115,6 +116,10 @@ contract medicalChain {
 
   function removeNurseAccess(uint256 patientId, address nurseAddress) public {
     patientContract.removeNurseAccess(patientId, nurseAddress);
+  }
+
+  function testingTest(uint256 test) public {
+    emit testEvent(test);
   }
 
   // Add new EHR
