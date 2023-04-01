@@ -22,6 +22,8 @@ contract Patient {
     // function to create patient
     function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) public returns(uint256) {
 
+        emit testTrigger();
+
         uint256 newPatientId = numPatients++;
 
         patient storage newPatient = patients[newPatientId];
@@ -34,12 +36,15 @@ contract Patient {
         newPatient.approvedResearcher = _approvedResearcher;
         newPatient.secondaryUser = _secondaryUser;
 
+        emit PatientAdded(newPatient.owner);
         return newPatientId;
     }
 
     /********* EVENTS *********/
 
     event AddressDoesNotBelongToAnyPatient();
+    event PatientAdded(address patientId);
+    event testTrigger();
 
     /********* MODIFIERS *********/
 
@@ -152,7 +157,8 @@ contract Patient {
         patients[patientId].lastName = _lastName;
     }
 
-    function getEmailAddress(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+    function getEmailAddress(uint256 patientId) public validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
+        emit testTrigger();
         return patients[patientId].emailAddress;
     }
 

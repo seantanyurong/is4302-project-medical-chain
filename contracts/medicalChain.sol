@@ -31,7 +31,6 @@ contract medicalChain {
   event testEvent(uint256 test);
 
 
-
   /********* MODIFIERS *********/
 
   // prevent doctor from self-diagnosing, doctor cannot write on their own record
