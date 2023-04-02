@@ -49,8 +49,13 @@ contract medicalChain {
     _;
   }
 
+  modifier isValidPatientId(uint256 patientId) {
+    require(patientContract.isValidPatientId(patientId) == true, "Patient ID given is not valid");
+    _;
+  }
+
   modifier isCorrectPatient() {
-    require(patientContract.isSender(msg.sender) == true, "Patient is not allowed to view this patient record");
+    require(patientContract.isSender(msg.sender) == true, "Patient is not allowed to do this action");
     _;
   }
 
@@ -151,26 +156,57 @@ contract medicalChain {
       return patientContract.getData(patientID);
   }
 
-  /* 
-To do: Aaron
+  // Patient: View all records that are acknowledged by patient
+  function viewAllRecords(uint256 patientId) public view isCorrectPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+    // only when it is signed off, then it is counted
+    // if need to be counted regardless of signed off, increment it in addNewEHR function
+    uint256 patientNoOfRecords = patientContract.getRecordsCount(patientId);
+    uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+      // record belongs to patient calling it AND whether the record is acknowledged
+      if (ehrContract.isRecordBelongToPatient(i, msg.sender) && patientContract.isRecordAcknowledged(patientId, i)) {
+        patientRecordsId[indexTracker] = i;
+        indexTracker++;
+      }
+    }
 
-  function filterRecordsByRecordType(EHR.RecordType recordType) public view isCorrectPatient() returns (records) {
-    // with bool[] of i -> bool, those with true are records with that record type
-    // qns: how to output the records? (concern: multiple)
+    return patientRecordsId;
   }
 
-  function checkRecordType(EHR.RecordType recordType) public pure returns(bool[] memory){ // change on what you need to return
+  // Patient: Filter records by record type
+  function filterRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isCorrectPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = viewAllRecords(patientId);
+    uint256 noOfPatientRecords = patientContract.getRecordsCount(patientId);
+    uint256 noOfFilteredRecords = numberOfRecordType(patientId, recordType);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfFilteredRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchRecordType(currentRecordId, recordType)) {
+        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+        indexTracker++;
+      }
+    }
 
-    bool[] memory checker; // change on what you need to return
+    return patientRecordsIdFiltered;
+  }
 
-    // for loop through length of all records
-    // check for each record that record type = stated record type
-    // mark that id as true
-    // return the bool[]
-    return checker;
+  // Patient: Helper function to check how many records fulfilling the given record type for a patient
+  function numberOfRecordType(uint256 patientId, EHR.RecordType recordType) public view isCorrectPatient() isValidPatientId(patientId) returns(uint256){ // change on what you need to return
+    uint256[] memory patientRecordsId = viewAllRecords(patientId);
+    uint256 noOfPatientRecords = patientContract.getRecordsCount(patientId);
+    uint256 noOfRecordsMatchingRecordType = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchRecordType(currentRecordId, recordType)) {
+        noOfRecordsMatchingRecordType++;
+      }
+    }
+
+    return noOfRecordsMatchingRecordType;
 }
 
-*/
 
 // Patient: Acknowledge a record that is added to his medical records
 function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {

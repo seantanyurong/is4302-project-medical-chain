@@ -13,6 +13,7 @@ contract Patient {
         mapping(address => bool) approvedDoctors;
         mapping(address => bool) approvedNurses;
         mapping(uint256 => bool) records;
+        uint256 recordsCount;
         address secondaryUser;
     }
 
@@ -32,6 +33,7 @@ contract Patient {
         newPatient.emailAddress = _emailAddress;
         newPatient.dob = _dob;
         newPatient.approvedResearcher = _approvedResearcher;
+        newPatient.recordsCount = 0;
         newPatient.secondaryUser = _secondaryUser;
 
         return newPatientId;
@@ -55,6 +57,14 @@ contract Patient {
 
 
     /********* FUNCTIONS *********/
+
+    function isValidPatientId(uint256 patientId) public view returns (bool) {
+        if (patientId < numPatients) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     function isApprovedDoctor(uint256 patientId, address doctorAddress) public view returns (bool) {
         return patients[patientId].approvedDoctors[doctorAddress];
@@ -93,6 +103,7 @@ contract Patient {
     // Patient verify record
     function signOffRecord(uint256 patientId, uint256 recordId) public validPatientId(patientId) ownerOnly(patientId) {
         patients[patientId].records[recordId] = true;
+        patients[patientId].recordsCount++;
     }
 
     // get patient's id from their address (used in medicalChain patientAcknowledgeRecord function)
@@ -103,6 +114,11 @@ contract Patient {
             }
         }
         emit AddressDoesNotBelongToAnyPatient();
+    }
+
+    // checked the record is acknowledged by patient
+    function isRecordAcknowledged(uint256 patientId, uint256 recordId) public view validPatientId(patientId) ownerOnly(patientId) returns(bool) {
+        return patients[patientId].records[recordId];
     }
 
     // Loop through existing senders to check if address is a sender
@@ -168,12 +184,20 @@ contract Patient {
         patients[patientId].dob = _dob;
     }
 
-    function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) returns(bool) {
+    function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) ownerOnly(patientId) returns(bool) {
         return patients[patientId].approvedResearcher;
     }
 
     function setApprovedResearcher(uint256 patientId, bool _approvedResearcher) public validPatientId(patientId) ownerOnly(patientId) {
         patients[patientId].approvedResearcher = _approvedResearcher;
+    }
+
+    function getRecordsCount(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(uint256) {
+        return patients[patientId].recordsCount;
+    }
+    
+    function setRecordsCount(uint256 patientId, uint256 _recordsCount) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].recordsCount = _recordsCount;
     }
 
     function getSecondaryUser(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(address) {
