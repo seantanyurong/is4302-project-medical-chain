@@ -33,9 +33,13 @@ contract Nurse {
         newNurse.dob = _dob;
 
         nurses[newNurseId] = newNurse;
+        emit NurseAdded(newNurse.owner);
         return newNurseId;
     }
 
+    /********* EVENTS *********/
+
+    event NurseAdded(address nurseAddress);
 
     /********* MODIFIERS *********/
 

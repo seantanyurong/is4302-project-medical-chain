@@ -74,7 +74,7 @@
   "sourceMap": "34:483:2:-;;;189:50;8:9:-1;5:2;;;30:1;27;20:12;5:2;189:50:2;224:10;216:5;;:18;;;;;;;;;;;;;;;;;;34:483;;;;;;",
   "deployedSourceMap": "34:483:2:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;34:483:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;350:165;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;350:165:2;;;;;;;;;;;;;;;;;;;:::i;:::-;;82:39;;;:::i;:::-;;;;;;;;;;;;;;;;;;;58:20;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;243:103;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;243:103:2;;;;;;;;;;;;;;;;;:::i;:::-;;350:165;172:5;;;;;;;;;;;158:19;;:10;:19;;;154:26;;;412:19;445:11;412:45;;463:8;:21;;;485:24;;463:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;463:47:2;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;463:47:2;;;;179:1;154:26;350:165;:::o;82:39::-;;;;:::o;58:20::-;;;;;;;;;;;;;:::o;243:103::-;172:5;;;;;;;;;;;158:19;;:10;:19;;;154:26;;;332:9;305:24;:36;;;;154:26;243:103;:::o",
   "source": "pragma solidity >=0.4.22 <0.7.0;\n\ncontract Migrations {\n  address public owner;\n  uint256 public last_completed_migration;\n\n  modifier restricted() {\n    if (msg.sender == owner) _;\n  }\n\n  constructor() public {\n    owner = msg.sender;\n  }\n\n  function setCompleted(uint completed) public restricted {\n    last_completed_migration = completed;\n  }\n\n  function upgrade(address new_address) public restricted {\n    Migrations upgraded = Migrations(new_address);\n    upgraded.setCompleted(last_completed_migration);\n  }\n}",
-  "sourcePath": "/Users/seantan/Documents/Code/School/IS4302/project/contracts/Migrations.sol",
+  "sourcePath": "/Users/aaronf/IS4302/is4302-project-medical-chain/contracts/Migrations.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migrations.sol",
     "exportedSymbols": {
@@ -191,7 +191,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 3255,
+                        "referencedDeclaration": 3256,
                         "src": "158:3:2",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -295,7 +295,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 3255,
+                        "referencedDeclaration": 3256,
                         "src": "224:3:2",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -879,7 +879,7 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 3255,
+                                  "referencedDeclaration": 3256,
                                   "type": "msg",
                                   "value": "msg"
                                 },
@@ -1016,7 +1016,7 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 3255,
+                                  "referencedDeclaration": 3256,
                                   "type": "msg",
                                   "value": "msg"
                                 },
@@ -1475,12 +1475,13 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x12883959aA666C92F01d1558b820FC832B436d44",
-      "transactionHash": "0x5765bafb137a01c437b2c6ae5ef1c9a9e55dfc8e57d040af643ad68de499f74b"
+      "address": "0xb08CCFEA3BdABCCBeD2026205c0695D26FE44F4a",
+      "transactionHash": "0x869f6892adde5b2b79f88279936f20ea93a0d88af17ecb8a253bee71f9613ae1"
     }
   },
-  "schemaVersion": "3.4.13",
-  "updatedAt": "2023-04-04T08:33:06.072Z",
+  "schemaVersion": "3.4.11",
+  "updatedAt": "2023-04-04T09:14:36.757Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {}
   },

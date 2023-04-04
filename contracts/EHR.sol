@@ -25,8 +25,7 @@ contract EHR {
         string memory fileName,
         address patient,
         address doctor
-    ) public payable returns(uint256) {
-        require(msg.value > 0.01 ether, "at least 0.01 ETH is needed"); // not sure if we need this
+    ) public returns(uint256) {
         
         //new EHR object
         ehr memory newEhr = ehr(
@@ -40,9 +39,13 @@ contract EHR {
         
         uint256 newEhrId = numEHR++;
         records[newEhrId] = newEhr; //commit to state variable
+        emit EHRAdded(newEhr.doctorAddress);
         return newEhrId;   //return new ehrId
     }
 
+    /********* EVENTS *********/
+
+    event EHRAdded(address ehrAddress);
 
     /********* MODIFIERS *********/
 

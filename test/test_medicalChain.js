@@ -85,9 +85,50 @@ contract("MedicalChain", function (accounts) {
     );
   });
 
-  it("Test if EHR created", async () => {});
+  it("Test if EHR created", async () => {
+    let newEHR = await ehrInstance.add(
+      EHR.RecordType.IMMUNISATION,
+      "Immunisation Records",
+      accounts[2],
+      accounts[4],
+      {
+        from: accounts[4],
+      }
+    );
 
-  it("Test if nurse created", async () => {});
+    truffleAssert.eventEmitted(newEHR, "EHRAdded");
+
+    await assert.notStrictEqual(newEHR, undefined, "Failed to create EHR");
+  });
+
+  it("Test query of RecordType matches", async () => {
+    let recordMatchResult = await ehrInstance.doesRecordMatchRecordType(
+      0,
+      EHR.RecordType.IMMUNISATION
+    );
+
+    await assert.strictEqual(
+      recordMatchResult,
+      true,
+      "EHR type does not match!"
+    );
+  });
+
+  it("Test if nurse created", async () => {
+    let newNurse = await nurseInstance.create(
+      "Maria",
+      "Lee",
+      "marialee@gmail.com",
+      "25/06/1999",
+      {
+        from: accounts[5],
+      }
+    );
+
+    truffleAssert.eventEmitted(newNurse, "NurseAdded");
+
+    await assert.notStrictEqual(newNurse, undefined, "Failed to create nurse");
+  });
 
   it("Test if researcher created", async () => {});
 
