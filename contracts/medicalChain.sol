@@ -23,6 +23,8 @@ contract medicalChain {
     researcherContract = researcherAddress;
   }
 
+  uint256[] recordIds;
+  uint256[] patientRecordId;
   /********* EVENTS *********/  
 
   event PatientAdded(address patientId);
@@ -75,7 +77,7 @@ contract medicalChain {
   }
 
   modifier isPractionerAbleToViewRecord(uint256 recordId) {
-    require(ehrContract.getDoctorAddress(recordId) == msg.sender, "Doctor/Nurse is not able to view this record as they are not the issuer");
+    require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Doctor/Nurse is not able to view this record as they are not the issuer");
     _;
   }
 
@@ -123,23 +125,37 @@ contract medicalChain {
   }
 
   // Add new EHR
-  function addNewEHR(uint256 patientId, string memory filename) public view isValidPractioner(patientId) isPatientRegisteredWithPractioner(patientId) returns (uint256 recordId) {
+  function addNewEHR(EHR.RecordType recordType, uint256 patientId, string memory filename) public payable isValidPractioner(patientId) isPatientRegisteredWithPractioner(patientId) returns (uint256 recordId) {
 
       // Check if msg.sender is doctor or nurse
       // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
       // Check if patientId inside doctor's patients
       // Add new EHR
       // add recordId into patient and doctors records
+
+      address patientAddress = patientContract.getPatientAddress(patientId);
+      uint256 recordId = ehrContract.add(recordType, filename, patientAddress, msg.sender);
+
+      recordIds.push(recordId);
+
+      patientContract.addEhr(patientId, recordId);
+
+      return recordId;
   }
 
   // Request to view specific record
-  function viewRecordByRecordID(uint256 recordId) public view isPractionerAbleToViewRecord(recordId) returns (uint256 id,
+  function viewRecordByRecordID(uint256 recordId) public isPractionerAbleToViewRecord(recordId) returns (uint256 id,
         EHR.RecordType recordType,
         string memory fileName,
         address patientAddress,
         address doctorAddress,
         uint256 timeAdded) {
       return ehrContract.getRecord(recordId);
+  }
+
+  // Request to update specific record - update RecordType and fileName
+  function updateRecordByRecordID(uint256 recordId, EHR.RecordType recordType, string memory fileName) public isPractionerAbleToViewRecord(recordId) {
+    ehrContract.updateRecord(recordId, recordType, fileName);
   }
 
   // Researcher: View all patients who have approved research access
@@ -206,6 +222,39 @@ contract medicalChain {
 
     return noOfRecordsMatchingRecordType;
 }
+
+
+// View all records belonging to this patient
+// Returns all the recordIds
+function filterRecordsByPatient(uint256 patientId) public isCorrectPatient() returns (uint256[] memory) {
+  delete patientRecordId;
+  for (uint i = 0; i < recordIds.length; i++) {
+    uint256 currRecordId = recordIds[i];
+    address patientAddress = ehrContract.getPatientAddress(currRecordId);
+    uint256 thisPatientId = patientContract.getPatientIdFromPatientAddress(patientAddress);
+    if (thisPatientId == patientId) {
+      patientRecordId.push(currRecordId);
+    }
+  }
+  return patientRecordId;
+}
+
+
+// View all records signed off by certain practitioner
+
+function filterRecordsByPractitioner(uint256 practitionerId) public isCorrectPatient() returns (uint256[] memory) {
+  delete patientRecordId;
+  for (uint i = 0; i < recordIds.length; i++) {
+    uint256 currRecordId = recordIds[i];
+    address doctorAddress = ehrContract.getDoctorAddress(currRecordId);
+    uint256 thisPractitionerId = doctorContract.getDoctorIdFromDoctorAddress(doctorAddress);
+    if (thisPractitionerId == practitionerId) {
+      patientRecordId.push(currRecordId);
+    }
+  }
+  return patientRecordId;
+  }
+
 
 
 // Patient: Acknowledge a record that is added to his medical records

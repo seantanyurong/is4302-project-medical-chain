@@ -96,7 +96,6 @@ contract Patient {
                 count++;
             }
         }
-
         return result;
     }
 
@@ -149,6 +148,10 @@ contract Patient {
         patients[patientId].approvedNurses[nurseAddress] = false;
     }
 
+    function addEhr(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
+        patients[patientId].records[recordId] = true;
+    }
+
 
     /********* GETTERS & SETTERS *********/
 
@@ -184,6 +187,10 @@ contract Patient {
         patients[patientId].dob = _dob;
     }
 
+    function isDoctorApproved(uint256 patientId, address doctorAddress) public view returns(bool) {
+        return patients[patientId].approvedDoctors[doctorAddress];
+    }
+
     function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) ownerOnly(patientId) returns(bool) {
         return patients[patientId].approvedResearcher;
     }
@@ -214,5 +221,9 @@ contract Patient {
         string memory emailAddress,
         string memory dob) {
         return (patients[patientId].patientId, patients[patientId].firstName, patients[patientId].lastName, patients[patientId].emailAddress, patients[patientId].dob);
+    }
+
+    function getPatientAddress(uint256 patientId) public view validPatientId(patientId) returns(address) {
+        return patients[patientId].owner;
     }
 }
