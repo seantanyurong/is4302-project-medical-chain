@@ -1,4 +1,3 @@
-pragma solidity ^0.5.0;
 import "./Patient.sol";
 import "./Doctor.sol";
 import "./Nurse.sol";

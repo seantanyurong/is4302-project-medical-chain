@@ -33,9 +33,13 @@ contract Doctor {
         newDoctor.dob = _dob;
 
         doctors[newDoctorId] = newDoctor;
+        emit DoctorAdded(newDoctor.owner);
         return newDoctorId;
     }
 
+    /********* EVENTS *********/
+
+    event DoctorAdded(address doctorAddress);
 
     /********* MODIFIERS *********/
 

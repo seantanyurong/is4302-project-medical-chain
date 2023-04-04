@@ -12,6 +12,7 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 // Account roles used for testing
 // account[2]: patient
 // account[3]: secondary user (patient)
+// account[4]: doctor
 
 contract("MedicalChain", function (accounts) {
   before(async () => {
@@ -53,15 +54,36 @@ contract("MedicalChain", function (accounts) {
       "Failed to create patient"
     );
 
-    let email = await patientInstance.getEmailAddress(1, {
+    let email = await patientInstance.getEmailAddress(0, {
       from: accounts[2],
     });
 
-    console.log("chicken");
-    console.log(email);
+    await assert.strictEqual(
+      email,
+      "shawntan@gmail.com",
+      "email does not match!"
+    );
   });
 
-  it("Test if doctor created", async () => {});
+  it("Test if doctor created", async () => {
+    let newDoctor = await doctorInstance.create(
+      "Gary",
+      "Tay",
+      "garytay@gmail.com",
+      "20/01/1980",
+      {
+        from: accounts[4],
+      }
+    );
+
+    truffleAssert.eventEmitted(newDoctor, "DoctorAdded");
+
+    await assert.notStrictEqual(
+      newDoctor,
+      undefined,
+      "Failed to create doctor"
+    );
+  });
 
   it("Test if EHR created", async () => {});
 
