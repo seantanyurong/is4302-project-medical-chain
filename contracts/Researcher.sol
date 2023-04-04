@@ -19,7 +19,7 @@ contract Researcher {
 
         uint256 newResearcherId = numResearchers++;
 
-        researcher storage newResearcher = researchers[newResearcherId];
+        researcher memory newResearcher;
         newResearcher.researcherId = newResearcherId;
         newResearcher.owner = msg.sender;
         newResearcher.firstName = _firstName;
@@ -27,9 +27,15 @@ contract Researcher {
         newResearcher.emailAddress = _emailAddress;
         newResearcher.dob = _dob;
 
+        researchers[newResearcherId] = newResearcher;
+        emit ResearcherAdded(newResearcher.owner);
         return newResearcherId;
     }
 
+
+    /********* EVENTS *********/
+
+    event ResearcherAdded(address researcherAddress);
 
     /********* MODIFIERS *********/
 

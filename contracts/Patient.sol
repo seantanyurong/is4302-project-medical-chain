@@ -46,6 +46,8 @@ contract Patient {
 
     event AddressDoesNotBelongToAnyPatient();
     event PatientAdded(address patientAddress);
+    event GivingDoctorAccess();
+    event printValue(uint256 a);
     event testTrigger();
 
     /********* MODIFIERS *********/
@@ -126,7 +128,9 @@ contract Patient {
     function getPatientIdFromPatientAddress(address patientAddress) public returns (uint256) {
         for (uint i = 0; i < numPatients; i++) {
             if (patients[i].owner == patientAddress) {
+                emit printValue(i);
                 return i;
+                
             }
         }
         emit AddressDoesNotBelongToAnyPatient();
@@ -138,6 +142,7 @@ contract Patient {
     }
 
     function giveDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
+        // emit GivingDoctorAccess();
         patients[patientId].approvedDoctors[doctorAddress] = true;
     }
 
@@ -195,6 +200,10 @@ contract Patient {
 
     function isDoctorApproved(uint256 patientId, address doctorAddress) public view returns(bool) {
         return patients[patientId].approvedDoctors[doctorAddress];
+    }
+
+    function isNurseApproved(uint256 patientId, address nurseAddress) public view returns(bool) {
+        return patients[patientId].approvedNurses[nurseAddress];
     }
 
     function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) ownerOnly(patientId) returns(bool) {

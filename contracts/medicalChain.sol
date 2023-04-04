@@ -32,7 +32,11 @@ contract medicalChain {
   event DoctorAdded(address doctorId);
   event NurseAdded(address nurseId);
   event testEvent(uint256 test);
-
+  event GivingDoctorAccess();
+  event RemovingDoctorAccess();
+  event GivingNurseAccess();
+  event RemovingNurseAccess();
+  event AddingEHR();
 
   /********* MODIFIERS *********/
 
@@ -110,18 +114,22 @@ contract medicalChain {
   }
 
   function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
+    emit GivingDoctorAccess();
     patientContract.giveDoctorAccess(patientId, doctorAddress);
   }
 
   function removeDoctorAccess(uint256 patientId, address doctorAddress) public {
+    emit RemovingDoctorAccess();
     patientContract.removeDoctorAccess(patientId, doctorAddress);
   }
 
   function giveNurseAccess(uint256 patientId, address nurseAddress) public {
+    emit GivingNurseAccess();
     patientContract.giveNurseAccess(patientId, nurseAddress);
   }
 
   function removeNurseAccess(uint256 patientId, address nurseAddress) public {
+    emit RemovingNurseAccess();
     patientContract.removeNurseAccess(patientId, nurseAddress);
   }
 
@@ -145,6 +153,7 @@ contract medicalChain {
 
       patientContract.addEhr(patientId, recordId);
 
+      emit AddingEHR();
       return recordId;
   }
 

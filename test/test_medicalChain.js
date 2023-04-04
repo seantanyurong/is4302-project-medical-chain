@@ -13,6 +13,7 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 // account[2]: patient
 // account[3]: secondary user (patient)
 // account[4]: doctor
+// account[5]: nurse
 
 contract("MedicalChain", function (accounts) {
   before(async () => {
@@ -132,17 +133,220 @@ contract("MedicalChain", function (accounts) {
     await assert.notStrictEqual(newNurse, undefined, "Failed to create nurse");
   });
 
-  it("Test if researcher created", async () => {});
+  it("Test if researcher created", async () => {
+    let newResearcher = await researcherInstance.create(
+      "Maria",
+      "Lee",
+      "marialee@gmail.com",
+      "25/06/1999",
+      {
+        from: accounts[5],
+      }
+    );
+
+    truffleAssert.eventEmitted(newResearcher, "ResearcherAdded");
+
+    await assert.notStrictEqual(
+      newResearcher,
+      undefined,
+      "Failed to create researcher"
+    );
+  });
 
   /********* FUNCTIONALITY TESTS *********/
 
-  it("Test if adding and removing doctor's access works", async () => {});
+  it("Test if adding and removing doctor's access works", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
 
-  it("Test if adding and removing nurse's access works", async () => {});
+    let newDoctor = await doctorInstance.create(
+      "Gary",
+      "Tay",
+      "garytay@gmail.com",
+      "20/01/1980",
+      {
+        from: accounts[4],
+      }
+    );
 
-  it("Test if able to get patient id from address", async () => {});
+    // Grant doctor access
+    let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
+      0,
+      accounts[4],
+      {
+        from: accounts[2],
+      }
+    );
 
-  it("Test EHR adding", async () => {});
+    //  Checks to see if doctor successfully granted access
+    truffleAssert.eventEmitted(givingDoctorAccess, "GivingDoctorAccess");
+
+    let doctorAccess = await patientInstance.isDoctorApproved(0, accounts[4], {
+      from: accounts[2],
+    });
+
+    await assert.ok(doctorAccess, "Doctor does not have access");
+
+    // Remove doctor access
+    let removingDoctorAccess = await medicalChainInstance.removeDoctorAccess(
+      0,
+      accounts[4],
+      {
+        from: accounts[2],
+      }
+    );
+
+    //  Checks to see if doctor successfully removed access
+    truffleAssert.eventEmitted(removingDoctorAccess, "RemovingDoctorAccess");
+
+    let doctorRemoved = await patientInstance.isDoctorApproved(0, accounts[4], {
+      from: accounts[2],
+    });
+
+    await assert.ok(!doctorRemoved, "Doctor still has access");
+  });
+
+  it("Test if adding and removing nurse's access works", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
+
+    let newNurse = await nurseInstance.create(
+      "Maria",
+      "Lee",
+      "marialee@gmail.com",
+      "25/06/1999",
+      {
+        from: accounts[5],
+      }
+    );
+
+    // Grant doctor access
+    let givingNurseAccess = await medicalChainInstance.giveNurseAccess(
+      0,
+      accounts[5],
+      {
+        from: accounts[2],
+      }
+    );
+
+    //  Checks to see if Nurse successfully granted access
+    truffleAssert.eventEmitted(givingNurseAccess, "GivingNurseAccess");
+
+    let NurseAccess = await patientInstance.isNurseApproved(0, accounts[5], {
+      from: accounts[2],
+    });
+
+    await assert.ok(NurseAccess, "Nurse does not have access");
+
+    // Remove Nurse access
+    let removingNurseAccess = await medicalChainInstance.removeNurseAccess(
+      0,
+      accounts[5],
+      {
+        from: accounts[2],
+      }
+    );
+
+    //  Checks to see if Nurse successfully removed access
+    truffleAssert.eventEmitted(removingNurseAccess, "RemovingNurseAccess");
+
+    let NurseRemoved = await patientInstance.isNurseApproved(0, accounts[5], {
+      from: accounts[2],
+    });
+
+    await assert.ok(!NurseRemoved, "Nurse still has access");
+  });
+
+  it("Test if able to get patient id from address", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
+
+    let patientId = await patientInstance.getPatientIdFromPatientAddress(
+      accounts[2],
+      {
+        from: accounts[2],
+      }
+    );
+    // console.log(patientId["logs"][0]["args"]["0"].toString());
+
+    await assert.strictEqual(
+      patientId["logs"][0]["args"]["0"].toString(),
+      "0",
+      "Patient ID does not match!"
+    );
+  });
+
+  it("Test EHR adding", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
+
+    let newDoctor = await doctorInstance.create(
+      "Gary",
+      "Tay",
+      "garytay@gmail.com",
+      "20/01/1980",
+      {
+        from: accounts[4],
+      }
+    );
+
+    // Grant doctor access
+    let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
+      0,
+      accounts[4],
+      {
+        from: accounts[2],
+      }
+    );
+
+    // Add EHR
+    // let addingEHR = await medicalChainInstance.addNewEHR(
+    //   EHR.RecordType.IMMUNISATION,
+    //   0,
+    //   "Immunisation Records",
+    //   {
+    //     from: accounts[4],
+    //   }
+    // );
+
+    // truffleAssert.eventEmitted(addingEHR, "AddingEHR");
+  });
 
   it("Test EHR removing", async () => {});
 
@@ -157,8 +361,6 @@ contract("MedicalChain", function (accounts) {
   it("Test viewing of all records under patient", async () => {});
 
   it("Test viewing of filtered records by record type", async () => {});
-
-  it("Test number of record types", async () => {});
 
   it("Test viewing of all records by practitioner", async () => {});
 
