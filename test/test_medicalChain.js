@@ -26,6 +26,8 @@ contract("MedicalChain", function (accounts) {
 
   console.log("Testing Medical Chain Contract");
 
+  /********* BASIC CREATION TESTS *********/
+
   it("Test if medical chain exists", async () => {
     let testingTest = await medicalChainInstance.testingTest(10, {
       from: accounts[1],
@@ -132,13 +134,35 @@ contract("MedicalChain", function (accounts) {
 
   it("Test if researcher created", async () => {});
 
+  /********* FUNCTIONALITY TESTS *********/
+
   it("Test if adding and removing doctor's access works", async () => {});
 
   it("Test if adding and removing nurse's access works", async () => {});
 
   it("Test if able to get patient id from address", async () => {});
 
-  it("Test EHR adding and patient sign off process", async () => {});
+  it("Test EHR adding", async () => {});
+
+  it("Test EHR removing", async () => {});
+
+  it("Test EHR acknowledging", async () => {});
+
+  it("Test viewing of specific record", async () => {});
+
+  it("Test viewing of specific patient", async () => {});
+
+  it("Test viewing of all records acknowledged by patient", async () => {});
+
+  it("Test viewing of all records under patient", async () => {});
+
+  it("Test viewing of filtered records by record type", async () => {});
+
+  it("Test number of record types", async () => {});
+
+  it("Test viewing of all records by practitioner", async () => {});
+
+  it("Test record update", async () => {});
 
   it("Test retrieval of patients who gave approval for research", async () => {});
 });
