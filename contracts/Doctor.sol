@@ -37,9 +37,12 @@ contract Doctor {
         return newDoctorId;
     }
 
+
     /********* EVENTS *********/
 
     event DoctorAdded(address doctorAddress);
+    event AddressDoesNotBelongToAnyDoctor();
+
 
     /********* MODIFIERS *********/
 
@@ -116,5 +119,15 @@ contract Doctor {
 
     function setDob(uint256 doctorId, string memory _dob) public validDoctorId(doctorId) ownerOnly(doctorId) {
         doctors[doctorId].dob = _dob;
+    }
+
+    // get doctor's id from their address 
+    function getDoctorIdFromDoctorAddress(address doctorAddress) public returns (uint256) {
+        for (uint i = 0; i < numDoctors; i++) {
+            if (doctors[i].owner == doctorAddress) {
+                return i;
+            }
+        }
+        emit AddressDoesNotBelongToAnyDoctor();
     }
 }
