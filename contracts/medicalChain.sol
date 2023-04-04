@@ -1,3 +1,5 @@
+pragma solidity ^0.5.0;
+
 import "./Patient.sol";
 import "./Doctor.sol";
 import "./Nurse.sol";
@@ -137,7 +139,7 @@ contract medicalChain {
       // add recordId into patient and doctors records
 
       address patientAddress = patientContract.getPatientAddress(patientId);
-      uint256 recordId = ehrContract.add(recordType, filename, patientAddress, msg.sender);
+      recordId = ehrContract.add(recordType, filename, patientAddress, msg.sender);
 
       recordIds.push(recordId);
 

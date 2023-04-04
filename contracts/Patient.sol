@@ -79,6 +79,18 @@ contract Patient {
         return patients[patientId].approvedNurses[nurseAddress];
     }
 
+    // Loop through existing senders to check if address is a sender
+    function isSender(address owner) public view returns(bool) {
+        for (uint i = 0; i < numPatients; i++) {
+            patient storage temp = patients[i];
+            if (temp.owner == owner) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Populate this logic here
     function getResearchPatients() public view returns (uint256[] memory) {
 
@@ -123,18 +135,6 @@ contract Patient {
     // checked the record is acknowledged by patient
     function isRecordAcknowledged(uint256 patientId, uint256 recordId) public view validPatientId(patientId) ownerOnly(patientId) returns(bool) {
         return patients[patientId].records[recordId];
-    }
-
-    // Loop through existing senders to check if address is a sender
-    function isSender(address owner) public view returns(bool) {
-        for (uint i = 0; i < numPatients; i++) {
-            patient storage temp = patients[i];
-            if (temp.owner == owner) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     function giveDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
