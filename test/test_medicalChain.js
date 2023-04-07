@@ -14,6 +14,7 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 // account[3]: secondary user (patient)
 // account[4]: doctor
 // account[5]: nurse
+// account[6]: researcher
 
 contract("MedicalChain", function (accounts) {
   before(async () => {
@@ -140,7 +141,7 @@ contract("MedicalChain", function (accounts) {
       "marialee@gmail.com",
       "25/06/1999",
       {
-        from: accounts[5],
+        from: accounts[6],
       }
     );
 
@@ -415,5 +416,56 @@ contract("MedicalChain", function (accounts) {
 
   it("Test record update", async () => {});
 
-  it("Test retrieval of patients who gave approval for research", async () => {});
+  // Fix getting research patients. Doesn't seem to fetch any.
+  it("Test retrieval of patients who gave approval for research", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
+
+    let newResearcher = await researcherInstance.create(
+      "Maria",
+      "Lee",
+      "marialee@gmail.com",
+      "25/06/1999",
+      {
+        from: accounts[6],
+      }
+    );
+
+    // Grant researcher access
+    let givingResearcherAccess =
+      await medicalChainInstance.giveResearcherAccess(0, {
+        from: accounts[2],
+      });
+
+    //  Checks to see if Researcher successfully granted access
+    truffleAssert.eventEmitted(
+      givingResearcherAccess,
+      "GivingResearcherAccess"
+    );
+
+    let researcherAccess = await patientInstance.getApprovedReseacher(0, {
+      from: accounts[2],
+    });
+
+    await assert.ok(researcherAccess, "Researcher does not have access");
+
+    // Get list of approved patients
+    let viewApprovedPatients = await medicalChainInstance.viewApprovedPatients({
+      from: accounts[6],
+    });
+
+    //  Checks to see if Researcher getting patients
+    truffleAssert.eventEmitted(viewApprovedPatients, "GettingApprovedPatients");
+
+    console.log(viewApprovedPatients["logs"][0]["args"]);
+  });
 });

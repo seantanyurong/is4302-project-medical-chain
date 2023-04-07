@@ -166,6 +166,11 @@ contract Patient {
         patients[patientId].recordsCount++;
     }
 
+    function giveResearcherAccess(uint256 patientId) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].approvedResearcher = true;
+    }
+
+
 
     /********* GETTERS & SETTERS *********/
 

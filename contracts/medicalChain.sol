@@ -36,8 +36,10 @@ contract medicalChain {
   event RemovingDoctorAccess();
   event GivingNurseAccess();
   event RemovingNurseAccess();
+  event GivingResearcherAccess();
   event AddingEHR();
   event AcknowledgingRecord();
+  event GettingApprovedPatients();
 
   /********* MODIFIERS *********/
 
@@ -148,6 +150,11 @@ contract medicalChain {
     doctorContract.registerPatient(doctorId, patientId);
   }
 
+  function giveResearcherAccess(uint256 patientId) public {
+    emit GivingResearcherAccess();
+    patientContract.giveResearcherAccess(patientId);
+  }
+
   function testingTest(uint256 test) public {
     emit testEvent(test);
   }
@@ -188,7 +195,8 @@ contract medicalChain {
   }
 
   // Researcher: View all patients who have approved research access
-  function viewApprovedPatients() public view isResearcher returns (uint256[] memory) {
+  function viewApprovedPatients() public isResearcher returns (uint256[] memory) {
+      emit GettingApprovedPatients();
       return patientContract.getResearchPatients();
   }
 
