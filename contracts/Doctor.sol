@@ -86,6 +86,14 @@ contract Doctor {
         return false;
     }
 
+    function registerPatient(uint256 doctorId, uint256 patientId) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].patients[patientId] = true;
+    }
+
+    function unregisterPatient(uint256 doctorId, uint256 patientId) public validDoctorId(doctorId) ownerOnly(doctorId) {
+        doctors[doctorId].patients[patientId] = false;
+    }
+
 
     /********* GETTERS & SETTERS *********/
 

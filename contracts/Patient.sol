@@ -1,6 +1,10 @@
 pragma solidity ^0.5.0;
 
+import "./EHR.sol";
+
 contract Patient {
+
+    EHR ehrContract;
 
     struct patient {
         uint256 patientId;
@@ -120,8 +124,7 @@ contract Patient {
 
     // Patient verify record
     function signOffRecord(uint256 patientId, uint256 recordId) public validPatientId(patientId) ownerOnly(patientId) {
-        patients[patientId].records[recordId] = true;
-        patients[patientId].recordsCount++;
+        ehrContract.patientSignOff(recordId);
     }
 
     // get patient's id from their address (used in medicalChain patientAcknowledgeRecord function)
@@ -160,6 +163,7 @@ contract Patient {
 
     function addEhr(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
         patients[patientId].records[recordId] = true;
+        patients[patientId].recordsCount++;
     }
 
 

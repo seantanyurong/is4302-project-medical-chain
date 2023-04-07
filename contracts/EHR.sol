@@ -14,6 +14,7 @@ contract EHR {
         address patientAddress;
         address doctorAddress;
         uint256 timeAdded;
+        bool patientSignedOff;
     }
     
     uint256 public numEHR = 0;
@@ -34,7 +35,8 @@ contract EHR {
             fileName,
             patient,
             doctor,
-            now
+            now,
+            false
         );
         
         uint256 newEhrId = numEHR++;
@@ -102,4 +104,10 @@ contract EHR {
             return false;
         }
     }
+
+    function patientSignOff(uint256 recordId) public {
+        records[recordId].patientSignedOff = true;
+    }
+
+
 }

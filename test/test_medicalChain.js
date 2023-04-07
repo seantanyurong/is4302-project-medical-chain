@@ -335,22 +335,71 @@ contract("MedicalChain", function (accounts) {
       }
     );
 
-    // Add EHR
-    // let addingEHR = await medicalChainInstance.addNewEHR(
-    //   EHR.RecordType.IMMUNISATION,
-    //   0,
-    //   "Immunisation Records",
-    //   {
-    //     from: accounts[4],
-    //   }
-    // );
+    // Register patient with doctor
+    let registeringPatient =
+      await medicalChainInstance.registerPatientWithDoctor(0, 0, {
+        from: accounts[4],
+      });
 
-    // truffleAssert.eventEmitted(addingEHR, "AddingEHR");
+    // Ensure initial record count is 0
+    let recordsCount0 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
+
+    await assert.strictEqual(
+      recordsCount0.words[0],
+      0,
+      "Initial  count does not match"
+    );
+
+    // Add EHR
+    let addingEHR = await medicalChainInstance.addNewEHR(
+      EHR.RecordType.IMMUNISATION,
+      0,
+      "Immunisation Records",
+      {
+        from: accounts[4],
+      }
+    );
+
+    truffleAssert.eventEmitted(addingEHR, "AddingEHR");
+
+    // Check that record count increased by 1
+    let recordsCount1 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
+
+    // console.log(recordsCount);
+    // console.log(recordsCount.words[0]);
+    // console.log(recordsCount[words][0]);
+
+    await assert.strictEqual(
+      recordsCount1.words[0],
+      1,
+      "Record count does not match"
+    );
+    // // Patient sign off on record
+    // let patientSigningRecord =
+    //   await medicalChainInstance.patientAcknowledgeRecord(0, {
+    //     from: accounts[2],
+    //   });
+
+    // truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
   });
 
+  // Seems to be keeping previous state?
+  // Need to add in remove function
   it("Test EHR removing", async () => {});
 
-  it("Test EHR acknowledging", async () => {});
+  // Need to fix EHR acknowledging function
+  it("Test EHR acknowledging", async () => {
+    // // Patient sign off on record
+    // let patientSigningRecord =
+    //   await medicalChainInstance.patientAcknowledgeRecord(0, {
+    //     from: accounts[2],
+    //   });
+    // truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
+  });
 
   it("Test viewing of specific record", async () => {});
 

@@ -37,6 +37,7 @@ contract medicalChain {
   event GivingNurseAccess();
   event RemovingNurseAccess();
   event AddingEHR();
+  event AcknowledgingRecord();
 
   /********* MODIFIERS *********/
 
@@ -81,8 +82,18 @@ contract medicalChain {
     _;
   }
 
+  // modifier isPractionerAbleToViewRecord(uint256 recordId) {
+  //   require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Doctor/Nurse is not able to view this record as they are not the issuer");
+  //   _;
+  // }
+
   modifier isPractionerAbleToViewRecord(uint256 recordId) {
-    require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Doctor/Nurse is not able to view this record as they are not the issuer");
+    string memory role = getSenderRole();
+    if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
+      require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Doctor is not able to view this record as they are not in the patient's approved doctors");
+    } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
+      require(patientContract.isApprovedNurse(patientContract.getPatientIdFromPatientAddress(ehrContract.getPatientAddress(recordId)), msg.sender), "Nurse is not able to view this record as they are not in the patient's approved nurses");
+    }
     _;
   }
 
@@ -131,6 +142,10 @@ contract medicalChain {
   function removeNurseAccess(uint256 patientId, address nurseAddress) public {
     emit RemovingNurseAccess();
     patientContract.removeNurseAccess(patientId, nurseAddress);
+  }
+
+  function registerPatientWithDoctor(uint256 doctorId, uint256 patientId) public {
+    doctorContract.registerPatient(doctorId, patientId);
   }
 
   function testingTest(uint256 test) public {
@@ -269,12 +284,18 @@ function filterRecordsByPractitioner(uint256 practitionerId) public isCorrectPat
   return patientRecordId;
   }
 
-
-
 // Patient: Acknowledge a record that is added to his medical records
-function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isRecordBelongToPatient(recordId) {
+// function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient()  isRecordBelongToPatient(recordId) {
+//   emit AcknowledgingRecord();
+//   uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
+//   patientContract.signOffRecord(patientId, recordId);
+// }
+
+function patientAcknowledgeRecord(uint256 recordId) public {
+  emit AcknowledgingRecord();
   uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
   patientContract.signOffRecord(patientId, recordId);
 }
+
 
 }
