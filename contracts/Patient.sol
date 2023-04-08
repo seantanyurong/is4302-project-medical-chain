@@ -57,12 +57,12 @@ contract Patient {
     /********* MODIFIERS *********/
 
     modifier ownerOnly(uint256 patientId) {
-        require(patients[patientId].owner == tx.origin);
+        require(patients[patientId].owner == tx.origin, "Only patient can call this function!");
         _;
     }
 
     modifier validPatientId(uint256 patientId) {
-        require(patientId < numPatients);
+        require(patientId < numPatients, "Invalid patient Id!");
         _;
     }
 
@@ -128,15 +128,12 @@ contract Patient {
     }
 
     // get patient's id from their address (used in medicalChain patientAcknowledgeRecord function)
-    function getPatientIdFromPatientAddress(address patientAddress) public returns (uint256) {
+    function getPatientIdFromPatientAddress(address patientAddress) public view returns (uint256) {
         for (uint i = 0; i < numPatients; i++) {
             if (patients[i].owner == patientAddress) {
-                emit printValue(i);
                 return i;
-                
             }
         }
-        emit AddressDoesNotBelongToAnyPatient();
     }
 
     // checked the record is acknowledged by patient
@@ -162,7 +159,7 @@ contract Patient {
     }
 
     function addEhr(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
-        patients[patientId].records[recordId] = true;
+        patients[patientId].records[recordId] = false;
         patients[patientId].recordsCount++;
     }
 
@@ -215,7 +212,7 @@ contract Patient {
         return patients[patientId].approvedNurses[nurseAddress];
     }
 
-    function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) ownerOnly(patientId) returns(bool) {
+    function getApprovedReseacher(uint256 patientId) public view  validPatientId(patientId) returns(bool) {
         return patients[patientId].approvedResearcher;
     }
 

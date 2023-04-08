@@ -65,12 +65,12 @@ contract EHR {
 
     /********* FUNCTIONS *********/
 
-    function getDoctorAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].doctorAddress;
-    }
-
-    function getPatientAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].patientAddress;
+    function isValidRecordId(uint256 recordId) public view returns (bool) {
+        if (recordId < numEHR) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function getRecord(uint256 recordId) public view returns(uint256 id,
@@ -78,8 +78,9 @@ contract EHR {
         string memory fileName,
         address patientAddress,
         address doctorAddress,
-        uint256 timeAdded) {
-        return (records[recordId].recordId, records[recordId].recordType, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
+        uint256 timeAdded,
+        bool patientSignedOff) {
+        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordDoctorAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
     }
 
     function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
@@ -109,5 +110,30 @@ contract EHR {
         records[recordId].patientSignedOff = true;
     }
 
+    /********* GETTERS & SETTERS *********/
+    
+    function getRecordType(uint256 recordId) public view returns(RecordType) {
+        return records[recordId].recordType;
+    }
+
+    function getRecordFileName(uint256 recordId) public view returns(string memory) {
+        return records[recordId].fileName;
+    }
+
+    function getRecordPatientAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].patientAddress;
+    }
+
+    function getRecordDoctorAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].doctorAddress;
+    }
+
+    function getRecordTimeAdded(uint256 recordId) public view returns(uint256) {
+        return records[recordId].timeAdded;
+    }
+
+    function getRecordPatientSignedOff(uint256 recordId) public view returns(bool) {
+        return records[recordId].patientSignedOff;
+    }
 
 }
