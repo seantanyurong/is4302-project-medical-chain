@@ -6,6 +6,10 @@ contract Patient {
 
     EHR ehrContract;
 
+    constructor(EHR ehrAddress) public {
+        ehrContract = ehrAddress;
+  }
+
     struct patient {
         uint256 patientId;
         address owner;
@@ -18,6 +22,7 @@ contract Patient {
         mapping(address => bool) approvedNurses;
         mapping(uint256 => bool) records;
         uint256 recordsCount;
+        uint256 acknowledgedRecordsCount;
         address secondaryUser;
     }
 
@@ -40,6 +45,7 @@ contract Patient {
         newPatient.dob = _dob;
         newPatient.approvedResearcher = _approvedResearcher;
         newPatient.recordsCount = 0;
+        newPatient.acknowledgedRecordsCount = 0;
         newPatient.secondaryUser = _secondaryUser;
 
         emit PatientAdded(newPatient.owner);
@@ -124,6 +130,8 @@ contract Patient {
 
     // Patient verify record
     function signOffRecord(uint256 patientId, uint256 recordId) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].records[recordId] = true;
+        patients[patientId].acknowledgedRecordsCount++;
         ehrContract.patientSignOff(recordId);
     }
 
@@ -226,6 +234,14 @@ contract Patient {
     
     function setRecordsCount(uint256 patientId, uint256 _recordsCount) public validPatientId(patientId) ownerOnly(patientId) {
         patients[patientId].recordsCount = _recordsCount;
+    }
+
+    function getAcknowledgedRecordsCount(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(uint256) {
+        return patients[patientId].acknowledgedRecordsCount;
+    }
+    
+    function setAcknowledgedRecordsCount(uint256 patientId, uint256 _acknowledgedRecordsCount) public validPatientId(patientId) ownerOnly(patientId) {
+        patients[patientId].acknowledgedRecordsCount = _acknowledgedRecordsCount;
     }
 
     function getSecondaryUser(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(address) {

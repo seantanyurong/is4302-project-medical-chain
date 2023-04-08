@@ -10,7 +10,7 @@ module.exports = (deployer, network, accounts) => {
     await deployer.deploy(Doctor);
     await deployer.deploy(EHR);
     await deployer.deploy(Nurse);
-    await deployer.deploy(Patient);
+    await deployer.deploy(Patient, EHR.address);
     await deployer.deploy(Researcher);
     await deployer.deploy(
       medicalChain,

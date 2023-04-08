@@ -215,16 +215,29 @@ contract medicalChain {
       return patientContract.getData(patientID);
   }
 
-  // Patient: View all records that are acknowledged by patient
+  // Patient: View all records (acknowledged and not acknowledged)
+  function viewAllAcknowledgedRecords(uint256 patientId) public view isCorrectPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+    uint256 patientNoOfAcknowledgedRecords = patientContract.getAcknowledgedRecordsCount(patientId);
+    uint256[] memory patientAcknowledgedRecordsId = new uint256[](patientNoOfAcknowledgedRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+      // record belongs to patient calling it AND whether the record is acknowledged
+      if (ehrContract.isRecordBelongToPatient(i, msg.sender) && patientContract.isRecordAcknowledged(patientId, i)) {
+        patientAcknowledgedRecordsId[indexTracker] = i;
+        indexTracker++;
+      }
+    }
+
+    return patientAcknowledgedRecordsId;
+  }
+
+  // Patient: View all records (acknowledged and not acknowledged)
   function viewAllRecords(uint256 patientId) public view isCorrectPatient() isValidPatientId(patientId) returns (uint256[] memory) {
-    // only when it is signed off, then it is counted
-    // if need to be counted regardless of signed off, increment it in addNewEHR function
     uint256 patientNoOfRecords = patientContract.getRecordsCount(patientId);
     uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
-      // record belongs to patient calling it AND whether the record is acknowledged
-      // commented condition:  && patientContract.isRecordAcknowledged(patientId, i)
+      // record belongs to patient calling it
       if (ehrContract.isRecordBelongToPatient(i, msg.sender)) {
         patientRecordsId[indexTracker] = i;
         indexTracker++;
@@ -306,7 +319,7 @@ function filterRecordsByPractitioner(uint256 practitionerId) public isCorrectPat
 //   patientContract.signOffRecord(patientId, recordId);
 // }
 
-function patientAcknowledgeRecord(uint256 recordId) public {
+function patientAcknowledgeRecord(uint256 recordId) public isCorrectPatient() isValidRecordId(recordId) {
   emit AcknowledgingRecord();
   uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
   patientContract.signOffRecord(patientId, recordId);
