@@ -94,8 +94,8 @@ contract Patient {
     // Loop through existing senders to check if address is a sender
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numPatients; i++) {
-            patient storage temp = patients[i];
-            if (temp.owner == owner) {
+            // patient storage temp = patients[i];
+            if (patients[i].owner == owner) {
                 return true;
             }
         }
@@ -129,7 +129,7 @@ contract Patient {
     }
 
     // Patient verify record
-    function signOffRecord(uint256 patientId, uint256 recordId) public validPatientId(patientId) ownerOnly(patientId) {
+    function signOffRecord(uint256 patientId, uint256 recordId) public {
         patients[patientId].records[recordId] = true;
         patients[patientId].acknowledgedRecordsCount++;
         ehrContract.patientSignOff(recordId);
@@ -145,8 +145,8 @@ contract Patient {
     }
 
     function viewAllRecords(uint256 patientId, address patientAddress) public view returns (uint256[] memory) {
-        uint256 patientNoOfRecords = getRecordsCount(patientId);
-        uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+        // uint256 patientNoOfRecords = getRecordsCount(patientId);
+        uint256[] memory patientRecordsId = new uint256[](getRecordsCount(patientId));
         uint256 indexTracker = 0;
         for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
             if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
@@ -160,8 +160,8 @@ contract Patient {
 
     // Patient: View all records (acknowledged and not acknowledged)
   function viewAllAcknowledgedRecords(uint256 patientId) public view returns (uint256[] memory) {
-    uint256 patientNoOfAcknowledgedRecords = getAcknowledgedRecordsCount(patientId);
-    uint256[] memory patientAcknowledgedRecordsId = new uint256[](patientNoOfAcknowledgedRecords);
+    // uint256 patientNoOfAcknowledgedRecords = getAcknowledgedRecordsCount(patientId);
+    uint256[] memory patientAcknowledgedRecordsId = new uint256[](getAcknowledgedRecordsCount(patientId));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
       // record belongs to patient calling it AND whether the record is acknowledged
@@ -178,13 +178,13 @@ contract Patient {
   function viewRecordsByDoctor(uint256 patientId, address patientAddress, address doctorAddress) public view returns (uint256[] memory) {
     uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
-    uint256 noOfDoctorRecords = numberOfRecordByDoctor(patientId, patientAddress, doctorAddress);
-    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfDoctorRecords);
+    // uint256 noOfDoctorRecords = numberOfRecordByDoctor(patientId, patientAddress, doctorAddress);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordByDoctor(patientId, patientAddress, doctorAddress));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-      uint256 currentRecordId = patientRecordsId[i];
-      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, doctorAddress)) {
-        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+    //   uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(patientRecordsId[i], doctorAddress)) {
+        patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
         indexTracker++;
       }
     }
@@ -211,13 +211,13 @@ contract Patient {
   function viewRecordsByNurse(uint256 patientId, address patientAddress, address nurseAddress) public view returns (uint256[] memory) {
     uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
-    uint256 noOfNurseRecords = numberOfRecordByNurse(patientId, patientAddress, nurseAddress);
-    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfNurseRecords);
+    // uint256 noOfNurseRecords = numberOfRecordByNurse(patientId, patientAddress, nurseAddress);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordByNurse(patientId, patientAddress, nurseAddress));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-      uint256 currentRecordId = patientRecordsId[i];
-      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, nurseAddress)) {
-        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+    //   uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(patientRecordsId[i], nurseAddress)) {
+        patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
         indexTracker++;
       }
     }
@@ -243,13 +243,13 @@ contract Patient {
   function viewRecordsByRecordType(uint256 patientId, address patientAddress, EHR.RecordType recordType) public view returns (uint256[] memory) {
     uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
-    uint256 noOfFilteredRecords = numberOfRecordType(patientId, patientAddress, recordType);
-    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfFilteredRecords);
+    // uint256 noOfFilteredRecords = numberOfRecordType(patientId, patientAddress, recordType);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordType(patientId, patientAddress, recordType));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-      uint256 currentRecordId = patientRecordsId[i];
-      if (ehrContract.doesRecordMatchRecordType(currentRecordId, recordType)) {
-        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+    //   uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchRecordType(patientRecordsId[i], recordType)) {
+        patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
         indexTracker++;
       }
     }
@@ -277,7 +277,6 @@ contract Patient {
     }
 
     function giveDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
-        // emit GivingDoctorAccess();
         patients[patientId].approvedDoctors[doctorAddress] = true;
     }
 
