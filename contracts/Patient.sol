@@ -144,6 +144,133 @@ contract Patient {
         }
     }
 
+    function viewAllRecords(uint256 patientId, address patientAddress) public view returns (uint256[] memory) {
+        uint256 patientNoOfRecords = getRecordsCount(patientId);
+        uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+        uint256 indexTracker = 0;
+        for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+            if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
+                patientRecordsId[indexTracker] = i;
+                indexTracker++;
+            }
+        }
+
+    return patientRecordsId;
+    }
+
+    // Patient: View all records (acknowledged and not acknowledged)
+  function viewAllAcknowledgedRecords(uint256 patientId) public view returns (uint256[] memory) {
+    uint256 patientNoOfAcknowledgedRecords = getAcknowledgedRecordsCount(patientId);
+    uint256[] memory patientAcknowledgedRecordsId = new uint256[](patientNoOfAcknowledgedRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+      // record belongs to patient calling it AND whether the record is acknowledged
+      if (ehrContract.isRecordBelongToPatient(i, msg.sender) && isRecordAcknowledged(patientId, i)) {
+        patientAcknowledgedRecordsId[indexTracker] = i;
+        indexTracker++;
+      }
+    }
+
+    return patientAcknowledgedRecordsId;
+  }
+
+  // Patient: View all records issued by certain doctor
+  function viewRecordsByDoctor(uint256 patientId, address patientAddress, address doctorAddress) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfDoctorRecords = numberOfRecordByDoctor(patientId, patientAddress, doctorAddress);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfDoctorRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, doctorAddress)) {
+        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+        indexTracker++;
+      }
+    }
+
+      return patientRecordsIdFiltered;
+  }
+
+    // Patient: Helper function to check how many records fulfilling the given doctor id
+  function numberOfRecordByDoctor(uint256 patientId, address patientAddress, address doctorAddress) public view returns(uint256) { // change on what you need to return
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfRecordsByDoctorId = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, doctorAddress)) {
+        noOfRecordsByDoctorId++;
+      }
+    }
+
+    return noOfRecordsByDoctorId;
+}
+
+// Patient: View all records issued by certain nurse
+  function viewRecordsByNurse(uint256 patientId, address patientAddress, address nurseAddress) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfNurseRecords = numberOfRecordByNurse(patientId, patientAddress, nurseAddress);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfNurseRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, nurseAddress)) {
+        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+        indexTracker++;
+      }
+    }
+      return patientRecordsIdFiltered;
+  }
+
+// Patient: Helper function to check how many records fulfilling the given nurse id
+  function numberOfRecordByNurse(uint256 patientId, address patientAddress, address nurseAddress) public view returns(uint256) { // change on what you need to return
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfRecordsByNurseId = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchPractitionerAddress(currentRecordId, nurseAddress)) {
+        noOfRecordsByNurseId++;
+      }
+    }
+
+    return noOfRecordsByNurseId;
+  }
+
+    // Patient: Filter records by record type
+  function viewRecordsByRecordType(uint256 patientId, address patientAddress, EHR.RecordType recordType) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfFilteredRecords = numberOfRecordType(patientId, patientAddress, recordType);
+    uint256[] memory patientRecordsIdFiltered = new uint256[](noOfFilteredRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchRecordType(currentRecordId, recordType)) {
+        patientRecordsIdFiltered[indexTracker] = currentRecordId;
+        indexTracker++;
+      }
+    }
+  }
+
+    // Patient: Helper function to check how many records fulfilling the given record type for a patient
+  function numberOfRecordType(uint256 patientId, address patientAddress, EHR.RecordType recordType) public view returns(uint256){ // change on what you need to return
+    uint256[] memory patientRecordsId = viewAllRecords(patientId, patientAddress);
+    uint256 noOfPatientRecords = getRecordsCount(patientId);
+    uint256 noOfRecordsMatchingRecordType = 0;
+    for (uint256 i = 0; i < noOfPatientRecords; i++) {
+      uint256 currentRecordId = patientRecordsId[i];
+      if (ehrContract.doesRecordMatchRecordType(currentRecordId, recordType)) {
+        noOfRecordsMatchingRecordType++;
+      }
+    }
+
+    return noOfRecordsMatchingRecordType;
+}
+
+
     // checked the record is acknowledged by patient
     function isRecordAcknowledged(uint256 patientId, uint256 recordId) public view validPatientId(patientId) ownerOnly(patientId) returns(bool) {
         return patients[patientId].records[recordId];

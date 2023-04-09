@@ -4,6 +4,12 @@ import "./EHR.sol";
 
 contract Doctor {
 
+    EHR ehrContract;
+
+    constructor(EHR ehrAddress) public {
+        ehrContract = ehrAddress;
+  }
+
     struct doctor {
         address owner;
         uint256 doctorId;
@@ -60,6 +66,14 @@ contract Doctor {
 
     /********* FUNCTIONS *********/
 
+    function isValidDoctorId(uint256 doctorId) public view returns (bool) {
+        if (doctorId < numDoctors) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numDoctors; i++) {
             doctor storage temp = doctors[i];
@@ -94,6 +108,26 @@ contract Doctor {
         doctors[doctorId].patients[patientId] = false;
     }
 
+    // get doctor's address from their id (used in medicalChain numberOfRecordByDoctor function)
+    function getDoctorAddressFromDoctorId(uint256 doctorId) public view returns (address) {
+        return doctors[doctorId].owner;
+    }
+
+    // Doctor: View all records belonging to this patient
+  // Returns all the recordIds
+  function doctorViewAllRecords(address patientAddress, uint256 patientNoOfRecords) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+        // record belongs to patient calling it
+        if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
+          patientRecordsId[indexTracker] = i;
+          indexTracker++;
+        }
+      }
+
+      return patientRecordsId;
+  }
 
     /********* GETTERS & SETTERS *********/
 

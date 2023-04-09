@@ -310,7 +310,28 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 
 //   // Need to fix EHR acknowledging function
 //   it("Test EHR acknowledging", async () => {
-//     // Patient sign off on record
+//     let newPatient = await patientInstance.create(
+//       "Chad",
+//       "Teo",
+//       "chadteo@gmail.com",
+//       "20/02/2000",
+//       true,
+//       accounts[2],
+//       {
+//         from: accounts[3],
+//       }
+//     );
+
+//     // Test: testing if patient can acknowledge other patient's record
+//     // Outcome: Correct, patient unable to knowledge
+//     truffleAssert.reverts(
+//       medicalChainInstance.patientAcknowledgeRecord(0, {
+//         from: accounts[3],
+//       }),
+//       "Record does not belong to this patient"
+//     );
+
+//     // Patient acknowledge on own record
 //     let patientSigningRecord =
 //       await medicalChainInstance.patientAcknowledgeRecord(0, {
 //         from: accounts[2],
@@ -496,7 +517,7 @@ contract(
     console.log("Testing for viewing of records (different conditions)");
 
     /********* FUNCTIONALITY TESTS *********/
-    it("Test viewing of specific record", async () => {
+    it("Test practitioner viewing of specific record", async () => {
       let newPatient = await patientInstance.create(
         "Shawn",
         "Tan",
@@ -600,7 +621,7 @@ contract(
       );
     });
 
-    it("Test viewing of specific patient", async () => {
+    it("Test researcher viewing of specific patient", async () => {
       let newResearcher = await researcherInstance.create(
         "Maria",
         "Lee",
@@ -656,41 +677,44 @@ contract(
       );
     });
 
-    // PROBLEM!
-    it("Test viewing of all records acknowledged by patient", async () => {
+    it("Test patient viewing of all acknowledged records", async () => {
       let signingOff = await medicalChainInstance.patientAcknowledgeRecord(0, {
         from: accounts[2],
       });
 
       let listOfAcknowledgedRecordIds =
-        await medicalChainInstance.viewAllAcknowledgedRecords(0, {
+        await medicalChainInstance.patientViewAllAcknowledgedRecords(0, {
           from: accounts[2],
         });
 
       // for viewing of the acknowledged record id array belonging to patient
-      console.log(listOfAcknowledgedRecordIds);
+      // console.log(listOfAcknowledgedRecordIds);
 
       // checking the length of patient's acknowledged record is 1
       assert.strictEqual(
-        listOfRecordIds.length,
+        listOfAcknowledgedRecordIds.length,
         1,
         "Acknowledged records quantity does not match!"
       );
 
       assert.strictEqual(
-        listOfRecordIds[0]["words"][0],
+        listOfAcknowledgedRecordIds[0]["words"][0],
         0,
         "Acknowledged record does not exist in patient's acknowledged records"
       );
     });
 
-    it("Test viewing of all records under patient", async () => {
-      let listOfRecordIds = await medicalChainInstance.viewAllRecords(0, {
-        from: accounts[2],
-      });
+    it("Test patient viewing of all records", async () => {
+
+      let listOfRecordIds = await medicalChainInstance.patientViewAllRecords(
+        0,
+        {
+          from: accounts[2],
+        }
+      );
 
       // for viewing of the record id array belonging to patient
-      console.log(listOfRecordIds);
+      // console.log(listOfRecordIds);
 
       // checking the length of patient's record is 2
       assert.strictEqual(
@@ -712,10 +736,12 @@ contract(
       );
     });
 
-    it("Test viewing of filtered records by record type", async () => {});
+    it("Test patient viewing of all records by doctor", async () => {});
 
-    it("Test viewing of all records by practitioner", async () => {});
+    it("Test patient viewing of all records by nurse", async () => {});
 
-    it("Test record update", async () => {});
+    // it("Test practitioner viewing of all records by patient", async () => {});
+
+    // it("Test record update", async () => {});
   }
 );

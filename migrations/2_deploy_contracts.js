@@ -7,9 +7,9 @@ const Researcher = artifacts.require("Researcher");
 
 module.exports = (deployer, network, accounts) => {
   deployer.then(async () => {
-    await deployer.deploy(Doctor);
     await deployer.deploy(EHR);
-    await deployer.deploy(Nurse);
+    await deployer.deploy(Doctor, EHR.address);
+    await deployer.deploy(Nurse, EHR.address);
     await deployer.deploy(Patient, EHR.address);
     await deployer.deploy(Researcher);
     await deployer.deploy(

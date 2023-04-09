@@ -12,7 +12,7 @@ contract EHR {
         // EHRstate state;
         string fileName; 
         address patientAddress;
-        address doctorAddress;
+        address practitionerAddress;
         uint256 timeAdded;
         bool patientSignedOff;
     }
@@ -25,7 +25,7 @@ contract EHR {
         RecordType recordType,
         string memory fileName,
         address patient,
-        address doctor
+        address practitioner
     ) public returns(uint256) {
         
         //new EHR object
@@ -34,14 +34,14 @@ contract EHR {
             recordType,
             fileName,
             patient,
-            doctor,
+            practitioner,
             now,
             false
         );
         
         uint256 newEhrId = numEHR++;
         records[newEhrId] = newEhr; //commit to state variable
-        emit EHRAdded(newEhr.doctorAddress);
+        emit EHRAdded(newEhr.practitionerAddress);
         return newEhrId;   //return new ehrId
     }
 
@@ -80,7 +80,7 @@ contract EHR {
         address doctorAddress,
         uint256 timeAdded,
         bool patientSignedOff) {
-        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordDoctorAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
+        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordPractitionerAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
     }
 
     function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
@@ -106,6 +106,14 @@ contract EHR {
         }
     }
 
+    function doesRecordMatchPractitionerAddress(uint256 recordId, address practitionerAddress) public view returns(bool) {
+        if(records[recordId].practitionerAddress == practitionerAddress) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function patientSignOff(uint256 recordId) public {
         records[recordId].patientSignedOff = true;
     }
@@ -124,8 +132,8 @@ contract EHR {
         return records[recordId].patientAddress;
     }
 
-    function getRecordDoctorAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].doctorAddress;
+    function getRecordPractitionerAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].practitionerAddress;
     }
 
     function getRecordTimeAdded(uint256 recordId) public view returns(uint256) {
