@@ -15,6 +15,8 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 // account[4]: doctor
 // account[5]: nurse
 // account[6]: researcher
+// account[7]: patient
+// account[8]: doctor
 
 /************************************ Testing for creation ************************************/
 /************************************ Testing for creation ************************************/
@@ -430,7 +432,7 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 //       }
 //     );
 
-//     // Grant doctor access
+//     // Grant nurse access
 //     let givingNurseAccess = await medicalChainInstance.giveNurseAccess(
 //       0,
 //       accounts[5],
@@ -514,246 +516,397 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 /************************************ Testing for viewing of records (different conditions) ************************************/
 /************************************ Testing for viewing of records (different conditions) ************************************/
 /************************************ Testing for viewing of records (different conditions) ************************************/
-// contract(
-//   "Testing for viewing of records (different conditions)",
-//   function (accounts) {
-//     before(async () => {
-//       doctorInstance = await Doctor.deployed();
-//       ehrInstance = await EHR.deployed();
-//       medicalChainInstance = await MedicalChain.deployed();
-//       nurseInstance = await Nurse.deployed();
-//       patientInstance = await Patient.deployed();
-//       researcherInstance = await Researcher.deployed();
-//     });
+contract(
+  "Testing for viewing of records (different conditions)",
+  function (accounts) {
+    before(async () => {
+      doctorInstance = await Doctor.deployed();
+      ehrInstance = await EHR.deployed();
+      medicalChainInstance = await MedicalChain.deployed();
+      nurseInstance = await Nurse.deployed();
+      patientInstance = await Patient.deployed();
+      researcherInstance = await Researcher.deployed();
+    });
 
-//     console.log("Testing for viewing of records (different conditions)");
+    console.log("Testing for viewing of records (different conditions)");
 
-//     /********* FUNCTIONALITY TESTS *********/
-//     it("Test practitioner viewing of specific record", async () => {
-//       let newPatient = await patientInstance.create(
-//         "Shawn",
-//         "Tan",
-//         "shawntan@gmail.com",
-//         "18/04/2000",
-//         true,
-//         accounts[3],
-//         {
-//           from: accounts[2],
-//         }
-//       );
+    /********* FUNCTIONALITY TESTS *********/
+    it("Test practitioner viewing of specific record", async () => {
+      let newPatient = await patientInstance.create(
+        "Shawn",
+        "Tan",
+        "shawntan@gmail.com",
+        "18/04/2000",
+        true,
+        accounts[3],
+        {
+          from: accounts[2],
+        }
+      );
 
-//       let newDoctor = await doctorInstance.create(
-//         "Gary",
-//         "Tay",
-//         "garytay@gmail.com",
-//         "20/01/1980",
-//         {
-//           from: accounts[4],
-//         }
-//       );
+      let newDoctor = await doctorInstance.create(
+        "Gary",
+        "Tay",
+        "garytay@gmail.com",
+        "20/01/1980",
+        {
+          from: accounts[4],
+        }
+      );
 
-//       // Grant doctor access
-//       let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
-//         0,
-//         accounts[4],
-//         {
-//           from: accounts[2],
-//         }
-//       );
+      // Grant doctor access
+      let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
+        0,
+        accounts[4],
+        {
+          from: accounts[2],
+        }
+      );
 
-//       // Register patient with doctor
-//       let registeringPatient =
-//         await medicalChainInstance.registerPatientWithDoctor(0, 0, {
-//           from: accounts[4],
-//         });
+      // Register patient with doctor
+      let registeringPatient =
+        await medicalChainInstance.registerPatientWithDoctor(0, 0, {
+          from: accounts[4],
+        });
 
-//       // Add EHR
-//       let addingEHR = await medicalChainInstance.addNewEHR(
-//         EHR.RecordType.IMMUNISATION,
-//         0,
-//         "Immunisation Records",
-//         {
-//           from: accounts[4],
-//         }
-//       );
+      // Add EHR
+      let addingEHR = await medicalChainInstance.addNewEHR(
+        EHR.RecordType.IMMUNISATION,
+        0,
+        "Immunisation Records",
+        {
+          from: accounts[4],
+        }
+      );
 
-//       // Add EHR
-//       let addingEHR2 = await medicalChainInstance.addNewEHR(
-//         EHR.RecordType.ALLERGIES,
-//         0,
-//         "Allergies Records",
-//         {
-//           from: accounts[4],
-//         }
-//       );
+      // Add EHR
+      let addingEHR2 = await medicalChainInstance.addNewEHR(
+        EHR.RecordType.ALLERGIES,
+        0,
+        "Allergies Records",
+        {
+          from: accounts[4],
+        }
+      );
 
-//       truffleAssert.eventEmitted(addingEHR, "AddingEHR");
-//       truffleAssert.eventEmitted(addingEHR2, "AddingEHR");
+      truffleAssert.eventEmitted(addingEHR, "AddingEHR");
+      truffleAssert.eventEmitted(addingEHR2, "AddingEHR");
 
-//       let secondNewDoctor = await doctorInstance.create(
-//         "Johnson",
-//         "Lee",
-//         "johnlee@gmail.com",
-//         "20/01/1989",
-//         {
-//           from: accounts[7],
-//         }
-//       );
+      let secondNewDoctor = await doctorInstance.create(
+        "Johnson",
+        "Lee",
+        "johnlee@gmail.com",
+        "20/01/1989",
+        {
+          from: accounts[8],
+        }
+      );
 
-//       // Test: testing if doctor that is not in patient's approvedDoctors will pass
-//       // Outcome: Correct, Doctor unable to view
-//       await truffleAssert.reverts(
-//         medicalChainInstance.viewRecordByRecordID(0, 0, {
-//           from: accounts[7],
-//         }),
-//         "Doctor is not in patient's list of approved doctors"
-//       );
+      // Test: testing if non-practitioner can call this function
+      // Outcome: Correct, Unable to call
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[2],
+        }),
+        "User is not a practitioner"
+      );
 
-//       // Test: testing if invalid record id will throw an error
-//       // Outcome: Correct
-//       await truffleAssert.reverts(
-//         medicalChainInstance.viewRecordByRecordID(0, 2, {
-//           from: accounts[4],
-//         }),
-//         "Record ID given is not valid"
-//       );
+      // Test: testing if doctor that is not in patient's approvedDoctors will pass
+      // Outcome: Correct, Doctor unable to view
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[8],
+        }),
+        "Doctor is not in patient's list of approved doctors"
+      );
 
-//       let record = await medicalChainInstance.viewRecordByRecordID(0, 0, {
-//         from: accounts[4],
-//       });
+      // Test: testing if invalid record id will throw an error
+      // Outcome: Correct
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewRecordByRecordID(0, 2, {
+          from: accounts[4],
+        }),
+        "Record ID given is not valid"
+      );
 
-//       // for viewing of the record and the details
-//       // console.log(record);
+      let record = await medicalChainInstance.practitionerViewRecordByRecordID(
+        0,
+        0,
+        {
+          from: accounts[4],
+        }
+      );
 
-//       // checking that the record data given belongs to record id 0
-//       await assert.strictEqual(
-//         record["0"]["words"][0],
-//         0,
-//         "Record given is not the requested one"
-//       );
-//     });
+      // for viewing of the record and the details
+      // console.log(record);
 
-//     it("Test researcher viewing of specific patient", async () => {
-//       let newResearcher = await researcherInstance.create(
-//         "Maria",
-//         "Lee",
-//         "marialee@gmail.com",
-//         "25/06/1999",
-//         {
-//           from: accounts[6],
-//         }
-//       );
+      // checking that the record data given belongs to record id 0
+      await assert.strictEqual(
+        record["0"]["words"][0],
+        0,
+        "Record given is not the requested one"
+      );
+    });
 
-//       // Grant researcher access
-//       let givingResearcherAccess =
-//         await medicalChainInstance.giveResearcherAccess(0, {
-//           from: accounts[2],
-//         });
+    it("Test researcher viewing of specific patient", async () => {
+      let newResearcher = await researcherInstance.create(
+        "Maria",
+        "Lee",
+        "marialee@gmail.com",
+        "25/06/1999",
+        {
+          from: accounts[6],
+        }
+      );
 
-//       // testing if Doctor can view patient's data
-//       await truffleAssert.reverts(
-//         medicalChainInstance.viewPatientByPatientID(0, { from: accounts[4] }),
-//         "This person is not a researcher!"
-//       );
+      // Grant researcher access
+      let givingResearcherAccess =
+        await medicalChainInstance.giveResearcherAccess(0, {
+          from: accounts[2],
+        });
 
-//       let newPatient = await patientInstance.create(
-//         "Shawn",
-//         "Tan",
-//         "shawntan@gmail.com",
-//         "18/04/2000",
-//         false,
-//         accounts[3],
-//         {
-//           from: accounts[8],
-//         }
-//       );
+      // testing if Doctor can view patient's data
+      await truffleAssert.reverts(
+        medicalChainInstance.viewPatientByPatientID(0, { from: accounts[4] }),
+        "This person is not a researcher!"
+      );
 
-//       // testing if researcher can view patient that has not given access
-//       await truffleAssert.reverts(
-//         medicalChainInstance.viewPatientByPatientID(1, { from: accounts[6] }),
-//         "Patient has not approved data for research purposes"
-//       );
+      let newPatient = await patientInstance.create(
+        "Shawn",
+        "Tan",
+        "shawntan@gmail.com",
+        "18/04/2000",
+        false,
+        accounts[3],
+        {
+          from: accounts[7],
+        }
+      );
 
-//       let patientData = await medicalChainInstance.viewPatientByPatientID(0, {
-//         from: accounts[6],
-//       });
+      // testing if researcher can view patient that has not given access
+      await truffleAssert.reverts(
+        medicalChainInstance.viewPatientByPatientID(1, { from: accounts[6] }),
+        "Patient has not approved data for research purposes"
+      );
 
-//       // for viewing of the patient data
-//       // console.log(patientData);
+      let patientData = await medicalChainInstance.viewPatientByPatientID(0, {
+        from: accounts[6],
+      });
 
-//       // checking that the patient data given belongs to patient id 0
-//       await assert.strictEqual(
-//         patientData["0"]["words"][0],
-//         0,
-//         "Patient data given is not the requested one"
-//       );
-//     });
+      // for viewing of the patient data
+      // console.log(patientData);
 
-//     it("Test patient viewing of all acknowledged records", async () => {
-//       let signingOff = await medicalChainInstance.patientAcknowledgeRecord(0, {
-//         from: accounts[2],
-//       });
+      // checking that the patient data given belongs to patient id 0
+      await assert.strictEqual(
+        patientData["0"]["words"][0],
+        0,
+        "Patient data given is not the requested one"
+      );
+    });
 
-//       let listOfAcknowledgedRecordIds =
-//         await medicalChainInstance.patientViewAllAcknowledgedRecords(0, {
-//           from: accounts[2],
-//         });
+    it("Test patient viewing of all acknowledged records", async () => {
+      let signingOff = await medicalChainInstance.patientAcknowledgeRecord(0, {
+        from: accounts[2],
+      });
 
-//       // for viewing of the acknowledged record id array belonging to patient
-//       // console.log(listOfAcknowledgedRecordIds);
+      let listOfAcknowledgedRecordIds =
+        await medicalChainInstance.patientViewAllAcknowledgedRecords(0, {
+          from: accounts[2],
+        });
 
-//       // checking the length of patient's acknowledged record is 1
-//       assert.strictEqual(
-//         listOfAcknowledgedRecordIds.length,
-//         1,
-//         "Acknowledged records quantity does not match!"
-//       );
+      // for viewing of the acknowledged record id array belonging to patient
+      // console.log(listOfAcknowledgedRecordIds);
 
-//       assert.strictEqual(
-//         listOfAcknowledgedRecordIds[0]["words"][0],
-//         0,
-//         "Acknowledged record does not exist in patient's acknowledged records"
-//       );
-//     });
+      // checking the length of patient's acknowledged record is 1
+      assert.strictEqual(
+        listOfAcknowledgedRecordIds.length,
+        1,
+        "Acknowledged records quantity does not match!"
+      );
 
-//     it("Test patient viewing of all records", async () => {
+      assert.strictEqual(
+        listOfAcknowledgedRecordIds[0]["words"][0],
+        0,
+        "Acknowledged record does not exist in patient's acknowledged records"
+      );
+    });
 
-//       let listOfRecordIds = await medicalChainInstance.patientViewAllRecords(
-//         0,
-//         {
-//           from: accounts[2],
-//         }
-//       );
+    it("Test patient viewing of all records", async () => {
+      let listOfRecordIds = await medicalChainInstance.patientViewAllRecords(
+        0,
+        {
+          from: accounts[2],
+        }
+      );
 
-//       // for viewing of the record id array belonging to patient
-//       // console.log(listOfRecordIds);
+      // for viewing of the record id array belonging to patient
+      // console.log(listOfRecordIds);
 
-//       // checking the length of patient's record is 2
-//       assert.strictEqual(
-//         listOfRecordIds.length,
-//         2,
-//         "Records quantity does not match!"
-//       );
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordIds.length,
+        2,
+        "Records quantity does not match!"
+      );
 
-//       assert.strictEqual(
-//         listOfRecordIds[0]["words"][0],
-//         0,
-//         "Record does not exist in patient's records"
-//       );
+      assert.strictEqual(
+        listOfRecordIds[0]["words"][0],
+        0,
+        "Record does not exist in patient's records"
+      );
 
-//       assert.strictEqual(
-//         listOfRecordIds[1]["words"][0],
-//         1,
-//         "Record does not exist in patient's records"
-//       );
-//     });
+      assert.strictEqual(
+        listOfRecordIds[1]["words"][0],
+        1,
+        "Record does not exist in patient's records"
+      );
+    });
 
-//     it("Test patient viewing of all records by doctor", async () => {});
+    it("Test patient viewing of all records by doctor", async () => {
+      // Test: testing if another patient can view patient id 0's records by doctor
+      // Outcome: Correct, unable to view
+      await truffleAssert.reverts(
+        medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[7],
+        }),
+        "Current user is not the intended patient!"
+      );
 
-//     it("Test patient viewing of all records by nurse", async () => {});
+      // Test: testing if non-patient can view patient id 0's records by doctor
+      // Outcome: Correct, unable to view
+      await truffleAssert.reverts(
+        medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[4],
+        }),
+        "This person is not a patient!"
+      );
 
-//     // it("Test practitioner viewing of all records by patient", async () => {});
+      let listOfRecordByDoctor =
+        await medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[2],
+        });
 
-//     // it("Test record update", async () => {});
-//   }
-// );
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordByDoctor.length,
+        2,
+        "Records quantity does not match!"
+      );
+
+      assert.strictEqual(
+        listOfRecordByDoctor[0]["words"][0],
+        0,
+        "Record was not issued by given doctor"
+      );
+
+      assert.strictEqual(
+        listOfRecordByDoctor[1]["words"][0],
+        1,
+        "Record was not issued by given doctor"
+      );
+    });
+
+    it("Test practitioner viewing of all patient records", async () => {
+      // Test: testing if non practitioner can call this function
+      // Outcome: Correct, unable to call
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewAllRecords(0, {
+          from: accounts[2],
+        }),
+        "User is not a practitioner"
+      );
+
+      // Test: testing if non approved doctor can call this function
+      // Outcome: Correct, unable to call
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewAllRecords(0, {
+          from: accounts[8],
+        }),
+        "Doctor is not in patient's list of approved doctors"
+      );
+
+      let listOfRecordIds =
+        await medicalChainInstance.practitionerViewAllRecords(0, {
+          from: accounts[4],
+        });
+
+      // for viewing of the record id array belonging to patient
+      //   console.log(listOfRecordIds);
+
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordIds.length,
+        2,
+        "Records quantity does not match!"
+      );
+
+      assert.strictEqual(
+        listOfRecordIds[0]["words"][0],
+        0,
+        "Record does not exist in patient's records"
+      );
+
+      assert.strictEqual(
+        listOfRecordIds[1]["words"][0],
+        1,
+        "Record does not exist in patient's records"
+      );
+    });
+
+    it("Test record update", async () => {
+      let beforeUpdate =
+        await medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[4],
+        });
+
+      // console.log(beforeUpdate["fileName"]);
+
+      // ensure that record's file name before update is Immunisation Records
+      assert.strictEqual(
+        beforeUpdate["fileName"] == "Immunisation Records",
+        true,
+        "Incorrect record chosen!"
+      );
+
+      await truffleAssert.reverts(
+        medicalChainInstance.updateRecordByRecordId(
+          0,
+          0,
+          EHR.RecordType.LABORATORY_RESULTS,
+          "Laboratory Results",
+          { from: accounts[2] }
+        ),
+        "User is not a doctor!"
+      );
+
+      await truffleAssert.reverts(
+        medicalChainInstance.updateRecordByRecordId(
+          0,
+          0,
+          EHR.RecordType.LABORATORY_RESULTS,
+          "Laboratory Results",
+          { from: accounts[8] }
+        ),
+        "Doctor is not issuer!"
+      );
+
+      let updateRecord = await medicalChainInstance.updateRecordByRecordId(
+        0,
+        0,
+        EHR.RecordType.LABORATORY_RESULTS,
+        "Laboratory Results",
+        { from: accounts[4] }
+      );
+      let afterUpdate =
+        await medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[4],
+        });
+
+      assert.strictEqual(
+        afterUpdate["fileName"] == "Laboratory Results",
+        true,
+        "Update failed!"
+      );
+    });
+  }
+);

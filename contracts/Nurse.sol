@@ -61,6 +61,13 @@ contract Nurse {
 
 
     /********* FUNCTIONS *********/
+    function registerPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+        nurses[nurseId].patients[patientId] = true;
+    }
+
+    function unregisterPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+        nurses[nurseId].patients[patientId] = false;
+    }
 
     function isValidNurseId(uint256 nurseId) public view returns (bool) {
         if (nurseId < numNurses) {

@@ -12,7 +12,7 @@ contract EHR {
         // EHRstate state;
         string fileName; 
         address patientAddress;
-        address practitionerAddress;
+        address doctorAddress;
         uint256 timeAdded;
         bool patientSignedOff;
     }
@@ -41,7 +41,7 @@ contract EHR {
         
         uint256 newEhrId = numEHR++;
         records[newEhrId] = newEhr; //commit to state variable
-        emit EHRAdded(newEhr.practitionerAddress);
+        emit EHRAdded(newEhr.doctorAddress);
         return newEhrId;   //return new ehrId
     }
 
@@ -80,7 +80,7 @@ contract EHR {
         address doctorAddress,
         uint256 timeAdded,
         bool patientSignedOff) {
-        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordPractitionerAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
+        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordDoctorAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
     }
 
     function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
@@ -106,8 +106,8 @@ contract EHR {
         }
     }
 
-    function doesRecordMatchPractitionerAddress(uint256 recordId, address practitionerAddress) public view returns(bool) {
-        if(records[recordId].practitionerAddress == practitionerAddress) {
+    function doesRecordMatchDoctorAddress(uint256 recordId, address doctorAddress) public view returns(bool) {
+        if(records[recordId].doctorAddress == doctorAddress) {
             return true;
         } else {
             return false;
@@ -132,8 +132,8 @@ contract EHR {
         return records[recordId].patientAddress;
     }
 
-    function getRecordPractitionerAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].practitionerAddress;
+    function getRecordDoctorAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].doctorAddress;
     }
 
     function getRecordTimeAdded(uint256 recordId) public view returns(uint256) {
