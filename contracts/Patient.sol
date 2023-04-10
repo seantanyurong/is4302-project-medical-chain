@@ -243,6 +243,8 @@ contract Patient {
         indexTracker++;
       }
     }
+
+    return patientRecordsIdFiltered;
   }
 
     // Patient: Helper function to check how many records fulfilling the given record type for a patient

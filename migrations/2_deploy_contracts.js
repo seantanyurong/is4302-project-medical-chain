@@ -1,6 +1,5 @@
 const Doctor = artifacts.require("Doctor");
 const EHR = artifacts.require("EHR");
-const medicalChain = artifacts.require("medicalChain");
 const medicalChainPatient = artifacts.require("medicalChainPatient");
 const medicalChainStaff = artifacts.require("medicalChainStaff");
 const Nurse = artifacts.require("Nurse");

@@ -74,7 +74,7 @@
   "sourceMap": "34:483:2:-;;;189:50;8:9:-1;5:2;;;30:1;27;20:12;5:2;189:50:2;224:10;216:5;;:18;;;;;;;;;;;;;;;;;;34:483;;;;;;",
   "deployedSourceMap": "34:483:2:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;34:483:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;350:165;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;350:165:2;;;;;;;;;;;;;;;;;;;:::i;:::-;;82:39;;;:::i;:::-;;;;;;;;;;;;;;;;;;;58:20;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;243:103;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;243:103:2;;;;;;;;;;;;;;;;;:::i;:::-;;350:165;172:5;;;;;;;;;;;158:19;;:10;:19;;;154:26;;;412:19;445:11;412:45;;463:8;:21;;;485:24;;463:47;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;463:47:2;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;463:47:2;;;;179:1;154:26;350:165;:::o;82:39::-;;;;:::o;58:20::-;;;;;;;;;;;;;:::o;243:103::-;172:5;;;;;;;;;;;158:19;;:10;:19;;;154:26;;;332:9;305:24;:36;;;;154:26;243:103;:::o",
   "source": "pragma solidity >=0.4.22 <0.7.0;\n\ncontract Migrations {\n  address public owner;\n  uint256 public last_completed_migration;\n\n  modifier restricted() {\n    if (msg.sender == owner) _;\n  }\n\n  constructor() public {\n    owner = msg.sender;\n  }\n\n  function setCompleted(uint completed) public restricted {\n    last_completed_migration = completed;\n  }\n\n  function upgrade(address new_address) public restricted {\n    Migrations upgraded = Migrations(new_address);\n    upgraded.setCompleted(last_completed_migration);\n  }\n}",
-  "sourcePath": "/Users/seantan/Documents/Code/School/IS4302/project/contracts/Migrations.sol",
+  "sourcePath": "/Users/aaronf/IS4302/is4302-project-medical-chain/contracts/Migrations.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migrations.sol",
     "exportedSymbols": {
@@ -191,7 +191,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6096,
+                        "referencedDeclaration": 4883,
                         "src": "158:3:2",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -295,7 +295,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6096,
+                        "referencedDeclaration": 4883,
                         "src": "224:3:2",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -879,7 +879,7 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 6096,
+                                  "referencedDeclaration": 4883,
                                   "type": "msg",
                                   "value": "msg"
                                 },
@@ -1016,7 +1016,7 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 6096,
+                                  "referencedDeclaration": 4883,
                                   "type": "msg",
                                   "value": "msg"
                                 },
@@ -1471,16 +1471,9 @@
     "name": "solc",
     "version": "0.5.17+commit.d19bba13.Emscripten.clang"
   },
-  "networks": {
-    "5777": {
-      "events": {},
-      "links": {},
-      "address": "0xCC6FF59461eAD260A2D7080821e11BFE944C9AC4",
-      "transactionHash": "0x251d24b7f5e879bca93659760dce29c249b0e69e60719684da191d9e7866d9c2"
-    }
-  },
-  "schemaVersion": "3.4.13",
-  "updatedAt": "2023-04-10T04:24:47.276Z",
+  "networks": {},
+  "schemaVersion": "3.4.11",
+  "updatedAt": "2023-04-10T05:02:01.018Z",
   "devdoc": {
     "methods": {}
   },
