@@ -50,7 +50,7 @@ contract medicalChainPatient {
   modifier isPatientAndAuthorised(uint256 patientId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
     require(patientContract.isValidPatientId(patientId) == true, "Patient ID given is not valid");
-    require(patientContract.getPatientIdFromPatientAddress(msg.sender) == patientId, "Patient is not allowed to view other patient's records");
+    require(patientContract.getPatientIdFromPatientAddress(msg.sender) == patientId, "This patient is not allowed to call on behalf of other patient");
     _;
   }
 

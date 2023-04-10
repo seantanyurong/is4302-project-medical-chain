@@ -517,6 +517,18 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
+    let newPatient2 = await patientInstance.create(
+      "Katie",
+      "Tan",
+      "katietan@gmail.com",
+      "21/04/2000",
+      true,
+      "0x0000000000000000000000000000000000000000",
+      {
+        from: accounts[7],
+      }
+    );
+
     let newDoctor = await doctorInstance.create(
       "Gary",
       "Tay",
@@ -525,6 +537,22 @@ contract("Testing for practitioner's access", function (accounts) {
       {
         from: accounts[4],
       }
+    );
+
+    // Test if non-patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
+        from: accounts[4],
+      }),
+      "This person is not a patient!"
+    );
+
+    // Test if other patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
+        from: accounts[7],
+      }),
+      "This patient is not allowed to call on behalf of other patient"
     );
 
     // Grant doctor access
@@ -572,6 +600,22 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
+    // Test if non-patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveNurseAccess(0, accounts[5], {
+        from: accounts[4],
+      }),
+      "This person is not a patient!"
+    );
+
+    // Test if other patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveNurseAccess(0, accounts[5], {
+        from: accounts[7],
+      }),
+      "This patient is not allowed to call on behalf of other patient"
+    );
+
     // Grant nurse access
     let givingNurseAccess = await medicalChainPatientInstance.giveNurseAccess(
       0,
@@ -615,6 +659,22 @@ contract("Testing for practitioner's access", function (accounts) {
       {
         from: accounts[6],
       }
+    );
+
+    // Test if non-patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveResearcherAccess(0, {
+        from: accounts[6],
+      }),
+      "This person is not a patient!"
+    );
+
+    // Test if other patient can call this function for patient id 0
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveResearcherAccess(0, {
+        from: accounts[7],
+      }),
+      "This patient is not allowed to call on behalf of other patient"
     );
 
     // Grant researcher access
@@ -725,9 +785,6 @@ contract(
         }
       );
 
-      truffleAssert.eventEmitted(addingEHR, "AddingEHR");
-      truffleAssert.eventEmitted(addingEHR2, "AddingEHR");
-
       let secondNewDoctor = await doctorInstance.create(
         "Johnson",
         "Lee",
@@ -755,6 +812,26 @@ contract(
         }),
         "Doctor is not in patient's list of approved doctors"
       );
+
+      // Grant doctor id 8 access
+      let givingDoctorAccess2 =
+        await medicalChainPatientInstance.giveDoctorAccess(0, accounts[8], {
+          from: accounts[2],
+        });
+
+      // Test: testing if patient that is not in doctor's list of patients will pass
+      // Outcome: Correct, unable to proceed
+      await truffleAssert.reverts(
+        medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[8],
+        }),
+        "Patient is not in doctor's list of patients"
+      );
+      
+      // Remove doctor id 8 access for subsequent tests
+      let removeDoctorAccess2 = await medicalChainPatientInstance.removeDoctorAccess(0, accounts[8], {
+        from: accounts[2],
+      });
 
       let record =
         await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
@@ -923,7 +1000,7 @@ contract(
           EHR.RecordType.IMMUNISATION,
           { from: accounts[7] }
         ),
-        "Patient is not allowed to view other patient's records"
+        "This patient is not allowed to call on behalf of other patient"
       );
 
       let listOfFilterRecordIds =
@@ -1008,7 +1085,7 @@ contract(
         medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[7],
         }),
-        "Patient is not allowed to view other patient's records"
+        "This patient is not allowed to call on behalf of other patient"
       );
       // Test: testing if non-patient can view patient id 0's records by doctor
       // Outcome: Correct, unable to view
