@@ -3,6 +3,12 @@ pragma solidity ^0.5.0;
 import "./EHR.sol";
 
 contract Nurse {
+    
+    EHR ehrContract;
+
+    constructor(EHR ehrAddress) public {
+        ehrContract = ehrAddress;
+  }
 
     struct nurse {
         address owner;
@@ -33,9 +39,13 @@ contract Nurse {
         newNurse.dob = _dob;
 
         nurses[newNurseId] = newNurse;
+        emit NurseAdded(newNurse.owner);
         return newNurseId;
     }
 
+    /********* EVENTS *********/
+
+    event NurseAdded(address nurseAddress);
 
     /********* MODIFIERS *********/
 
@@ -51,6 +61,21 @@ contract Nurse {
 
 
     /********* FUNCTIONS *********/
+    function registerPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+        nurses[nurseId].patients[patientId] = true;
+    }
+
+    function unregisterPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+        nurses[nurseId].patients[patientId] = false;
+    }
+
+    function isValidNurseId(uint256 nurseId) public view returns (bool) {
+        if (nurseId < numNurses) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numNurses; i++) {
@@ -77,6 +102,27 @@ contract Nurse {
 
         return false;
     }
+
+    // get doctor's address from their id (used in medicalChain numberOfRecordByNurse function)
+    function getNurseAddressFromNurseId(uint256 nurseId) public view returns (address) {
+        return nurses[nurseId].owner;
+    }
+
+    // Nurse: View all records belonging to this patient
+  // Returns all the recordIds
+  function nurseViewAllRecords(address patientAddress, uint256 patientNoOfRecords) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+        // record belongs to patient calling it
+        if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
+          patientRecordsId[indexTracker] = i;
+          indexTracker++;
+        }
+      }
+
+      return patientRecordsId;
+  }
 
 
     /********* GETTERS & SETTERS *********/

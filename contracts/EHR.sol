@@ -14,6 +14,7 @@ contract EHR {
         address patientAddress;
         address doctorAddress;
         uint256 timeAdded;
+        bool patientSignedOff;
     }
     
     uint256 public numEHR = 0;
@@ -24,9 +25,8 @@ contract EHR {
         RecordType recordType,
         string memory fileName,
         address patient,
-        address doctor
-    ) public payable returns(uint256) {
-        require(msg.value > 0.01 ether, "at least 0.01 ETH is needed"); // not sure if we need this
+        address practitioner
+    ) public returns(uint256) {
         
         //new EHR object
         ehr memory newEhr = ehr(
@@ -34,15 +34,20 @@ contract EHR {
             recordType,
             fileName,
             patient,
-            doctor,
-            now
+            practitioner,
+            now,
+            false
         );
         
         uint256 newEhrId = numEHR++;
         records[newEhrId] = newEhr; //commit to state variable
+        emit EHRAdded(newEhr.doctorAddress);
         return newEhrId;   //return new ehrId
     }
 
+    /********* EVENTS *********/
+
+    event EHRAdded(address ehrAddress);
 
     /********* MODIFIERS *********/
 
@@ -60,12 +65,12 @@ contract EHR {
 
     /********* FUNCTIONS *********/
 
-    function getDoctorAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].doctorAddress;
-    }
-
-    function getPatientAddress(uint256 recordId) public view returns(address) {
-        return records[recordId].patientAddress;
+    function isValidRecordId(uint256 recordId) public view returns (bool) {
+        if (recordId < numEHR) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function getRecord(uint256 recordId) public view returns(uint256 id,
@@ -73,8 +78,9 @@ contract EHR {
         string memory fileName,
         address patientAddress,
         address doctorAddress,
-        uint256 timeAdded) {
-        return (records[recordId].recordId, records[recordId].recordType, records[recordId].fileName, records[recordId].patientAddress, records[recordId].doctorAddress, records[recordId].timeAdded);
+        uint256 timeAdded,
+        bool patientSignedOff) {
+        return (recordId, getRecordType(recordId), getRecordFileName(recordId), getRecordPatientAddress(recordId), getRecordDoctorAddress(recordId), getRecordTimeAdded(recordId), getRecordPatientSignedOff(recordId));
     }
 
     function updateRecord(uint256 recordId, RecordType recordType, string memory fileName) public {
@@ -99,4 +105,43 @@ contract EHR {
             return false;
         }
     }
+
+    function doesRecordMatchDoctorAddress(uint256 recordId, address doctorAddress) public view returns(bool) {
+        if(records[recordId].doctorAddress == doctorAddress) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function patientSignOff(uint256 recordId) public {
+        records[recordId].patientSignedOff = true;
+    }
+
+    /********* GETTERS & SETTERS *********/
+    
+    function getRecordType(uint256 recordId) public view returns(RecordType) {
+        return records[recordId].recordType;
+    }
+
+    function getRecordFileName(uint256 recordId) public view returns(string memory) {
+        return records[recordId].fileName;
+    }
+
+    function getRecordPatientAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].patientAddress;
+    }
+
+    function getRecordDoctorAddress(uint256 recordId) public view returns(address) {
+        return records[recordId].doctorAddress;
+    }
+
+    function getRecordTimeAdded(uint256 recordId) public view returns(uint256) {
+        return records[recordId].timeAdded;
+    }
+
+    function getRecordPatientSignedOff(uint256 recordId) public view returns(bool) {
+        return records[recordId].patientSignedOff;
+    }
+
 }
