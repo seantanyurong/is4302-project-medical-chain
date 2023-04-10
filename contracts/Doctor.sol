@@ -4,6 +4,12 @@ import "./EHR.sol";
 
 contract Doctor {
 
+    EHR ehrContract;
+
+    constructor(EHR ehrAddress) public {
+        ehrContract = ehrAddress;
+  }
+
     struct doctor {
         address owner;
         uint256 doctorId;
@@ -33,10 +39,16 @@ contract Doctor {
         newDoctor.dob = _dob;
 
         doctors[newDoctorId] = newDoctor;
+        emit DoctorAdded(newDoctor.owner);
         return newDoctorId;
     }
 
+
+    /********* EVENTS *********/
+
+    event DoctorAdded(address doctorAddress);
     event AddressDoesNotBelongToAnyDoctor();
+
 
     /********* MODIFIERS *********/
 
@@ -53,6 +65,14 @@ contract Doctor {
 
 
     /********* FUNCTIONS *********/
+
+    function isValidDoctorId(uint256 doctorId) public view returns (bool) {
+        if (doctorId < numDoctors) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     function isSender(address owner) public view returns(bool) {
         for (uint i = 0; i < numDoctors; i++) {
@@ -80,6 +100,38 @@ contract Doctor {
         return false;
     }
 
+    function getIsPatientRegistered(uint256 doctorId, uint256 patientId) public view returns (bool) {
+        return doctors[doctorId].patients[patientId];
+    }
+
+    function registerPatient(uint256 doctorId, uint256 patientId) public {
+        doctors[doctorId].patients[patientId] = true;
+    }
+
+    function unregisterPatient(uint256 doctorId, uint256 patientId) public {
+        doctors[doctorId].patients[patientId] = false;
+    }
+
+    // get doctor's address from their id (used in medicalChain numberOfRecordByDoctor function)
+    function getDoctorAddressFromDoctorId(uint256 doctorId) public view returns (address) {
+        return doctors[doctorId].owner;
+    }
+
+    // Doctor: View all records belonging to this patient
+  // Returns all the recordIds
+  function doctorViewAllRecords(address patientAddress, uint256 patientNoOfRecords) public view returns (uint256[] memory) {
+    uint256[] memory patientRecordsId = new uint256[](patientNoOfRecords);
+    uint256 indexTracker = 0;
+    for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+        // record belongs to patient calling it
+        if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
+          patientRecordsId[indexTracker] = i;
+          indexTracker++;
+        }
+      }
+
+      return patientRecordsId;
+  }
 
     /********* GETTERS & SETTERS *********/
 
@@ -116,12 +168,13 @@ contract Doctor {
     }
 
     // get doctor's id from their address 
-    function getDoctorIdFromDoctorAddress(address doctorAddress) public returns (uint256) {
+    function getDoctorIdFromDoctorAddress(address doctorAddress) public view returns (uint256) {
         for (uint i = 0; i < numDoctors; i++) {
             if (doctors[i].owner == doctorAddress) {
                 return i;
             }
         }
-        emit AddressDoesNotBelongToAnyDoctor();
+
+        return uint256(-1);
     }
 }
