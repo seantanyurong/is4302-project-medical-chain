@@ -4,7 +4,10 @@ var assert = require("assert");
 
 var Doctor = artifacts.require("../contracts/Doctor.sol");
 var EHR = artifacts.require("../contracts/EHR.sol");
-var MedicalChain = artifacts.require("../contracts/medicalChain.sol");
+var MedicalChainPatient = artifacts.require(
+  "../contracts/medicalChainPatient.sol"
+);
+var MedicalChainStaff = artifacts.require("../contracts/medicalChainStaff.sol");
 var Nurse = artifacts.require("../contracts/Nurse.sol");
 var Patient = artifacts.require("../contracts/Patient.sol");
 var Researcher = artifacts.require("../contracts/Researcher.sol");
@@ -28,7 +31,8 @@ contract("Testing for creation", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
     ehrInstance = await EHR.deployed();
-    medicalChainInstance = await MedicalChain.deployed();
+    medicalChainPatientInstance = await MedicalChainPatient.deployed();
+    medicalChainStaffInstance = await MedicalChainStaff.deployed();
     nurseInstance = await Nurse.deployed();
     patientInstance = await Patient.deployed();
     researcherInstance = await Researcher.deployed();
@@ -38,11 +42,16 @@ contract("Testing for creation", function (accounts) {
 
   /********* BASIC CREATION TESTS *********/
 
-  it("Test if medical chain exists", async () => {
-    let testingTest = await medicalChainInstance.testingTest(10, {
+  it("Test if medical chains exists", async () => {
+    let testingTest1 = await medicalChainPatientInstance.testingTest(10, {
       from: accounts[1],
     });
-    truffleAssert.eventEmitted(testingTest, "testEvent");
+    truffleAssert.eventEmitted(testingTest1, "testEvent");
+
+    let testingTest2 = await medicalChainStaffInstance.testingTest(10, {
+      from: accounts[1],
+    });
+    truffleAssert.eventEmitted(testingTest2, "testEvent");
   });
 
   // Do we need to check if we can nominate secondary user if they are not a registered patient yet
@@ -213,7 +222,8 @@ contract("Testing for EHR interaction", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
     ehrInstance = await EHR.deployed();
-    medicalChainInstance = await MedicalChain.deployed();
+    medicalChainPatientInstance = await MedicalChainPatient.deployed();
+    medicalChainStaffInstance = await MedicalChainStaff.deployed();
     nurseInstance = await Nurse.deployed();
     patientInstance = await Patient.deployed();
     researcherInstance = await Researcher.deployed();
@@ -246,7 +256,7 @@ contract("Testing for EHR interaction", function (accounts) {
     );
 
     // Grant doctor access
-    let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
+    let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
       0,
       accounts[4],
       {
@@ -256,7 +266,7 @@ contract("Testing for EHR interaction", function (accounts) {
 
     // Register patient with doctor
     let registeringPatient =
-      await medicalChainInstance.registerPatientWithDoctor(0, 0, {
+      await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
         from: accounts[4],
       });
 
@@ -272,7 +282,7 @@ contract("Testing for EHR interaction", function (accounts) {
     );
 
     // Add EHR
-    let addingEHR = await medicalChainInstance.addNewEHR(
+    let addingEHR = await medicalChainStaffInstance.addNewEHR(
       EHR.RecordType.IMMUNISATION,
       0,
       "Immunisation Records",
@@ -327,7 +337,7 @@ contract("Testing for EHR interaction", function (accounts) {
     // Test: testing if patient can acknowledge other patient's record
     // Outcome: Correct, patient unable to knowledge
     truffleAssert.reverts(
-      medicalChainInstance.patientAcknowledgeRecord(0, {
+      medicalChainPatientInstance.patientAcknowledgeRecord(0, {
         from: accounts[3],
       }),
       "Record does not belong to this patient"
@@ -335,7 +345,7 @@ contract("Testing for EHR interaction", function (accounts) {
 
     // Patient acknowledge on own record
     let patientSigningRecord =
-      await medicalChainInstance.patientAcknowledgeRecord(0, {
+      await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
         from: accounts[2],
       });
     truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
@@ -351,7 +361,8 @@ contract("Testing for practioner's access", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
     ehrInstance = await EHR.deployed();
-    medicalChainInstance = await MedicalChain.deployed();
+    medicalChainPatientInstance = await MedicalChainPatient.deployed();
+    medicalChainStaffInstance = await MedicalChainStaff.deployed();
     nurseInstance = await Nurse.deployed();
     patientInstance = await Patient.deployed();
     researcherInstance = await Researcher.deployed();
@@ -385,7 +396,7 @@ contract("Testing for practioner's access", function (accounts) {
     );
 
     // Grant doctor access
-    let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
+    let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
       0,
       accounts[4],
       {
@@ -403,13 +414,10 @@ contract("Testing for practioner's access", function (accounts) {
     await assert.ok(doctorAccess, "Doctor does not have access");
 
     // Remove doctor access
-    let removingDoctorAccess = await medicalChainInstance.removeDoctorAccess(
-      0,
-      accounts[4],
-      {
+    let removingDoctorAccess =
+      await medicalChainPatientInstance.removeDoctorAccess(0, accounts[4], {
         from: accounts[2],
-      }
-    );
+      });
 
     //  Checks to see if doctor successfully removed access
     truffleAssert.eventEmitted(removingDoctorAccess, "RemovingDoctorAccess");
@@ -433,7 +441,7 @@ contract("Testing for practioner's access", function (accounts) {
     );
 
     // Grant nurse access
-    let givingNurseAccess = await medicalChainInstance.giveNurseAccess(
+    let givingNurseAccess = await medicalChainPatientInstance.giveNurseAccess(
       0,
       accounts[5],
       {
@@ -451,13 +459,10 @@ contract("Testing for practioner's access", function (accounts) {
     await assert.ok(NurseAccess, "Nurse does not have access");
 
     // Remove Nurse access
-    let removingNurseAccess = await medicalChainInstance.removeNurseAccess(
-      0,
-      accounts[5],
-      {
+    let removingNurseAccess =
+      await medicalChainPatientInstance.removeNurseAccess(0, accounts[5], {
         from: accounts[2],
-      }
-    );
+      });
 
     //  Checks to see if Nurse successfully removed access
     truffleAssert.eventEmitted(removingNurseAccess, "RemovingNurseAccess");
@@ -483,7 +488,7 @@ contract("Testing for practioner's access", function (accounts) {
 
     // Grant researcher access
     let givingResearcherAccess =
-      await medicalChainInstance.giveResearcherAccess(0, {
+      await medicalChainPatientInstance.giveResearcherAccess(0, {
         from: accounts[2],
       });
 
@@ -500,9 +505,10 @@ contract("Testing for practioner's access", function (accounts) {
     await assert.ok(researcherAccess, "Researcher does not have access");
 
     // Get list of approved patients
-    let viewApprovedPatients = await medicalChainInstance.viewApprovedPatients({
-      from: accounts[6],
-    });
+    let viewApprovedPatients =
+      await medicalChainStaffInstance.viewApprovedPatients({
+        from: accounts[6],
+      });
 
     //  Checks to see if Researcher getting patients
     truffleAssert.eventEmitted(viewApprovedPatients, "GettingApprovedPatients");
@@ -522,7 +528,8 @@ contract(
     before(async () => {
       doctorInstance = await Doctor.deployed();
       ehrInstance = await EHR.deployed();
-      medicalChainInstance = await MedicalChain.deployed();
+      medicalChainPatientInstance = await MedicalChainPatient.deployed();
+      medicalChainStaffInstance = await MedicalChainStaff.deployed();
       nurseInstance = await Nurse.deployed();
       patientInstance = await Patient.deployed();
       researcherInstance = await Researcher.deployed();
@@ -556,22 +563,19 @@ contract(
       );
 
       // Grant doctor access
-      let givingDoctorAccess = await medicalChainInstance.giveDoctorAccess(
-        0,
-        accounts[4],
-        {
+      let givingDoctorAccess =
+        await medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
           from: accounts[2],
-        }
-      );
+        });
 
       // Register patient with doctor
       let registeringPatient =
-        await medicalChainInstance.registerPatientWithDoctor(0, 0, {
+        await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
           from: accounts[4],
         });
 
       // Add EHR
-      let addingEHR = await medicalChainInstance.addNewEHR(
+      let addingEHR = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.IMMUNISATION,
         0,
         "Immunisation Records",
@@ -581,7 +585,7 @@ contract(
       );
 
       // Add EHR
-      let addingEHR2 = await medicalChainInstance.addNewEHR(
+      let addingEHR2 = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.ALLERGIES,
         0,
         "Allergies Records",
@@ -606,7 +610,7 @@ contract(
       // Test: testing if non-practitioner can call this function
       // Outcome: Correct, Unable to call
       await truffleAssert.reverts(
-        medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+        medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[2],
         }),
         "User is not a practitioner"
@@ -615,7 +619,7 @@ contract(
       // Test: testing if doctor that is not in patient's approvedDoctors will pass
       // Outcome: Correct, Doctor unable to view
       await truffleAssert.reverts(
-        medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+        medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[8],
         }),
         "Doctor is not in patient's list of approved doctors"
@@ -624,19 +628,16 @@ contract(
       // Test: testing if invalid record id will throw an error
       // Outcome: Correct
       await truffleAssert.reverts(
-        medicalChainInstance.practitionerViewRecordByRecordID(0, 2, {
+        medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 2, {
           from: accounts[4],
         }),
         "Record ID given is not valid"
       );
 
-      let record = await medicalChainInstance.practitionerViewRecordByRecordID(
-        0,
-        0,
-        {
+      let record =
+        await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[4],
-        }
-      );
+        });
 
       // for viewing of the record and the details
       // console.log(record);
@@ -662,13 +663,15 @@ contract(
 
       // Grant researcher access
       let givingResearcherAccess =
-        await medicalChainInstance.giveResearcherAccess(0, {
+        await medicalChainPatientInstance.giveResearcherAccess(0, {
           from: accounts[2],
         });
 
       // testing if Doctor can view patient's data
       await truffleAssert.reverts(
-        medicalChainInstance.viewPatientByPatientID(0, { from: accounts[4] }),
+        medicalChainStaffInstance.viewPatientByPatientID(0, {
+          from: accounts[4],
+        }),
         "This person is not a researcher!"
       );
 
@@ -686,13 +689,18 @@ contract(
 
       // testing if researcher can view patient that has not given access
       await truffleAssert.reverts(
-        medicalChainInstance.viewPatientByPatientID(1, { from: accounts[6] }),
+        medicalChainStaffInstance.viewPatientByPatientID(1, {
+          from: accounts[6],
+        }),
         "Patient has not approved data for research purposes"
       );
 
-      let patientData = await medicalChainInstance.viewPatientByPatientID(0, {
-        from: accounts[6],
-      });
+      let patientData = await medicalChainStaffInstance.viewPatientByPatientID(
+        0,
+        {
+          from: accounts[6],
+        }
+      );
 
       // for viewing of the patient data
       // console.log(patientData);
@@ -707,12 +715,13 @@ contract(
 
     // should test for non intended patient to sign other record
     it("Test patient viewing of all acknowledged records", async () => {
-      let signingOff = await medicalChainInstance.patientAcknowledgeRecord(0, {
-        from: accounts[2],
-      });
+      let signingOff =
+        await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
+          from: accounts[2],
+        });
 
       let listOfAcknowledgedRecordIds =
-        await medicalChainInstance.patientViewAllAcknowledgedRecords(0, {
+        await medicalChainPatientInstance.patientViewAllAcknowledgedRecords(0, {
           from: accounts[2],
         });
 
@@ -734,12 +743,10 @@ contract(
     });
 
     it("Test patient viewing of all records", async () => {
-      let listOfRecordIds = await medicalChainInstance.patientViewAllRecords(
-        0,
-        {
+      let listOfRecordIds =
+        await medicalChainPatientInstance.patientViewAllRecords(0, {
           from: accounts[2],
-        }
-      );
+        });
 
       // for viewing of the record id array belonging to patient
       // console.log(listOfRecordIds);
@@ -774,7 +781,7 @@ contract(
       // Test: testing if another patient can view patient id 0's records by doctor
       // Outcome: Correct, unable to view
       await truffleAssert.reverts(
-        medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+        medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[7],
         }),
         "Current user is not the intended patient!"
@@ -783,14 +790,14 @@ contract(
       // Test: testing if non-patient can view patient id 0's records by doctor
       // Outcome: Correct, unable to view
       await truffleAssert.reverts(
-        medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+        medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[4],
         }),
         "Current user is not the intended patient!"
       );
 
       let listOfRecordByDoctor =
-        await medicalChainInstance.patientViewRecordsByDoctor(0, 0, {
+        await medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[2],
         });
 
@@ -818,7 +825,7 @@ contract(
       // Test: testing if non practitioner can call this function
       // Outcome: Correct, unable to call
       await truffleAssert.reverts(
-        medicalChainInstance.practitionerViewAllRecords(0, {
+        medicalChainStaffInstance.practitionerViewAllRecords(0, {
           from: accounts[2],
         }),
         "User is not a practitioner"
@@ -827,14 +834,14 @@ contract(
       // Test: testing if non approved doctor can call this function
       // Outcome: Correct, unable to call
       await truffleAssert.reverts(
-        medicalChainInstance.practitionerViewAllRecords(0, {
+        medicalChainStaffInstance.practitionerViewAllRecords(0, {
           from: accounts[8],
         }),
         "Doctor is not in patient's list of approved doctors"
       );
 
       let listOfRecordIds =
-        await medicalChainInstance.practitionerViewAllRecords(0, {
+        await medicalChainStaffInstance.practitionerViewAllRecords(0, {
           from: accounts[4],
         });
 
@@ -863,7 +870,7 @@ contract(
 
     it("Test record update", async () => {
       let beforeUpdate =
-        await medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+        await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[4],
         });
 
@@ -877,7 +884,7 @@ contract(
       );
 
       await truffleAssert.reverts(
-        medicalChainInstance.updateRecordByRecordId(
+        medicalChainStaffInstance.updateRecordByRecordId(
           0,
           0,
           EHR.RecordType.LABORATORY_RESULTS,
@@ -888,7 +895,7 @@ contract(
       );
 
       await truffleAssert.reverts(
-        medicalChainInstance.updateRecordByRecordId(
+        medicalChainStaffInstance.updateRecordByRecordId(
           0,
           0,
           EHR.RecordType.LABORATORY_RESULTS,
@@ -898,7 +905,7 @@ contract(
         "Doctor is not issuer!"
       );
 
-      let updateRecord = await medicalChainInstance.updateRecordByRecordId(
+      let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
         0,
         0,
         EHR.RecordType.LABORATORY_RESULTS,
@@ -906,7 +913,7 @@ contract(
         { from: accounts[4] }
       );
       let afterUpdate =
-        await medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+        await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[4],
         });
 

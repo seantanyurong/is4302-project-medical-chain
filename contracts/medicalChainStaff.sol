@@ -7,7 +7,7 @@ import "./EHR.sol";
 import "./Researcher.sol";
 
 
-contract medicalChain {
+contract medicalChainStaff {
 
   Patient patientContract;
   Doctor doctorContract;
@@ -47,26 +47,6 @@ contract medicalChain {
     _;
   }
 
-  // modifier isPractitionerApproved(uint256 patientId) {
-  //   string memory role = getSenderRole();
-  //   if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
-  //     require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
-  //   } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
-  //     require(patientContract.isApprovedNurse(patientId, msg.sender) == true, "Nurse is not in patient's list of approved nurses");
-  //   }
-  //   _;
-  // }
-
-  // modifier isPatientRegisteredWithPractitioner(uint256 patientId) {
-  //   string memory role = getSenderRole();
-  //   if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
-  //     require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
-  //   } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
-  //     require(nurseContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in nurse's list of patients");
-  //   }
-  //   _;
-  // }
-
   modifier isPractitioner() {
     string memory role = getSenderRole();
     require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))) || keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse"))), "User is not a practitioner");
@@ -102,17 +82,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
     _;
   }
-  
-
-  // modifier isPractitionerAbleToViewRecord(uint256 recordId) {
-  //   string memory role = getSenderRole();
-  //   if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
-  //     require(patientContract.isApprovedDoctor(patientContract.getPatientIdFromPatientAddress(ehrContract.getRecordPatientAddress(recordId)), msg.sender), "Doctor is not in the patient's approved doctors");
-  //   } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
-  //     require(patientContract.isApprovedNurse(patientContract.getPatientIdFromPatientAddress(ehrContract.getRecordPatientAddress(recordId)), msg.sender), "Nurse is not in the patient's approved nurses");
-  //   }
-  //   _;
-  // }
 
   modifier isPatientAndAuthorised(uint256 patientId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
@@ -168,26 +137,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     }
   }
 
-  function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
-    emit GivingDoctorAccess();
-    patientContract.giveDoctorAccess(patientId, doctorAddress);
-  }
-
-  function removeDoctorAccess(uint256 patientId, address doctorAddress) public {
-    emit RemovingDoctorAccess();
-    patientContract.removeDoctorAccess(patientId, doctorAddress);
-  }
-
-  function giveNurseAccess(uint256 patientId, address nurseAddress) public {
-    emit GivingNurseAccess();
-    patientContract.giveNurseAccess(patientId, nurseAddress);
-  }
-
-  function removeNurseAccess(uint256 patientId, address nurseAddress) public {
-    emit RemovingNurseAccess();
-    patientContract.removeNurseAccess(patientId, nurseAddress);
-  }
-
   function registerPatientWithDoctor(uint256 doctorId, uint256 patientId) public {
     doctorContract.registerPatient(doctorId, patientId);
   }
@@ -204,25 +153,13 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     nurseContract.registerPatient(nurseId, patientId);
   }
 
-  function giveResearcherAccess(uint256 patientId) public {
-    emit GivingResearcherAccess();
-    patientContract.giveResearcherAccess(patientId);
-  }
-
   function testingTest(uint256 test) public {
     emit testEvent(test);
   }
 
-  // // Add new EHR
+  // Add new EHR
   function addNewEHR(EHR.RecordType recordType, uint256 patientId, string memory filename) public isDoctorApprovedAndPatientRegisteredWithDoctor(patientId) returns (uint256 recordId) {
-
-      // Check if msg.sender is doctor or nurse
-      // Check if msg.sender is inside patient's approvedDoctors or approvedNurses
-      // Check if patientId inside doctor's patients
-      // Add new EHR
-      // add recordId into patient and doctors records
-
-      // address patientAddress = patientContract.getPatientAddress(patientId);
+    
       recordId = ehrContract.add(recordType, filename, patientContract.getPatientAddress(patientId), msg.sender);
 
       patientContract.addEhr(patientId, recordId);
@@ -262,46 +199,12 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
       return patientContract.getData(patientID);
   }
 
-  // Patient: View all records (acknowledged and not acknowledged)
-  function patientViewAllAcknowledgedRecords(uint256 patientId) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
-    return patientContract.viewAllAcknowledgedRecords(patientId);
-  }
-
-  // Patient: View all records (acknowledged and not acknowledged)
-  function patientViewAllRecords(uint256 patientId) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
-    return patientContract.viewAllRecords(patientId);
-  }
-
-  // Patient: View all records issued by certain doctor
-  function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isValidDoctorId(doctorId) returns (uint256[] memory) {
-    // address doctorAddress = doctorContract.getDoctorAddressFromDoctorId(doctorId);
-    return patientContract.viewRecordsByDoctor(patientId, doctorContract.getDoctorAddressFromDoctorId(doctorId));
-  }
-
-  // Patient: View all records issued by certain nurse
-  function patientViewRecordsByNurse(uint256 patientId, uint256 nurseId) public view isValidNurseId(nurseId) returns (uint256[] memory) {
-    // address nurseAddress = nurseContract.getNurseAddressFromNurseId(nurseId);
-    return patientContract.viewRecordsByDoctor(patientId, nurseContract.getNurseAddressFromNurseId(nurseId));
-  }
-
-  // Patient: Filter records by record type
-  function patientViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
-    return patientContract.viewRecordsByRecordType(patientId, recordType);
-  }
-
   // Practitioner: View all records belonging to this patient
   // Returns all the recordIds
   function practitionerViewAllRecords(uint256 patientId) public view isPractitioner() isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
     // address patientAddress = patientContract.getPatientAddress(patientId);
     return patientContract.practitionerViewAllRecords(patientId);
   }
-
-// Patient: Acknowledge a record that is added to his medical records
-function patientAcknowledgeRecord(uint256 recordId) public isValidRecordId(recordId) isRecordBelongToPatient(recordId) {
-  emit AcknowledgingRecord();
-  // uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
-  patientContract.signOffRecord(patientContract.getPatientIdFromPatientAddress(msg.sender), recordId);
-}
 
 
 }

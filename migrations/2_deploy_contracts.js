@@ -1,6 +1,8 @@
 const Doctor = artifacts.require("Doctor");
 const EHR = artifacts.require("EHR");
 const medicalChain = artifacts.require("medicalChain");
+const medicalChainPatient = artifacts.require("medicalChainPatient");
+const medicalChainStaff = artifacts.require("medicalChainStaff");
 const Nurse = artifacts.require("Nurse");
 const Patient = artifacts.require("Patient");
 const Researcher = artifacts.require("Researcher");
@@ -13,7 +15,15 @@ module.exports = (deployer, network, accounts) => {
     await deployer.deploy(Patient, EHR.address);
     await deployer.deploy(Researcher);
     await deployer.deploy(
-      medicalChain,
+      medicalChainPatient,
+      Patient.address,
+      Doctor.address,
+      Nurse.address,
+      EHR.address,
+      Researcher.address
+    );
+    await deployer.deploy(
+      medicalChainStaff,
       Patient.address,
       Doctor.address,
       Nurse.address,
