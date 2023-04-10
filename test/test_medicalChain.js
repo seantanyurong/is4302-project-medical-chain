@@ -947,6 +947,18 @@ contract(
         "User is not a doctor!"
       );
 
+      // Test if nurse is able to update record
+      await truffleAssert.reverts(
+        medicalChainInstance.updateRecordByRecordId(
+          0,
+          0,
+          EHR.RecordType.LABORATORY_RESULTS,
+          "Laboratory Results",
+          { from: accounts[5] }
+        ),
+        "User is not a doctor!"
+      );
+
       await truffleAssert.reverts(
         medicalChainInstance.updateRecordByRecordId(
           0,
