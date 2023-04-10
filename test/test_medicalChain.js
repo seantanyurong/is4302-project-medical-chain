@@ -935,45 +935,34 @@ contract(
     });
 
     it("Test practitioner viewing of filtered records by record type", async () => {
-      
-      // // Add EHR RecordType IMMUNISATION to Patient Id 0 from Doctor Id 0
-      // let addingEHR3 = await medicalChainStaffInstance.addNewEHR(
-      //   EHR.RecordType.IMMUNISATION,
-      //   0,
-      //   "Immunisation Records",
-      //   {
-      //     from: accounts[4],
-      //   }
-      // );
+      // Test: testing if patient can call function using patient id 0
+      // Outcome: Correct, patient unable to call
+      await truffleAssert.reverts(
+        medicalChainStaffInstance.practitionerViewRecordsByRecordType(
+          0,
+          EHR.RecordType.IMMUNISATION,
+          { from: accounts[2] }
+        ),
+        "User is not a practitioner"
+      );
 
-      // // Test: testing if doctor can call function using patient id 0
-      // // Outcome: Correct, doctor unable to call
-      // await truffleAssert.reverts(
-      //   medicalChainPatientInstance.patientViewRecordsByRecordType(
-      //     0,
-      //     EHR.RecordType.IMMUNISATION,
-      //     { from: accounts[4] }
-      //   ),
-      //   "This person is not a patient!"
-      // );
+      // Test: testing if other practitioner can call function using patient id 0
+      // Outcome: Correct, other practitioner unable to call
+      await truffleAssert.reverts(
+        medicalChainStaffInstance.practitionerViewRecordsByRecordType(
+          0,
+          EHR.RecordType.IMMUNISATION,
+          { from: accounts[8] }
+        ),
+        "Doctor is not in patient's list of approved doctors"
+      );
 
-      // // Test: testing if other patient can call function using patient id 0
-      // // Outcome: Correct, other patient unable to call
-      // await truffleAssert.reverts(
-      //   medicalChainPatientInstance.patientViewRecordsByRecordType(
-      //     0,
-      //     EHR.RecordType.IMMUNISATION,
-      //     { from: accounts[7] }
-      //   ),
-      //   "Patient is not allowed to view other patient's records"
-      // );
-
-      // let listOfFilterRecordIds =
-      //   await medicalChainPatientInstance.patientViewRecordsByRecordType(
-      //     0,
-      //     EHR.RecordType.IMMUNISATION,
-      //     { from: accounts[2] }
-      //   );
+      let listOfFilterRecordIds =
+        await medicalChainStaffInstance.practitionerViewRecordsByRecordType(
+          0,
+          EHR.RecordType.IMMUNISATION,
+          { from: accounts[4] }
+        );
 
       assert.strictEqual(
         listOfFilterRecordIds.length,

@@ -207,7 +207,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   // Returns all the recordIds
   function practitionerViewAllRecords(uint256 patientId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
     // address patientAddress = patientContract.getPatientAddress(patientId);
-    return patientContract.practitionerViewAllRecords(patientId);
+    return patientContract.viewAllRecords(patientId);
   }
 
     // Patient: Filter records by record type

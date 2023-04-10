@@ -164,20 +164,20 @@ contract Patient {
     return patientRecordsId;
     }
 
-    function practitionerViewAllRecords(uint256 patientId) public view returns (uint256[] memory) {
-        // uint256 patientNoOfRecords = getRecordsCount(patientId);
-        uint256[] memory patientRecordsId = new uint256[](practitionerGetRecordsCount(patientId));
-        uint256 indexTracker = 0;
-        address patientAddress = getPatientAddress(patientId);
-        for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
-            if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
-                patientRecordsId[indexTracker] = i;
-                indexTracker++;
-            }
-        }
+    // function practitionerViewAllRecords(uint256 patientId) public view returns (uint256[] memory) {
+    //     // uint256 patientNoOfRecords = getRecordsCount(patientId);
+    //     uint256[] memory patientRecordsId = new uint256[](practitionerGetRecordsCount(patientId));
+    //     uint256 indexTracker = 0;
+    //     address patientAddress = getPatientAddress(patientId);
+    //     for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
+    //         if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
+    //             patientRecordsId[indexTracker] = i;
+    //             indexTracker++;
+    //         }
+    //     }
 
-    return patientRecordsId;
-    }
+    // return patientRecordsId;
+    // }
 
     // Patient: View all records (acknowledged and not acknowledged)
   function viewAllAcknowledgedRecords(uint256 patientId) public view returns (uint256[] memory) {
@@ -354,7 +354,7 @@ contract Patient {
         patients[patientId].approvedResearcher = _approvedResearcher;
     }
 
-    function getRecordsCount(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(uint256) {
+    function getRecordsCount(uint256 patientId) public view validPatientId(patientId) returns(uint256) {
         return patients[patientId].recordsCount;
     }
     
