@@ -54,15 +54,29 @@ contract("Testing for creation", function (accounts) {
     truffleAssert.eventEmitted(testingTest2, "testEvent");
   });
 
-  // Do we need to check if we can nominate secondary user if they are not a registered patient yet
   it("Test if patient created and email can be fetched", async () => {
+    await truffleAssert.reverts(
+      patientInstance.create(
+        "Shawn",
+        "Tan",
+        "shawntan@gmail.com",
+        "18/04/2000",
+        true,
+        accounts[3],
+        {
+          from: accounts[2],
+        }
+      ),
+      "Secondary user not registered!"
+    );
+
     let newPatient = await patientInstance.create(
       "Shawn",
       "Tan",
       "shawntan@gmail.com",
       "18/04/2000",
       true,
-      accounts[3],
+      "0x0000000000000000000000000000000000000000",
       {
         from: accounts[2],
       }
@@ -71,18 +85,20 @@ contract("Testing for creation", function (accounts) {
     truffleAssert.eventEmitted(newPatient, "PatientAdded");
 
     // Checking if possible to create a duplicate patient using same address
-    await truffleAssert.reverts(patientInstance.create(
-      "Shawn",
-      "Tan",
-      "shawntan@gmail.com",
-      "18/04/2000",
-      true,
-      accounts[3],
-      {
-        from: accounts[2],
-      }
-    ), "Patient already registered!");
-    
+    await truffleAssert.reverts(
+      patientInstance.create(
+        "Shawn",
+        "Tan",
+        "shawntan@gmail.com",
+        "18/04/2000",
+        true,
+        accounts[3],
+        {
+          from: accounts[2],
+        }
+      ),
+      "Patient already registered!"
+    );
 
     await assert.notStrictEqual(
       newPatient,
@@ -200,13 +216,14 @@ contract("Testing for creation", function (accounts) {
       "Patient ID does not match!"
     );
 
+    // Check if possible to create new user with a registered secondary user
     let newPatient = await patientInstance.create(
       "Gavin",
       "Koh",
       "gavinkoh@gmail.com",
       "28/09/2000",
       true,
-      accounts[3],
+      accounts[2],
       {
         from: accounts[7],
       }
@@ -227,11 +244,12 @@ contract("Testing for creation", function (accounts) {
   });
 });
 
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+
 contract("Testing for EHR interaction", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
@@ -253,7 +271,7 @@ contract("Testing for EHR interaction", function (accounts) {
       "shawntan@gmail.com",
       "18/04/2000",
       true,
-      accounts[3],
+      "0x0000000000000000000000000000000000000000",
       {
         from: accounts[2],
       }
@@ -292,7 +310,7 @@ contract("Testing for EHR interaction", function (accounts) {
     await assert.strictEqual(
       recordsCount0.words[0],
       0,
-      "Initial  count does not match"
+      "Initial count does not match"
     );
 
     // Add EHR
@@ -362,10 +380,6 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
-    // console.log(addingEHR["logs"]);
-    // console.log(addingEHR["logs"][0]);
-    // console.log(addingEHR["logs"][0]["args"]);
-
     // Test: testing if patient can acknowledge other patient's record
     // Outcome: Correct, patient unable to knowledge
     truffleAssert.reverts(
@@ -409,8 +423,6 @@ contract("Testing for EHR interaction", function (accounts) {
         from: accounts[4],
       });
 
-    // console.log(beforeUpdate["fileName"]);
-
     // ensure that record's file name before update is Immunisation Records
     assert.strictEqual(
       beforeUpdate["fileName"] == "Immunisation Records",
@@ -450,6 +462,7 @@ contract("Testing for EHR interaction", function (accounts) {
       "Doctor is not issuer!"
     );
 
+    // Update the record
     let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
       0,
       0,
@@ -462,6 +475,7 @@ contract("Testing for EHR interaction", function (accounts) {
         from: accounts[4],
       });
 
+    // Check that record is changed post update
     assert.strictEqual(
       afterUpdate["fileName"] == "Laboratory Results",
       true,
@@ -497,7 +511,7 @@ contract("Testing for practitioner's access", function (accounts) {
       "shawntan@gmail.com",
       "18/04/2000",
       true,
-      accounts[3],
+      "0x0000000000000000000000000000000000000000",
       {
         from: accounts[2],
       }
@@ -656,7 +670,6 @@ contract(
     console.log("Testing for viewing of records (different conditions)");
 
     /********* FUNCTIONALITY TESTS *********/
-    // Need to test for nurse also
     it("Test practitioner viewing of specific record", async () => {
       let newPatient = await patientInstance.create(
         "Shawn",
@@ -664,7 +677,7 @@ contract(
         "shawntan@gmail.com",
         "18/04/2000",
         true,
-        accounts[3],
+        "0x0000000000000000000000000000000000000000",
         {
           from: accounts[2],
         }
@@ -790,7 +803,7 @@ contract(
         "shawntan@gmail.com",
         "18/04/2000",
         false,
-        accounts[3],
+        "0x0000000000000000000000000000000000000000",
         {
           from: accounts[7],
         }

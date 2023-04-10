@@ -59,8 +59,19 @@ contract medicalChainPatient {
     _;
   }
 
+  modifier isValidDoctorAddress(address doctorAddress) {
+    require(doctorContract.getDoctorIdFromDoctorAddress(doctorAddress) != uint256(-1), "Doctor ID given is not valid");
+    _;
+  }
+
+
   modifier isValidNurseId(uint256 nurseId) {
     require(nurseContract.isValidNurseId(nurseId) == true, "Nurse ID given is not valid");
+    _;
+  }
+
+  modifier isValidNurseAddress(address nurseAddress) {
+    require(nurseContract.getNurseIdFromNurseAddress(nurseAddress) != uint256(-1), "Nurse ID given is not valid");
     _;
   }
 
@@ -91,27 +102,27 @@ contract medicalChainPatient {
     }
   }
 
-  function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
+  function giveDoctorAccess(uint256 patientId, address doctorAddress) public isPatientAndAuthorised(patientId) isValidDoctorAddress(doctorAddress)  {
     emit GivingDoctorAccess();
     patientContract.giveDoctorAccess(patientId, doctorAddress);
   }
 
-  function removeDoctorAccess(uint256 patientId, address doctorAddress) public {
+  function removeDoctorAccess(uint256 patientId, address doctorAddress) public isPatientAndAuthorised(patientId) isValidDoctorAddress(doctorAddress) {
     emit RemovingDoctorAccess();
     patientContract.removeDoctorAccess(patientId, doctorAddress);
   }
 
-  function giveNurseAccess(uint256 patientId, address nurseAddress) public {
+  function giveNurseAccess(uint256 patientId, address nurseAddress) public isPatientAndAuthorised(patientId) isValidNurseAddress(nurseAddress)  {
     emit GivingNurseAccess();
     patientContract.giveNurseAccess(patientId, nurseAddress);
   }
 
-  function removeNurseAccess(uint256 patientId, address nurseAddress) public {
+  function removeNurseAccess(uint256 patientId, address nurseAddress) public isPatientAndAuthorised(patientId) isValidNurseAddress(nurseAddress) {
     emit RemovingNurseAccess();
     patientContract.removeNurseAccess(patientId, nurseAddress);
   }
 
-  function giveResearcherAccess(uint256 patientId) public {
+  function giveResearcherAccess(uint256 patientId) public isPatientAndAuthorised(patientId) {
     emit GivingResearcherAccess();
     patientContract.giveResearcherAccess(patientId);
   }
@@ -132,7 +143,6 @@ contract medicalChainPatient {
 
   // Patient: View all records issued by certain doctor
   function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isPatientAndAuthorised(patientId) isValidDoctorId(doctorId) returns (uint256[] memory) {
-    // address doctorAddress = doctorContract.getDoctorAddressFromDoctorId(doctorId);
     return patientContract.viewRecordsByDoctor(patientId, doctorContract.getDoctorAddressFromDoctorId(doctorId));
   }
 

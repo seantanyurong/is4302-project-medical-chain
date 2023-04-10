@@ -174,5 +174,7 @@ contract Doctor {
                 return i;
             }
         }
+
+        return uint256(-1);
     }
 }

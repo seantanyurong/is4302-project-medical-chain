@@ -39,7 +39,6 @@ contract EHR {
             false
         );
         
-        // numEHR = numEHR++;
         uint256 newEhrId = numEHR++;
         records[newEhrId] = newEhr; //commit to state variable
         emit EHRAdded(newEhr.doctorAddress);

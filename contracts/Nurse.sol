@@ -135,6 +135,8 @@ contract Nurse {
                 return i;
             }
         }
+
+        return uint256(-1);
     }
 
 
