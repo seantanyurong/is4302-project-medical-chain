@@ -30,7 +30,7 @@ contract Patient {
     mapping(uint256 => patient) public patients;
 
     // function to create patient
-    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) public returns(uint256) {
+    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) isSecondaryUserRegisteredPatient(_secondaryUser) public returns(uint256) {
 
         emit testTrigger();
 
