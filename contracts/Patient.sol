@@ -31,7 +31,7 @@ contract Patient {
 
     // function to create patient
     // TO CHECK FOR DUPLICATE ADDRESS, WHETHER SECONDARYUSER IS A REGISTERED PATIENT
-    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) public returns(uint256) {
+    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) isSecondaryUserRegisteredPatient(_secondaryUser) public returns(uint256) {
 
         emit testTrigger();
 
@@ -80,6 +80,11 @@ contract Patient {
 
     modifier isPatientAlreadyRegistered(address patientAddress) {
         require(getPatientIdFromPatientAddress(patientAddress) == uint256(-1), "Patient already registered!");
+        _;
+    }
+
+    modifier isSecondaryUserRegisteredPatient(address patientAddress) {
+        require(getPatientIdFromPatientAddress(patientAddress) != uint256(-1) || patientAddress == address(0), "Secondary user not registered!");
         _;
     }
 
