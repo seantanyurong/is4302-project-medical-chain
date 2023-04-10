@@ -578,7 +578,6 @@ contract("Testing for practioner's access", function (accounts) {
     await assert.ok(!NurseRemoved, "Nurse still has access");
   });
 
-  // Fix getting research patients. Doesn't seem to fetch any.
   it("Test retrieval of patients who gave approval for research", async () => {
     let newResearcher = await researcherInstance.create(
       "Maria",
@@ -614,10 +613,11 @@ contract("Testing for practioner's access", function (accounts) {
         from: accounts[6],
       });
 
-    //  Checks to see if Researcher getting patients
-    truffleAssert.eventEmitted(viewApprovedPatients, "GettingApprovedPatients");
-
-    console.log(viewApprovedPatients["logs"][0]["args"]);
+    await assert.strictEqual(
+      viewApprovedPatients[0].words[0],
+      0,
+      "Patient record not accessed"
+    );
   });
 });
 

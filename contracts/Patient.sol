@@ -131,6 +131,12 @@ contract Patient {
                 count++;
             }
         }
+
+
+        // testing
+        // result[0] = 0;
+        // result[1] = 1;
+        // result[2] = 2;
         return result;
     }
 
