@@ -60,7 +60,7 @@ contract medicalChainPatient {
   }
 
   modifier isValidDoctorAddress(address doctorAddress) {
-    require(doctorContract.getDoctorIdFromDoctorAddress(doctorAddress) != uint256(-1), "Doctor ID given is not valid");
+    require(doctorContract.getDoctorIdFromDoctorAddress(doctorAddress) != uint256(-1), "Doctor address given is not valid");
     _;
   }
 
@@ -81,6 +81,7 @@ contract medicalChainPatient {
   }
 
   modifier isRecordBelongToPatient(uint256 recordId) {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
     require(ehrContract.isRecordBelongToPatient(recordId, msg.sender) == true, "Record does not belong to this patient");
     _;
   }

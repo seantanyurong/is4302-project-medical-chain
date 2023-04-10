@@ -40,14 +40,14 @@ contract("Testing for creation", function (accounts) {
 
   console.log("Testing Begins: Testing for creation");
 
-  /********* BASIC CREATION TESTS *********/
-
   it("Test if medical chains exists", async () => {
+    // test medicalChainPatient exists
     let testingTest1 = await medicalChainPatientInstance.testingTest(10, {
       from: accounts[1],
     });
     truffleAssert.eventEmitted(testingTest1, "testEvent");
 
+    // test medicalChainStaff exists
     let testingTest2 = await medicalChainStaffInstance.testingTest(10, {
       from: accounts[1],
     });
@@ -55,6 +55,8 @@ contract("Testing for creation", function (accounts) {
   });
 
   it("Test if patient created and email can be fetched", async () => {
+    // Test: Test if creating a patient that indicate an secondary user address that is not a patient will revert
+    // Outcome: Revert success
     await truffleAssert.reverts(
       patientInstance.create(
         "Shawn",
@@ -70,6 +72,7 @@ contract("Testing for creation", function (accounts) {
       "Secondary user not registered!"
     );
 
+    // Create a patient using accounts[2] address
     let newPatient = await patientInstance.create(
       "Shawn",
       "Tan",
@@ -82,9 +85,11 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // PatientAdded event emitted for successful creation of patient
     truffleAssert.eventEmitted(newPatient, "PatientAdded");
 
-    // Checking if possible to create a duplicate patient using same address
+    // Test: Test if creating a duplicate patient using same address (accounts[2]) will revert
+    // Outcome: Revert success
     await truffleAssert.reverts(
       patientInstance.create(
         "Shawn",
@@ -100,13 +105,16 @@ contract("Testing for creation", function (accounts) {
       "Patient already registered!"
     );
 
+    // Test: Test if patient is properly created and not undefined
+    // Outcome: Correct
     await assert.notStrictEqual(
       newPatient,
       undefined,
       "Failed to create patient"
     );
 
-    // Test if can get email address as invalid ID
+    // Test: Test if getting email address using invalid patient id will revert
+    // Outcome: Revert success
     await truffleAssert.reverts(
       patientInstance.getEmailAddress(2, {
         from: accounts[2],
@@ -114,10 +122,13 @@ contract("Testing for creation", function (accounts) {
       "Invalid patient Id!"
     );
 
+    // Retrieve email from patient id 0
     let email = await patientInstance.getEmailAddress(0, {
       from: accounts[2],
     });
 
+    // Test: Test if email retrieved matches the email of patient id 0
+    // Outcome: Correct
     await assert.strictEqual(
       email,
       "shawntan@gmail.com",
@@ -126,6 +137,7 @@ contract("Testing for creation", function (accounts) {
   });
 
   it("Test if doctor created", async () => {
+    // Create a doctor using accounts[4] address
     let newDoctor = await doctorInstance.create(
       "Gary",
       "Tay",
@@ -136,8 +148,11 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // DoctorAdded event emitted for successful creation of doctor
     truffleAssert.eventEmitted(newDoctor, "DoctorAdded");
 
+    // Test: Test if doctor is properly created and not undefined
+    // Outcome: Correct
     await assert.notStrictEqual(
       newDoctor,
       undefined,
@@ -146,6 +161,7 @@ contract("Testing for creation", function (accounts) {
   });
 
   it("Test if EHR created", async () => {
+    // Creating an EHR record for patient id 0 (accounts[2]) issued by doctor id 0 (accounts[4])
     let newEHR = await ehrInstance.add(
       EHR.RecordType.IMMUNISATION,
       "Immunisation Records",
@@ -156,17 +172,23 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // EHRAdded event emitted for successful creation of EHR
     truffleAssert.eventEmitted(newEHR, "EHRAdded");
 
+    // Test: Test if EHR is properly created and not undefined
+    // Outcome: Correct
     await assert.notStrictEqual(newEHR, undefined, "Failed to create EHR");
   });
 
   it("Test query of RecordType matches", async () => {
+    // Retrieve bool if EHR record id 0 RecordType is IMMUNISATION
     let recordMatchResult = await ehrInstance.doesRecordMatchRecordType(
       0,
       EHR.RecordType.IMMUNISATION
     );
 
+    // Test: Test if EHR record id 0 Record Type is fetched correctly
+    // Outcome: Correct
     await assert.strictEqual(
       recordMatchResult,
       true,
@@ -175,6 +197,7 @@ contract("Testing for creation", function (accounts) {
   });
 
   it("Test if nurse created", async () => {
+    // Creating a Nurse using accounts[5] address
     let newNurse = await nurseInstance.create(
       "Maria",
       "Lee",
@@ -185,12 +208,16 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // NurseAdded event emitted for successful creation of nurse
     truffleAssert.eventEmitted(newNurse, "NurseAdded");
 
+    // Test: Test if nurse is properly created and not undefined
+    // Outcome: Correct
     await assert.notStrictEqual(newNurse, undefined, "Failed to create nurse");
   });
 
   it("Test if researcher created", async () => {
+    // Creating a Researcher using accounts[6] address
     let newResearcher = await researcherInstance.create(
       "Maria",
       "Lee",
@@ -201,8 +228,11 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // ResearcherAdded event emitted for successful creation of Researcher
     truffleAssert.eventEmitted(newResearcher, "ResearcherAdded");
 
+    // Test: Test if reseacher is properly created and not undefined
+    // Outcome: Correct
     await assert.notStrictEqual(
       newResearcher,
       undefined,
@@ -211,6 +241,7 @@ contract("Testing for creation", function (accounts) {
   });
 
   it("Test if able to get patient id from address", async () => {
+    // Retrieve patient id given address of patient id 0
     let patientId = await patientInstance.getPatientIdFromPatientAddress(
       accounts[2],
       {
@@ -218,14 +249,16 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // Test: Test if patient id retrieved matches patient id 0 (accounts[2])
+    // Outcome: Correct
     await assert.strictEqual(
       patientId["words"][0],
       0,
       "Patient ID does not match!"
     );
 
-    // Check if possible to create new user with a registered secondary user
-    let newPatient = await patientInstance.create(
+    // Creating a new patient using accounts[7] address with valid secondaryUser address
+    let newPatient2 = await patientInstance.create(
       "Gavin",
       "Koh",
       "gavinkoh@gmail.com",
@@ -237,6 +270,7 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // Retrieve patient id given address of patient id 1
     let secondPatientId = await patientInstance.getPatientIdFromPatientAddress(
       accounts[7],
       {
@@ -244,6 +278,8 @@ contract("Testing for creation", function (accounts) {
       }
     );
 
+    // Test: Test if patient id retrieved matches patient id 1 (accounts[7])
+    // Outcome: Correct
     await assert.strictEqual(
       secondPatientId["words"][0],
       1,
@@ -271,8 +307,8 @@ contract("Testing for EHR interaction", function (accounts) {
 
   console.log("Testing begins: Testing for EHR interaction");
 
-  /********* FUNCTIONALITY TESTS *********/
   it("Test EHR adding", async () => {
+    // Creating a Patient using accounts[2] address
     let newPatient = await patientInstance.create(
       "Shawn",
       "Tan",
@@ -285,6 +321,7 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
+    // Creating a Doctor using accounts[4] address
     let newDoctor = await doctorInstance.create(
       "Gary",
       "Tay",
@@ -295,15 +332,16 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
-    // Check that the doctor address must be valid
+    // Test: Test if patient giving access to a invalid doctor address reverts
+    // Outcome: Revert successful
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveDoctorAccess(0, accounts[8], {
         from: accounts[2],
       }),
-      "Doctor ID given is not valid"
+      "Doctor address given is not valid"
     );
 
-    // Grant doctor access
+    // Patient id 0 grant doctor id 0 access
     let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
       0,
       accounts[4],
@@ -312,24 +350,26 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
-    // Register patient with doctor
+    // Doctor id 0 register patient id 0
     let registeringPatient =
       await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
         from: accounts[4],
       });
 
-    // Ensure initial record count is 0
+    // Retrieve patient id 0 records count
     let recordsCount0 = await patientInstance.getRecordsCount(0, {
       from: accounts[2],
     });
 
+    // Test: Test if records count retrieved is 0 as no record has been issued to patient id 0 yet
+    // Outcome: Correct
     await assert.strictEqual(
       recordsCount0.words[0],
       0,
       "Initial count does not match"
     );
 
-    // Add EHR
+    // Doctor id 0 issue EHR record to patient id 0
     let addingEHR = await medicalChainStaffInstance.addNewEHR(
       EHR.RecordType.IMMUNISATION,
       0,
@@ -339,13 +379,16 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
+    // AddingEHR event emitted for doctor successfully issuing EHR record to patient
     truffleAssert.eventEmitted(addingEHR, "AddingEHR");
 
-    // Check that record count increased by 1
+    // Retrieve patient id 0 records count
     let recordsCount1 = await patientInstance.getRecordsCount(0, {
       from: accounts[2],
     });
 
+    // Test: Test if records count retrieved is 1 as 1 record has been issued to patient id 0 by doctor id 0
+    // Outcome: Correct
     await assert.strictEqual(
       recordsCount1.words[0],
       1,
@@ -354,37 +397,89 @@ contract("Testing for EHR interaction", function (accounts) {
   });
 
   it("Test EHR removing", async () => {
-    // Check that initial record count is 1
+    // Retrieve patient id 0 records count
     let recordsCount1 = await patientInstance.getRecordsCount(0, {
       from: accounts[2],
     });
 
+    // Test: Test if records count retrieved is 1 as 1 record has been issued to patient id 0 by doctor id 0
+    // Outcome: Correct
     await assert.strictEqual(
       recordsCount1.words[0],
       1,
       "Record count does not match"
     );
 
-    // Check that the doctor approved modifier works
+    // Creating a Patient (id: 1) using accounts[7] address
+    let newPatient2 = await patientInstance.create(
+      "Steven",
+      "Tio",
+      "steventio@gmail.com",
+      "18/04/2000",
+      true,
+      "0x0000000000000000000000000000000000000000",
+      {
+        from: accounts[7],
+      }
+    );
+
+    // Creating a Doctor (id: 1) using accounts[4] address
+    let newDoctor2 = await doctorInstance.create(
+      "Gary",
+      "Tay",
+      "garytay@gmail.com",
+      "20/01/1980",
+      {
+        from: accounts[8],
+      }
+    );
+
+    // Patient id 1 grant doctor id 1 access
+    let givingDoctorAccess2 =
+      await medicalChainPatientInstance.giveDoctorAccess(1, accounts[8], {
+        from: accounts[7],
+      });
+
+    // Doctor id 1 register patient id 1
+    let registeringPatient =
+      await medicalChainStaffInstance.registerPatientWithDoctor(1, 1, {
+        from: accounts[8],
+      });
+
+    // Doctor id 1 issue EHR record to patient id 1
+    let addingEHR2 = await medicalChainStaffInstance.addNewEHR(
+      EHR.RecordType.IMMUNISATION,
+      1,
+      "Immunisation Records",
+      {
+        from: accounts[8],
+      }
+    );
+
+    // Test: Test if doctor id 0 can remove EHR of patient id 1 (Doctor not in patient's approved list)
+    // Outcome: Correct, doctor unable to remove
     await truffleAssert.reverts(
-      medicalChainStaffInstance.removeEHR(0, 3, {
+      medicalChainStaffInstance.removeEHR(1, 1, {
         from: accounts[4],
       }),
       "Doctor is not in patient's list of approved doctors"
     );
 
-    // Add EHR
+    // Doctor id 0 remove EHR record id 0 from patient id 0
     let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
       from: accounts[4],
     });
 
+    // RemovingEHR event emitted for successful removal of EHR
     truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
 
-    // Ensure post record count is 0
+    // Retrieve patient id 0 records count
     let recordsCount0 = await patientInstance.getRecordsCount(0, {
       from: accounts[2],
     });
 
+    // Test: Test if patient id 0's record counts is 0
+    // Outcome: Correct
     await assert.strictEqual(
       recordsCount0.words[0],
       0,
@@ -392,10 +487,9 @@ contract("Testing for EHR interaction", function (accounts) {
     );
   });
 
-  // Need to fix EHR acknowledging function
   it("Test EHR acknowledging", async () => {
-    // Add EHR
-    let addingEHR = await medicalChainStaffInstance.addNewEHR(
+    // Doctor id 0 issue EHR record (id: 2) to patient id 0
+    let addingEHR3 = await medicalChainStaffInstance.addNewEHR(
       EHR.RecordType.IMMUNISATION,
       0,
       "Chicken Pox Immunisation",
@@ -404,64 +498,74 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
-    // Test: testing if patient can acknowledge other patient's record
+    // Test: Test if patient can acknowledge other patient's record
     // Outcome: Correct, patient unable to knowledge
     truffleAssert.reverts(
       medicalChainPatientInstance.patientAcknowledgeRecord(0, {
-        from: accounts[3],
+        from: accounts[7],
       }),
       "Record does not belong to this patient"
     );
 
-    // Check that the isRecordBelongToPatient modifier works
+    // Test: Test if non patient can acknowledge a record
+    // Outcome: Correct, non patient unable to knowledge
     await truffleAssert.reverts(
       medicalChainPatientInstance.patientAcknowledgeRecord(1, {
         from: accounts[4],
       }),
-      "Record does not belong to this patient"
+      "This person is not a patient!"
     );
 
-    // Patient acknowledge on own record
+    // Patient id 0 acknowledges EHR record id 2
     let patientSigningRecord =
-      await medicalChainPatientInstance.patientAcknowledgeRecord(1, {
+      await medicalChainPatientInstance.patientAcknowledgeRecord(2, {
         from: accounts[2],
       });
 
+    // AcknowledgingRecord event emitted for successful acknowledging of record
     truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
 
-    // Check whether acknowledged record count went up
+    // Retrieve patient id 0's acknowledged record count
     let patientAcknowledgeRecordCount =
       await patientInstance.getAcknowledgedRecordsCount(0, {
         from: accounts[2],
       });
 
+    // Test: Test that patient id 0's acknowledged record count is 1
+    // Outcome: Correct
     await assert.strictEqual(
       patientAcknowledgeRecordCount.words[0],
       1,
       "Acknowledge record count does not match"
     );
 
-    // Check whether acknowledged record is signed off
-    let recordSignedOff = await ehrInstance.getRecordPatientSignedOff(1, {
+    // Retrieve the bool status whether record id 2 is acknowledged
+    let recordSignedOff = await ehrInstance.getRecordPatientSignedOff(2, {
       from: accounts[2],
     });
 
+    // Test: Test if record id 2 is acknowledged
+    // Outcome: Correct
     await assert.ok(recordSignedOff, "Record has not been signed off");
   });
 
   it("Test EHR updating", async () => {
+    // Retrieve EHR record id 0's information using approved doctor id 0 (accounts[4])
     let beforeUpdate =
       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
         from: accounts[4],
       });
 
-    // ensure that record's file name before update is Immunisation Records
+    // Test: Test that EHR record id 0's file name before update is Immunisation Records
+    // Outcome: Correct
     assert.strictEqual(
       beforeUpdate["fileName"] == "Immunisation Records",
       true,
       "Incorrect record chosen!"
     );
 
+    // Test: Test if email retrieved matches the email of patient id 0
+    // Outcome: Correct
     await truffleAssert.reverts(
       medicalChainStaffInstance.updateRecordByRecordId(
         0,
@@ -473,16 +577,8 @@ contract("Testing for EHR interaction", function (accounts) {
       "User is not a doctor!"
     );
 
-    let secondNewDoctor = await doctorInstance.create(
-      "Johnson",
-      "Lee",
-      "johnlee@gmail.com",
-      "20/01/1989",
-      {
-        from: accounts[8],
-      }
-    );
-
+    // Test: Test if doctor id 1 that is not the issuer can update EHR record id 0 belonging to patient id 0
+    // Outcome: Correct, doctor unable to update
     await truffleAssert.reverts(
       medicalChainStaffInstance.updateRecordByRecordId(
         0,
@@ -494,7 +590,7 @@ contract("Testing for EHR interaction", function (accounts) {
       "Doctor is not issuer!"
     );
 
-    // Update the record
+    // Doctor id 0 update EHR record id 0 belonging to patient id 0
     let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
       0,
       0,
@@ -502,12 +598,15 @@ contract("Testing for EHR interaction", function (accounts) {
       "Laboratory Results",
       { from: accounts[4] }
     );
+
+    // Retrieve EHR record id 0's information using approved doctor id 0 (accounts[4])
     let afterUpdate =
       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
         from: accounts[4],
       });
 
-    // Check that record is changed post update
+    /// Test: Test that EHR record id 0's file name after update is Laboratory Results
+    // Outcome: Correct
     assert.strictEqual(
       afterUpdate["fileName"] == "Laboratory Results",
       true,
@@ -534,9 +633,8 @@ contract("Testing for practitioner's access", function (accounts) {
 
   console.log("Testing begins: Testing for practitioner's access");
 
-  /********* FUNCTIONALITY TESTS *********/
-
   it("Test if adding and removing doctor's access works", async () => {
+    // Creating a Patient (id:0) using accounts[2] address
     let newPatient = await patientInstance.create(
       "Shawn",
       "Tan",
@@ -549,6 +647,7 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
+    // Creating a Patient (id:1) using accounts[7] address
     let newPatient2 = await patientInstance.create(
       "Katie",
       "Tan",
@@ -561,6 +660,7 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
+    // Creating a Doctor (id: 0) using accounts[4] address
     let newDoctor = await doctorInstance.create(
       "Gary",
       "Tay",
@@ -571,7 +671,8 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
-    // Test if non-patient can call this function for patient id 0
+    // Test: Test if non patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
         from: accounts[4],
@@ -579,7 +680,8 @@ contract("Testing for practitioner's access", function (accounts) {
       "This person is not a patient!"
     );
 
-    // Test if other patient can call this function for patient id 0
+    // Test: Test if other patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
         from: accounts[7],
@@ -587,7 +689,7 @@ contract("Testing for practitioner's access", function (accounts) {
       "This patient is not allowed to call on behalf of other patient"
     );
 
-    // Grant doctor access
+    // Grant doctor id 0 access to patient id 0
     let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
       0,
       accounts[4],
@@ -596,32 +698,39 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
-    //  Checks to see if doctor successfully granted access
+    // GivingDoctorAccess event emitted for successful giving access to doctor
     truffleAssert.eventEmitted(givingDoctorAccess, "GivingDoctorAccess");
 
+    // Retrieve bool condition whether doctor id 0 is approved in patient id 0's approved doctors
     let doctorAccess = await patientInstance.isDoctorApproved(0, accounts[4], {
       from: accounts[2],
     });
 
+    // Test: Test if doctor id 0 has access to patient id 0
+    // Outcome: Correct, able to access
     await assert.ok(doctorAccess, "Doctor does not have access");
 
-    // Remove doctor access
+    // Remove doctor id 0 access to patient id 0
     let removingDoctorAccess =
       await medicalChainPatientInstance.removeDoctorAccess(0, accounts[4], {
         from: accounts[2],
       });
 
-    //  Checks to see if doctor successfully removed access
+    // RemovingDoctorAccess event emitted for successful removing access of doctor
     truffleAssert.eventEmitted(removingDoctorAccess, "RemovingDoctorAccess");
 
+    // Retrieve bool condition whether doctor id 0 is approved in patient id 0's approved doctors
     let doctorRemoved = await patientInstance.isDoctorApproved(0, accounts[4], {
       from: accounts[2],
     });
 
+    // Test: Test if doctor id 0 has lost access to patient id 0
+    // Outcome: Correct, no more access
     await assert.ok(!doctorRemoved, "Doctor still has access");
   });
 
   it("Test if adding and removing nurse's access works", async () => {
+    // Creating a Nurse using accounts[5] address
     let newNurse = await nurseInstance.create(
       "Maria",
       "Lee",
@@ -632,7 +741,8 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
-    // Test if non-patient can call this function for patient id 0
+    // Test: Test if non patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveNurseAccess(0, accounts[5], {
         from: accounts[4],
@@ -640,7 +750,8 @@ contract("Testing for practitioner's access", function (accounts) {
       "This person is not a patient!"
     );
 
-    // Test if other patient can call this function for patient id 0
+    // Test: Test if other patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveNurseAccess(0, accounts[5], {
         from: accounts[7],
@@ -648,7 +759,7 @@ contract("Testing for practitioner's access", function (accounts) {
       "This patient is not allowed to call on behalf of other patient"
     );
 
-    // Grant nurse access
+    // Grant nurse id 0 access to patient id 0
     let givingNurseAccess = await medicalChainPatientInstance.giveNurseAccess(
       0,
       accounts[5],
@@ -657,32 +768,39 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
-    //  Checks to see if Nurse successfully granted access
+    // GivingNurseAccess event emitted for successful giving access to nurse
     truffleAssert.eventEmitted(givingNurseAccess, "GivingNurseAccess");
 
+    // Retrieve bool condition whether nurse id 0 is approved in patient id 0's approved nurses
     let NurseAccess = await patientInstance.isNurseApproved(0, accounts[5], {
       from: accounts[2],
     });
 
+    // Test: Test if nurse id 0 has access to patient id 0
+    // Outcome: Correct, able to access
     await assert.ok(NurseAccess, "Nurse does not have access");
 
-    // Remove Nurse access
+    // Remove nurse id 0 access to patient id 0
     let removingNurseAccess =
       await medicalChainPatientInstance.removeNurseAccess(0, accounts[5], {
         from: accounts[2],
       });
 
-    //  Checks to see if Nurse successfully removed access
+    // RemovingNurseAccess event emitted for successful removing access of nurse
     truffleAssert.eventEmitted(removingNurseAccess, "RemovingNurseAccess");
 
+    // Retrieve bool condition whether nurse id 0 is approved in patient id 0's approved nurses
     let NurseRemoved = await patientInstance.isNurseApproved(0, accounts[5], {
       from: accounts[2],
     });
 
+    // Test: Test if nurse id 0 has access to patient id 0
+    // Outcome: Correct, no more access
     await assert.ok(!NurseRemoved, "Nurse still has access");
   });
 
   it("Test retrieval of patients who gave approval for research", async () => {
+    // Creating a Researcher using accounts[6] address
     let newResearcher = await researcherInstance.create(
       "Maria",
       "Lee",
@@ -693,7 +811,8 @@ contract("Testing for practitioner's access", function (accounts) {
       }
     );
 
-    // Test if non-patient can call this function for patient id 0
+    // Test: Test if non patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveResearcherAccess(0, {
         from: accounts[6],
@@ -701,7 +820,8 @@ contract("Testing for practitioner's access", function (accounts) {
       "This person is not a patient!"
     );
 
-    // Test if other patient can call this function for patient id 0
+    // Test: Test if other patient can call this function for patient id 0
+    // Outcome: Correct, unable to call
     await truffleAssert.reverts(
       medicalChainPatientInstance.giveResearcherAccess(0, {
         from: accounts[7],
@@ -709,30 +829,35 @@ contract("Testing for practitioner's access", function (accounts) {
       "This patient is not allowed to call on behalf of other patient"
     );
 
-    // Grant researcher access
+    // Patient id 0 grant researcher id 0 access
     let givingResearcherAccess =
       await medicalChainPatientInstance.giveResearcherAccess(0, {
         from: accounts[2],
       });
 
-    //  Checks to see if Researcher successfully granted access
+    // GivingResearcherAccess event emitted for successful giving access to researcher
     truffleAssert.eventEmitted(
       givingResearcherAccess,
       "GivingResearcherAccess"
     );
 
+    // Retrieve bool condition whether patient id 0 is approved for research
     let researcherAccess = await patientInstance.getApprovedReseacher(0, {
       from: accounts[2],
     });
 
+    // Test: Test if researcher id 0 has access to patient id 0 for research
+    // Outcome: Correct
     await assert.ok(researcherAccess, "Researcher does not have access");
 
-    // Get list of approved patients
+    // Retrieve list of approved patients for research by researcher id 0
     let viewApprovedPatients =
       await medicalChainStaffInstance.viewApprovedPatients({
         from: accounts[6],
       });
 
+    // Test: Test if retrieved approved patients list's first patient is patient id 0
+    // Outcome: Correct, unable to call
     await assert.strictEqual(
       viewApprovedPatients[0].words[0],
       0,
@@ -763,6 +888,7 @@ contract(
 
     /********* FUNCTIONALITY TESTS *********/
     it("Test practitioner viewing of specific record", async () => {
+      // Creating a Patient using accounts[2] address
       let newPatient = await patientInstance.create(
         "Shawn",
         "Tan",
@@ -775,6 +901,7 @@ contract(
         }
       );
 
+      // Creating a Doctor (id: 0) using accounts[4] address
       let newDoctor = await doctorInstance.create(
         "Gary",
         "Tay",
@@ -785,19 +912,19 @@ contract(
         }
       );
 
-      // Grant doctor access
+      // Grant doctor id 0 access to patient id 0
       let givingDoctorAccess =
         await medicalChainPatientInstance.giveDoctorAccess(0, accounts[4], {
           from: accounts[2],
         });
 
-      // Register patient with doctor
+      // Doctor id 0 registering patient id 0 with him
       let registeringPatient =
         await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
           from: accounts[4],
         });
 
-      // Add EHR
+      // Doctor id 0 issue EHR record (id: 0) to patient id 0
       let addingEHR = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.IMMUNISATION,
         0,
@@ -807,7 +934,7 @@ contract(
         }
       );
 
-      // Add EHR
+      // Doctor id 0 issue EHR record (id: 1) to patient id 0
       let addingEHR2 = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.ALLERGIES,
         0,
@@ -817,6 +944,7 @@ contract(
         }
       );
 
+      // Creating a Doctor (id: 1) using accounts[8] address
       let secondNewDoctor = await doctorInstance.create(
         "Johnson",
         "Lee",
@@ -827,7 +955,7 @@ contract(
         }
       );
 
-      // Test: testing if non-practitioner can call this function
+      // Test: Test if non-practitioner can call this function
       // Outcome: Correct, Unable to call
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
@@ -836,8 +964,8 @@ contract(
         "User is not a practitioner"
       );
 
-      // Test: testing if doctor that is not in patient's approvedDoctors will pass
-      // Outcome: Correct, Doctor unable to view
+      // Test: Test if doctor id 1 that is not in patient id 0's approved doctors can access his/her record
+      // Outcome: Correct, doctor unable to view
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[8],
@@ -845,13 +973,13 @@ contract(
         "Doctor is not in patient's list of approved doctors"
       );
 
-      // Grant doctor id 8 access
+      // Grant doctor id 1 access to patient id 0
       let givingDoctorAccess2 =
         await medicalChainPatientInstance.giveDoctorAccess(0, accounts[8], {
           from: accounts[2],
         });
 
-      // Test: testing if patient that is not in doctor's list of patients will pass
+      // Test: Test if patient id 0 that is not in doctor id 1's list of patients will pass
       // Outcome: Correct, unable to proceed
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
@@ -859,12 +987,14 @@ contract(
         }),
         "Patient is not in doctor's list of patients"
       );
-      
-      // Remove doctor id 8 access for subsequent tests
-      let removeDoctorAccess2 = await medicalChainPatientInstance.removeDoctorAccess(0, accounts[8], {
-        from: accounts[2],
-      });
 
+      // Remove doctor id 1 access to patient id 0 for subsequent tests
+      let removeDoctorAccess2 =
+        await medicalChainPatientInstance.removeDoctorAccess(0, accounts[8], {
+          from: accounts[2],
+        });
+
+      // Doctor id 0 retrieve EHR record id 0 from patient id 0
       let record =
         await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[4],
@@ -873,7 +1003,8 @@ contract(
       // for viewing of the record and the details
       // console.log(record);
 
-      // checking that the record data given belongs to record id 0
+      // Test: Test if the retrieved record is EHR record id 0
+      // Outcome: Correct
       await assert.strictEqual(
         record["0"]["words"][0],
         0,
@@ -882,6 +1013,7 @@ contract(
     });
 
     it("Test researcher viewing of specific patient", async () => {
+      // Creating a Researcher using accounts[6] address
       let newResearcher = await researcherInstance.create(
         "Maria",
         "Lee",
@@ -892,13 +1024,14 @@ contract(
         }
       );
 
-      // Grant researcher access
+      // Patient id 0 grant researcher id 0 access
       let givingResearcherAccess =
         await medicalChainPatientInstance.giveResearcherAccess(0, {
           from: accounts[2],
         });
 
-      // testing if Doctor can view patient's data
+      // Test: Test if non researcher can call this function
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainStaffInstance.viewPatientByPatientID(0, {
           from: accounts[4],
@@ -906,7 +1039,8 @@ contract(
         "This person is not a researcher!"
       );
 
-      let newPatient = await patientInstance.create(
+      // Creating a Patient using accounts[7] address
+      let newPatient2 = await patientInstance.create(
         "Shawn",
         "Tan",
         "shawntan@gmail.com",
@@ -918,7 +1052,8 @@ contract(
         }
       );
 
-      // testing if researcher can view patient that has not given access
+      // Test: Test if researcher id 0 can view patient id 1's data (not given approval for research)
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainStaffInstance.viewPatientByPatientID(1, {
           from: accounts[6],
@@ -926,6 +1061,7 @@ contract(
         "Patient has not approved data for research purposes"
       );
 
+      // Reearcher id 0 retrieve patient id 0's data
       let patientData = await medicalChainStaffInstance.viewPatientByPatientID(
         0,
         {
@@ -936,7 +1072,8 @@ contract(
       // for viewing of the patient data
       // console.log(patientData);
 
-      // checking that the patient data given belongs to patient id 0
+      // Test: Test if retrieved patient data's patient id matches patient id 0
+      // Outcome: Correct
       await assert.strictEqual(
         patientData["0"]["words"][0],
         0,
@@ -944,13 +1081,14 @@ contract(
       );
     });
 
-    // should test for non intended patient to sign other record
     it("Test patient viewing of all acknowledged records", async () => {
+      // Patient id 0 acknowledges record id 0 issued by doctor id 0
       let signingOff =
         await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
           from: accounts[2],
         });
 
+      // Patient id 0 retrieves his/her own list of acknowledged record ids
       let listOfAcknowledgedRecordIds =
         await medicalChainPatientInstance.patientViewAllAcknowledgedRecords(0, {
           from: accounts[2],
@@ -959,13 +1097,16 @@ contract(
       // for viewing of the acknowledged record id array belonging to patient
       // console.log(listOfAcknowledgedRecordIds);
 
-      // checking the length of patient's acknowledged record is 1
+      // Test: Test that patient id 0's retrieved acknowledged record ids contains 1 record
+      // Outcome: Correct
       assert.strictEqual(
         listOfAcknowledgedRecordIds.length,
         1,
         "Acknowledged records quantity does not match!"
       );
 
+      // Test: Test that patient id 0's retrieved acknowledged record id first EHR record id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfAcknowledgedRecordIds[0]["words"][0],
         0,
@@ -974,6 +1115,7 @@ contract(
     });
 
     it("Test patient viewing of all records", async () => {
+      // Patient id 0 retrieves his/her own list of record ids
       let listOfRecordIds =
         await medicalChainPatientInstance.patientViewAllRecords(0, {
           from: accounts[2],
@@ -982,19 +1124,24 @@ contract(
       // for viewing of the record id array belonging to patient
       // console.log(listOfRecordIds);
 
-      // checking the length of patient's record is 2
+      // Test: Test that patient id 0's retrieved record ids contains 2 records
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds.length,
         2,
         "Records quantity does not match!"
       );
 
+      // Test: Test that patient id 0's retrieved record ids first record's id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds[0]["words"][0],
         0,
         "Record does not exist in patient's records"
       );
 
+      // Test: Test that patient id 0's retrieved record ids second record's id is 1
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds[1]["words"][0],
         1,
@@ -1003,7 +1150,7 @@ contract(
     });
 
     it("Test patient viewing of filtered records by record type", async () => {
-      // Add EHR RecordType IMMUNISATION to Patient Id 0 from Doctor Id 0
+      // Doctor id 0 issues an EHR RecordType IMMUNISATION (id: 2) to patient id 0
       let addingEHR3 = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.IMMUNISATION,
         0,
@@ -1013,8 +1160,8 @@ contract(
         }
       );
 
-      // Test: testing if doctor can call function using patient id 0
-      // Outcome: Correct, doctor unable to call
+      // Test: Test if non patient can call this function for patient id 0
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainPatientInstance.patientViewRecordsByRecordType(
           0,
@@ -1024,8 +1171,8 @@ contract(
         "This person is not a patient!"
       );
 
-      // Test: testing if other patient can call function using patient id 0
-      // Outcome: Correct, other patient unable to call
+      // Test: Test if other patient can call this function for patient id 0
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainPatientInstance.patientViewRecordsByRecordType(
           0,
@@ -1035,6 +1182,7 @@ contract(
         "This patient is not allowed to call on behalf of other patient"
       );
 
+      // Retrieve list of filtered record ids according to stated RecordType IMMUNISATION for patient id 0
       let listOfFilterRecordIds =
         await medicalChainPatientInstance.patientViewRecordsByRecordType(
           0,
@@ -1042,18 +1190,24 @@ contract(
           { from: accounts[2] }
         );
 
+      // Test: Test that patient id 0's retrieved filtered record ids contains 2 records
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds.length,
         2,
         "Records quantity does not match!"
       );
 
+      // Test: Test that patient id 0's retrieved filtered record ids first record's id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds[0]["words"][0],
         0,
         "Record does not exist in patient's records"
       );
 
+      // Test: Test that patient id 0's retrieved filtered record ids second record's id is 2
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds[1]["words"][0],
         2,
@@ -1062,8 +1216,8 @@ contract(
     });
 
     it("Test practitioner viewing of filtered records by record type", async () => {
-      // Test: testing if patient can call function using patient id 0
-      // Outcome: Correct, patient unable to call
+      // Test: Test if non practitioner can call this function
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewRecordsByRecordType(
           0,
@@ -1073,8 +1227,8 @@ contract(
         "User is not a practitioner"
       );
 
-      // Test: testing if other practitioner can call function using patient id 0
-      // Outcome: Correct, other practitioner unable to call
+      // Test: Test if practitioner can view record of patient id 0 if not in patient's approved list
+      // Outcome: Correct, unable to proceed
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewRecordsByRecordType(
           0,
@@ -1084,6 +1238,7 @@ contract(
         "Doctor is not in patient's list of approved doctors"
       );
 
+      // Retrieve list of filtered record ids according to stated RecordType IMMUNISATION for patient id 0
       let listOfFilterRecordIds =
         await medicalChainStaffInstance.practitionerViewRecordsByRecordType(
           0,
@@ -1091,18 +1246,24 @@ contract(
           { from: accounts[4] }
         );
 
+      // Test: Test that patient id 0's retrieved filtered record ids contains 2 records
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds.length,
         2,
         "Records quantity does not match!"
       );
 
+      // Test: Test that patient id 0's retrieved filtered record ids first record's id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds[0]["words"][0],
         0,
         "Record does not exist in patient's records"
       );
 
+      // Test: Test that patient id 0's retrieved filtered record ids second record's id is 2
+      // Outcome: Correct
       assert.strictEqual(
         listOfFilterRecordIds[1]["words"][0],
         2,
@@ -1111,37 +1272,48 @@ contract(
     });
 
     it("Test patient viewing of all records by doctor", async () => {
-      // Test: testing if another patient can view patient id 0's records by doctor
-      // Outcome: Correct, unable to view
+      // Test: Test if other patient can call this function for patient id 0
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[7],
         }),
         "This patient is not allowed to call on behalf of other patient"
       );
-      // Test: testing if non-patient can view patient id 0's records by doctor
-      // Outcome: Correct, unable to view
+
+      // Test: Test if non patient can call this function for patient id 0
+      // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[4],
         }),
         "This person is not a patient!"
       );
+
+      // Retrieve list of record ids issued by doctor id 0 for patient id 0
       let listOfRecordByDoctor =
         await medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[2],
         });
-      // checking the length of patient's record is 3
+
+      // Test: Test that patient id 0's retrieved record ids according to doctor id contains 3 records
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordByDoctor.length,
         3,
         "Records quantity does not match!"
       );
+
+      // Test: Test that patient id 0's retrieved record ids according to doctor id first record's id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordByDoctor[0]["words"][0],
         0,
         "Record was not issued by given doctor"
       );
+
+      // Test: Test that patient id 0's retrieved record ids according to doctor id second record's id is 1
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordByDoctor[1]["words"][0],
         1,
@@ -1150,7 +1322,7 @@ contract(
     });
 
     it("Test practitioner viewing of all patient records", async () => {
-      // Test: testing if non practitioner can call this function
+      // Test: Test if non practitioner can call this function
       // Outcome: Correct, unable to call
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewAllRecords(0, {
@@ -1159,8 +1331,8 @@ contract(
         "User is not a practitioner"
       );
 
-      // Test: testing if non approved doctor can call this function
-      // Outcome: Correct, unable to call
+      // Test: Test if practitioner can view record of patient id 0 if not in patient's approved list
+      // Outcome: Correct, unable to proceed
       await truffleAssert.reverts(
         medicalChainStaffInstance.practitionerViewAllRecords(0, {
           from: accounts[8],
@@ -1168,6 +1340,7 @@ contract(
         "Doctor is not in patient's list of approved doctors"
       );
 
+      // Retrieve list of record ids for patient id 0
       let listOfRecordIds =
         await medicalChainStaffInstance.practitionerViewAllRecords(0, {
           from: accounts[4],
@@ -1176,19 +1349,24 @@ contract(
       // for viewing of the record id array belonging to patient
       // console.log(listOfRecordIds);
 
-      // checking the length of patient's record is 2
+      // Test: Test that patient id 0's retrieved record ids by doctor id 0 contains 3 records
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds.length,
         3,
         "Records quantity does not match!"
       );
 
+      // Test: Test that patient id 0's retrieved record ids by doctor id 0 first record's id is 0
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds[0]["words"][0],
         0,
         "Record does not exist in patient's records"
       );
 
+      // Test: Test that patient id 0's retrieved record ids by doctor id 0 second record's id is 1
+      // Outcome: Correct
       assert.strictEqual(
         listOfRecordIds[1]["words"][0],
         1,
