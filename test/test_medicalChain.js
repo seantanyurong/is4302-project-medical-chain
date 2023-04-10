@@ -218,221 +218,243 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 /************************************ Testing for EHR interaction ************************************/
 /************************************ Testing for EHR interaction ************************************/
 /************************************ Testing for EHR interaction ************************************/
-// contract("Testing for EHR interaction", function (accounts) {
-//   before(async () => {
-//     doctorInstance = await Doctor.deployed();
-//     ehrInstance = await EHR.deployed();
-//     medicalChainPatientInstance = await MedicalChainPatient.deployed();
-//     medicalChainStaffInstance = await MedicalChainStaff.deployed();
-//     nurseInstance = await Nurse.deployed();
-//     patientInstance = await Patient.deployed();
-//     researcherInstance = await Researcher.deployed();
-//   });
+contract("Testing for EHR interaction", function (accounts) {
+  before(async () => {
+    doctorInstance = await Doctor.deployed();
+    ehrInstance = await EHR.deployed();
+    medicalChainPatientInstance = await MedicalChainPatient.deployed();
+    medicalChainStaffInstance = await MedicalChainStaff.deployed();
+    nurseInstance = await Nurse.deployed();
+    patientInstance = await Patient.deployed();
+    researcherInstance = await Researcher.deployed();
+  });
 
-//   console.log("Testing begins: Testing for practioner's access");
+  console.log("Testing begins: Testing for practioner's access");
 
-//   /********* FUNCTIONALITY TESTS *********/
-//   it("Test EHR adding", async () => {
-//     let newPatient = await patientInstance.create(
-//       "Shawn",
-//       "Tan",
-//       "shawntan@gmail.com",
-//       "18/04/2000",
-//       true,
-//       accounts[3],
-//       {
-//         from: accounts[2],
-//       }
-//     );
+  /********* FUNCTIONALITY TESTS *********/
+  it("Test EHR adding", async () => {
+    let newPatient = await patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    );
 
-//     let newDoctor = await doctorInstance.create(
-//       "Gary",
-//       "Tay",
-//       "garytay@gmail.com",
-//       "20/01/1980",
-//       {
-//         from: accounts[4],
-//       }
-//     );
+    let newDoctor = await doctorInstance.create(
+      "Gary",
+      "Tay",
+      "garytay@gmail.com",
+      "20/01/1980",
+      {
+        from: accounts[4],
+      }
+    );
 
-//     // Grant doctor access
-//     let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
-//       0,
-//       accounts[4],
-//       {
-//         from: accounts[2],
-//       }
-//     );
+    // Grant doctor access
+    let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
+      0,
+      accounts[4],
+      {
+        from: accounts[2],
+      }
+    );
 
-//     // Register patient with doctor
-//     let registeringPatient =
-//       await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
-//         from: accounts[4],
-//       });
+    // Register patient with doctor
+    let registeringPatient =
+      await medicalChainStaffInstance.registerPatientWithDoctor(0, 0, {
+        from: accounts[4],
+      });
 
-//     // Ensure initial record count is 0
-//     let recordsCount0 = await patientInstance.getRecordsCount(0, {
-//       from: accounts[2],
-//     });
+    // Ensure initial record count is 0
+    let recordsCount0 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
 
-//     await assert.strictEqual(
-//       recordsCount0.words[0],
-//       0,
-//       "Initial  count does not match"
-//     );
+    await assert.strictEqual(
+      recordsCount0.words[0],
+      0,
+      "Initial  count does not match"
+    );
 
-//     // Add EHR
-//     let addingEHR = await medicalChainStaffInstance.addNewEHR(
-//       EHR.RecordType.IMMUNISATION,
-//       0,
-//       "Immunisation Records",
-//       {
-//         from: accounts[4],
-//       }
-//     );
+    // Add EHR
+    let addingEHR = await medicalChainStaffInstance.addNewEHR(
+      EHR.RecordType.IMMUNISATION,
+      0,
+      "Immunisation Records",
+      {
+        from: accounts[4],
+      }
+    );
 
-//     truffleAssert.eventEmitted(addingEHR, "AddingEHR");
+    truffleAssert.eventEmitted(addingEHR, "AddingEHR");
 
-//     // Check that record count increased by 1
-//     let recordsCount1 = await patientInstance.getRecordsCount(0, {
-//       from: accounts[2],
-//     });
+    // Check that record count increased by 1
+    let recordsCount1 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
 
-//     await assert.strictEqual(
-//       recordsCount1.words[0],
-//       1,
-//       "Record count does not match"
-//     );
-//   });
+    await assert.strictEqual(
+      recordsCount1.words[0],
+      1,
+      "Record count does not match"
+    );
+  });
 
-//   it("Test EHR removing", async () => {
-//     // Check that initial record count is 1
-//     let recordsCount1 = await patientInstance.getRecordsCount(0, {
-//       from: accounts[2],
-//     });
+  it("Test EHR removing", async () => {
+    // Check that initial record count is 1
+    let recordsCount1 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
 
-//     await assert.strictEqual(
-//       recordsCount1.words[0],
-//       1,
-//       "Record count does not match"
-//     );
+    await assert.strictEqual(
+      recordsCount1.words[0],
+      1,
+      "Record count does not match"
+    );
 
-//     // Add EHR
-//     let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
-//       from: accounts[4],
-//     });
+    // Add EHR
+    let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
+      from: accounts[4],
+    });
 
-//     truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
+    truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
 
-//     // Ensure post record count is 0
-//     let recordsCount0 = await patientInstance.getRecordsCount(0, {
-//       from: accounts[2],
-//     });
+    // Ensure post record count is 0
+    let recordsCount0 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
 
-//     await assert.strictEqual(
-//       recordsCount0.words[0],
-//       0,
-//       "Post count does not match"
-//     );
-//   });
+    await assert.strictEqual(
+      recordsCount0.words[0],
+      0,
+      "Post count does not match"
+    );
+  });
 
-//   // Need to fix EHR acknowledging function
-//   it("Test EHR acknowledging", async () => {
-//     let newPatient = await patientInstance.create(
-//       "Chad",
-//       "Teo",
-//       "chadteo@gmail.com",
-//       "20/02/2000",
-//       true,
-//       accounts[2],
-//       {
-//         from: accounts[3],
-//       }
-//     );
+  // Need to fix EHR acknowledging function
+  it("Test EHR acknowledging", async () => {
+    // Add EHR
+    let addingEHR = await medicalChainStaffInstance.addNewEHR(
+      EHR.RecordType.IMMUNISATION,
+      0,
+      "Chicken Pox Immunisation",
+      {
+        from: accounts[4],
+      }
+    );
 
-//     // Test: testing if patient can acknowledge other patient's record
-//     // Outcome: Correct, patient unable to knowledge
-//     truffleAssert.reverts(
-//       medicalChainPatientInstance.patientAcknowledgeRecord(0, {
-//         from: accounts[3],
-//       }),
-//       "Record does not belong to this patient"
-//     );
+    // console.log(addingEHR["logs"]);
+    // console.log(addingEHR["logs"][0]);
+    // console.log(addingEHR["logs"][0]["args"]);
 
-//     // Patient acknowledge on own record
-//     let patientSigningRecord =
-//       await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
-//         from: accounts[2],
-//       });
-//     truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
-//   });
+    // Test: testing if patient can acknowledge other patient's record
+    // Outcome: Correct, patient unable to knowledge
+    truffleAssert.reverts(
+      medicalChainPatientInstance.patientAcknowledgeRecord(0, {
+        from: accounts[3],
+      }),
+      "Record does not belong to this patient"
+    );
 
-//   it("Test EHR updating", async () => {
-//     let beforeUpdate =
-//       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
-//         from: accounts[4],
-//       });
+    // Patient acknowledge on own record
+    let patientSigningRecord =
+      await medicalChainPatientInstance.patientAcknowledgeRecord(1, {
+        from: accounts[2],
+      });
 
-//     // console.log(beforeUpdate["fileName"]);
+    truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
 
-//     // ensure that record's file name before update is Immunisation Records
-//     assert.strictEqual(
-//       beforeUpdate["fileName"] == "Immunisation Records",
-//       true,
-//       "Incorrect record chosen!"
-//     );
+    // Check whether acknowledged record count went up
+    let patientAcknowledgeRecordCount =
+      await patientInstance.getAcknowledgedRecordsCount(0, {
+        from: accounts[2],
+      });
 
-//     await truffleAssert.reverts(
-//       medicalChainStaffInstance.updateRecordByRecordId(
-//         0,
-//         0,
-//         EHR.RecordType.LABORATORY_RESULTS,
-//         "Laboratory Results",
-//         { from: accounts[2] }
-//       ),
-//       "User is not a doctor!"
-//     );
+    await assert.strictEqual(
+      patientAcknowledgeRecordCount.words[0],
+      1,
+      "Acknowledge record count does not match"
+    );
 
-//     let secondNewDoctor = await doctorInstance.create(
-//       "Johnson",
-//       "Lee",
-//       "johnlee@gmail.com",
-//       "20/01/1989",
-//       {
-//         from: accounts[8],
-//       }
-//     );
+    // Check whether acknowledged record is signed off
+    let recordSignedOff = await ehrInstance.getRecordPatientSignedOff(1, {
+      from: accounts[2],
+    });
 
-//     await truffleAssert.reverts(
-//       medicalChainStaffInstance.updateRecordByRecordId(
-//         0,
-//         0,
-//         EHR.RecordType.LABORATORY_RESULTS,
-//         "Laboratory Results",
-//         { from: accounts[8] }
-//       ),
-//       "Doctor is not issuer!"
-//     );
+    await assert.ok(recordSignedOff, "Record has not been signed off");
+  });
 
-//     let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
-//       0,
-//       0,
-//       EHR.RecordType.LABORATORY_RESULTS,
-//       "Laboratory Results",
-//       { from: accounts[4] }
-//     );
-//     let afterUpdate =
-//       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
-//         from: accounts[4],
-//       });
+  it("Test EHR updating", async () => {
+    let beforeUpdate =
+      await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
+        from: accounts[4],
+      });
 
-//     assert.strictEqual(
-//       afterUpdate["fileName"] == "Laboratory Results",
-//       true,
-//       "Update failed!"
-//     );
-//   });
-// });
+    // console.log(beforeUpdate["fileName"]);
+
+    // ensure that record's file name before update is Immunisation Records
+    assert.strictEqual(
+      beforeUpdate["fileName"] == "Immunisation Records",
+      true,
+      "Incorrect record chosen!"
+    );
+
+    await truffleAssert.reverts(
+      medicalChainStaffInstance.updateRecordByRecordId(
+        0,
+        0,
+        EHR.RecordType.LABORATORY_RESULTS,
+        "Laboratory Results",
+        { from: accounts[2] }
+      ),
+      "User is not a doctor!"
+    );
+
+    let secondNewDoctor = await doctorInstance.create(
+      "Johnson",
+      "Lee",
+      "johnlee@gmail.com",
+      "20/01/1989",
+      {
+        from: accounts[8],
+      }
+    );
+
+    await truffleAssert.reverts(
+      medicalChainStaffInstance.updateRecordByRecordId(
+        0,
+        0,
+        EHR.RecordType.LABORATORY_RESULTS,
+        "Laboratory Results",
+        { from: accounts[8] }
+      ),
+      "Doctor is not issuer!"
+    );
+
+    let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
+      0,
+      0,
+      EHR.RecordType.LABORATORY_RESULTS,
+      "Laboratory Results",
+      { from: accounts[4] }
+    );
+    let afterUpdate =
+      await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
+        from: accounts[4],
+      });
+
+    assert.strictEqual(
+      afterUpdate["fileName"] == "Laboratory Results",
+      true,
+      "Update failed!"
+    );
+  });
+});
 
 /************************************ Testing for practioner's access ************************************/
 /************************************ Testing for practioner's access ************************************/

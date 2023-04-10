@@ -136,7 +136,6 @@ contract Patient {
 
     // Patient verify record
     function signOffRecord(uint256 patientId, uint256 recordId) public {
-        patients[patientId].records[recordId] = true;
         patients[patientId].acknowledgedRecordsCount++;
         ehrContract.patientSignOff(recordId);
     }
