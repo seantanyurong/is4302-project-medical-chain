@@ -278,19 +278,19 @@ contract Patient {
         return patients[patientId].records[recordId];
     }
 
-    function giveDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
+    function giveDoctorAccess(uint256 patientId, address doctorAddress) public {
         patients[patientId].approvedDoctors[doctorAddress] = true;
     }
 
-    function removeDoctorAccess(uint256 patientId, address doctorAddress) public validPatientId(patientId) ownerOnly(patientId) {
+    function removeDoctorAccess(uint256 patientId, address doctorAddress) public {
         patients[patientId].approvedDoctors[doctorAddress] = false;
     }
 
-    function giveNurseAccess(uint256 patientId, address nurseAddress) public validPatientId(patientId) ownerOnly(patientId) {
+    function giveNurseAccess(uint256 patientId, address nurseAddress) public {
         patients[patientId].approvedNurses[nurseAddress] = true;
     }
 
-    function removeNurseAccess(uint256 patientId, address nurseAddress) public validPatientId(patientId) ownerOnly(patientId) {
+    function removeNurseAccess(uint256 patientId, address nurseAddress) public {
         patients[patientId].approvedNurses[nurseAddress] = false;
     }
 
@@ -304,7 +304,7 @@ contract Patient {
         patients[patientId].recordsCount--;
     }
 
-    function giveResearcherAccess(uint256 patientId) public validPatientId(patientId) ownerOnly(patientId) {
+    function giveResearcherAccess(uint256 patientId) public {
         patients[patientId].approvedResearcher = true;
     }
 
