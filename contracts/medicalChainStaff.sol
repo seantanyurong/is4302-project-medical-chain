@@ -36,6 +36,7 @@ contract medicalChainStaff {
   event RemovingNurseAccess();
   event GivingResearcherAccess();
   event AddingEHR();
+  event RemovingEHR();
   event AcknowledgingRecord();
   event GettingApprovedPatients();
 
@@ -162,10 +163,18 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     
       recordId = ehrContract.add(recordType, filename, patientContract.getPatientAddress(patientId), msg.sender);
 
-      patientContract.addEhr(patientId, recordId);
+      patientContract.addEHR(patientId, recordId);
 
       emit AddingEHR();
       return recordId;
+  }
+
+  // Remove EHR
+  function removeEHR(uint256 recordId, uint256 patientId) public isDoctorApprovedAndPatientRegisteredWithDoctor(patientId) {
+    
+      patientContract.removeEHR(patientId, recordId);
+
+      emit RemovingEHR();
   }
 
   // Request to view specific record

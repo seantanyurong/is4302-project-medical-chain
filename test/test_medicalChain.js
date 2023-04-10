@@ -298,27 +298,43 @@ contract("Testing for EHR interaction", function (accounts) {
       from: accounts[2],
     });
 
-    // console.log(recordsCount);
-    // console.log(recordsCount.words[0]);
-    // console.log(recordsCount[words][0]);
+    await assert.strictEqual(
+      recordsCount1.words[0],
+      1,
+      "Record count does not match"
+    );
+  });
+
+  it("Test EHR removing", async () => {
+    // Check that initial record count is 1
+    let recordsCount1 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
 
     await assert.strictEqual(
       recordsCount1.words[0],
       1,
       "Record count does not match"
     );
-    // // Patient sign off on record
-    // let patientSigningRecord =
-    //   await medicalChainInstance.patientAcknowledgeRecord(0, {
-    //     from: accounts[2],
-    //   });
 
-    // truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
+    // Add EHR
+    let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
+      from: accounts[4],
+    });
+
+    truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
+
+    // Ensure post record count is 0
+    let recordsCount0 = await patientInstance.getRecordsCount(0, {
+      from: accounts[2],
+    });
+
+    await assert.strictEqual(
+      recordsCount0.words[0],
+      0,
+      "Post count does not match"
+    );
   });
-
-  // Seems to be keeping previous state?
-  // Need to add in remove function
-  it("Test EHR removing", async () => {});
 
   // Need to fix EHR acknowledging function
   it("Test EHR acknowledging", async () => {
