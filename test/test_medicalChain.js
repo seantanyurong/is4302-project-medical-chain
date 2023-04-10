@@ -106,6 +106,14 @@ contract("Testing for creation", function (accounts) {
       "Failed to create patient"
     );
 
+    // Test if can get email address as invalid ID
+    await truffleAssert.reverts(
+      patientInstance.getEmailAddress(2, {
+        from: accounts[2],
+      }),
+      "Invalid patient Id!"
+    );
+
     let email = await patientInstance.getEmailAddress(0, {
       from: accounts[2],
     });
@@ -287,6 +295,14 @@ contract("Testing for EHR interaction", function (accounts) {
       }
     );
 
+    // Check that the doctor address must be valid
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.giveDoctorAccess(0, accounts[8], {
+        from: accounts[2],
+      }),
+      "Doctor ID given is not valid"
+    );
+
     // Grant doctor access
     let givingDoctorAccess = await medicalChainPatientInstance.giveDoctorAccess(
       0,
@@ -349,6 +365,14 @@ contract("Testing for EHR interaction", function (accounts) {
       "Record count does not match"
     );
 
+    // Check that the doctor approved modifier works
+    await truffleAssert.reverts(
+      medicalChainStaffInstance.removeEHR(0, 3, {
+        from: accounts[4],
+      }),
+      "Doctor is not in patient's list of approved doctors"
+    );
+
     // Add EHR
     let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
       from: accounts[4],
@@ -385,6 +409,14 @@ contract("Testing for EHR interaction", function (accounts) {
     truffleAssert.reverts(
       medicalChainPatientInstance.patientAcknowledgeRecord(0, {
         from: accounts[3],
+      }),
+      "Record does not belong to this patient"
+    );
+
+    // Check that the isRecordBelongToPatient modifier works
+    await truffleAssert.reverts(
+      medicalChainPatientInstance.patientAcknowledgeRecord(1, {
+        from: accounts[4],
       }),
       "Record does not belong to this patient"
     );
