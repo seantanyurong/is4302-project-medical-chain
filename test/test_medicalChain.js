@@ -70,6 +70,20 @@ contract("Testing for creation", function (accounts) {
 
     truffleAssert.eventEmitted(newPatient, "PatientAdded");
 
+    // Checking if possible to create a duplicate patient using same address
+    await truffleAssert.reverts(patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    ), "Patient already registered!");
+    
+
     await assert.notStrictEqual(
       newPatient,
       undefined,
