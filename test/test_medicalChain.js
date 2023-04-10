@@ -919,7 +919,36 @@ contract(
         1,
         "Record does not exist in patient's records"
       );
-    });
+
+      // Testing whether nurse can view all records
+      listOfRecordIds =
+      await medicalChainInstance.practitionerViewAllRecords(0, {
+        from: accounts[5],
+      });
+
+      // for viewing of the record id array belonging to patient
+      //   console.log(listOfRecordIds);
+
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordIds.length,
+        2,
+        "Records quantity does not match!"
+      );
+
+      assert.strictEqual(
+        listOfRecordIds[0]["words"][0],
+        0,
+        "Record does not exist in patient's records"
+      );
+
+      assert.strictEqual(
+        listOfRecordIds[1]["words"][0],
+        1,
+        "Record does not exist in patient's records"
+      );
+        
+      });
 
     it("Test record update", async () => {
       let beforeUpdate =
