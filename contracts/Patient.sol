@@ -284,9 +284,14 @@ contract Patient {
         patients[patientId].approvedNurses[nurseAddress] = false;
     }
 
-    function addEhr(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
-        patients[patientId].records[recordId] = false;
+    function addEHR(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
+        patients[patientId].records[recordId] = true;
         patients[patientId].recordsCount++;
+    }
+
+    function removeEHR(uint256 patientId, uint256 recordId) public validPatientId(patientId) {
+        patients[patientId].records[recordId] = false;
+        patients[patientId].recordsCount--;
     }
 
     function giveResearcherAccess(uint256 patientId) public validPatientId(patientId) ownerOnly(patientId) {
