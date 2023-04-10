@@ -877,7 +877,7 @@ contract(
 
     it("Test patient viewing of filtered records by record type", async () => {
       // Add EHR RecordType IMMUNISATION to Patient Id 0 from Doctor Id 0
-      let addingEHR = await medicalChainStaffInstance.addNewEHR(
+      let addingEHR3 = await medicalChainStaffInstance.addNewEHR(
         EHR.RecordType.IMMUNISATION,
         0,
         "Immunisation Records",
@@ -941,7 +941,7 @@ contract(
         medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[7],
         }),
-        "Current user is not the intended patient!"
+        "Patient is not allowed to view other patient's records"
       );
       // Test: testing if non-patient can view patient id 0's records by doctor
       // Outcome: Correct, unable to view
@@ -949,16 +949,16 @@ contract(
         medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[4],
         }),
-        "Patient is not allowed to view other patient's records"
+        "This person is not a patient!"
       );
       let listOfRecordByDoctor =
         await medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
           from: accounts[2],
         });
-      // checking the length of patient's record is 2
+      // checking the length of patient's record is 3
       assert.strictEqual(
         listOfRecordByDoctor.length,
-        2,
+        3,
         "Records quantity does not match!"
       );
       assert.strictEqual(
@@ -973,51 +973,51 @@ contract(
       );
     });
 
-    //   it("Test practitioner viewing of all patient records", async () => {
-    //     // Test: testing if non practitioner can call this function
-    //     // Outcome: Correct, unable to call
-    //     await truffleAssert.reverts(
-    //       medicalChainStaffInstance.practitionerViewAllRecords(0, {
-    //         from: accounts[2],
-    //       }),
-    //       "User is not a practitioner"
-    //     );
+    it("Test practitioner viewing of all patient records", async () => {
+      // Test: testing if non practitioner can call this function
+      // Outcome: Correct, unable to call
+      await truffleAssert.reverts(
+        medicalChainStaffInstance.practitionerViewAllRecords(0, {
+          from: accounts[2],
+        }),
+        "User is not a practitioner"
+      );
 
-    //     // Test: testing if non approved doctor can call this function
-    //     // Outcome: Correct, unable to call
-    //     await truffleAssert.reverts(
-    //       medicalChainStaffInstance.practitionerViewAllRecords(0, {
-    //         from: accounts[8],
-    //       }),
-    //       "Doctor is not in patient's list of approved doctors"
-    //     );
+      // Test: testing if non approved doctor can call this function
+      // Outcome: Correct, unable to call
+      await truffleAssert.reverts(
+        medicalChainStaffInstance.practitionerViewAllRecords(0, {
+          from: accounts[8],
+        }),
+        "Doctor is not in patient's list of approved doctors"
+      );
 
-    //     let listOfRecordIds =
-    //       await medicalChainStaffInstance.practitionerViewAllRecords(0, {
-    //         from: accounts[4],
-    //       });
+      let listOfRecordIds =
+        await medicalChainStaffInstance.practitionerViewAllRecords(0, {
+          from: accounts[4],
+        });
 
-    //     // for viewing of the record id array belonging to patient
-    //     //   console.log(listOfRecordIds);
+      // for viewing of the record id array belonging to patient
+      // console.log(listOfRecordIds);
 
-    //     // checking the length of patient's record is 2
-    //     assert.strictEqual(
-    //       listOfRecordIds.length,
-    //       2,
-    //       "Records quantity does not match!"
-    //     );
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordIds.length,
+        3,
+        "Records quantity does not match!"
+      );
 
-    //     assert.strictEqual(
-    //       listOfRecordIds[0]["words"][0],
-    //       0,
-    //       "Record does not exist in patient's records"
-    //     );
+      assert.strictEqual(
+        listOfRecordIds[0]["words"][0],
+        0,
+        "Record does not exist in patient's records"
+      );
 
-    //     assert.strictEqual(
-    //       listOfRecordIds[1]["words"][0],
-    //       1,
-    //       "Record does not exist in patient's records"
-    //     );
-    //   });
+      assert.strictEqual(
+        listOfRecordIds[1]["words"][0],
+        1,
+        "Record does not exist in patient's records"
+      );
+    });
   }
 );
