@@ -117,6 +117,17 @@ contract Doctor {
         return doctors[doctorId].owner;
     }
 
+    // get doctor's id from their address 
+    function getDoctorIdFromDoctorAddress(address doctorAddress) public view returns (uint256) {
+        for (uint i = 0; i < numDoctors; i++) {
+            if (doctors[i].owner == doctorAddress) {
+                return i;
+            }
+        }
+
+        return uint256(-1);
+    }
+
     // Doctor: View all records belonging to this patient
   // Returns all the recordIds
   function doctorViewAllRecords(address patientAddress, uint256 patientNoOfRecords) public view returns (uint256[] memory) {
@@ -167,14 +178,4 @@ contract Doctor {
         doctors[doctorId].dob = _dob;
     }
 
-    // get doctor's id from their address 
-    function getDoctorIdFromDoctorAddress(address doctorAddress) public view returns (uint256) {
-        for (uint i = 0; i < numDoctors; i++) {
-            if (doctors[i].owner == doctorAddress) {
-                return i;
-            }
-        }
-
-        return uint256(-1);
-    }
 }

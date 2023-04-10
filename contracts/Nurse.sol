@@ -61,17 +61,6 @@ contract Nurse {
 
 
     /********* FUNCTIONS *********/
-    function getIsPatientRegistered(uint256 nurseId, uint256 patientId) public view returns (bool) {
-        return nurses[nurseId].patients[patientId];
-    }
-
-    function registerPatient(uint256 nurseId, uint256 patientId) public {
-        nurses[nurseId].patients[patientId] = true;
-    }
-
-    function unregisterPatient(uint256 nurseId, uint256 patientId) public {
-        nurses[nurseId].patients[patientId] = false;
-    }
 
     function isValidNurseId(uint256 nurseId) public view returns (bool) {
         if (nurseId < numNurses) {
@@ -107,9 +96,32 @@ contract Nurse {
         return false;
     }
 
+    function getIsPatientRegistered(uint256 nurseId, uint256 patientId) public view returns (bool) {
+        return nurses[nurseId].patients[patientId];
+    }
+
+    function registerPatient(uint256 nurseId, uint256 patientId) public {
+        nurses[nurseId].patients[patientId] = true;
+    }
+
+    function unregisterPatient(uint256 nurseId, uint256 patientId) public {
+        nurses[nurseId].patients[patientId] = false;
+    }
+
     // get doctor's address from their id (used in medicalChain numberOfRecordByNurse function)
     function getNurseAddressFromNurseId(uint256 nurseId) public view returns (address) {
         return nurses[nurseId].owner;
+    }
+
+    // get nurse's id from their address 
+    function getNurseIdFromNurseAddress(address nurseAddress) public view returns (uint256) {
+        for (uint i = 0; i < numNurses; i++) {
+            if (nurses[i].owner == nurseAddress) {
+                return i;
+            }
+        }
+
+        return uint256(-1);
     }
 
     // Nurse: View all records belonging to this patient
@@ -127,17 +139,6 @@ contract Nurse {
 
       return patientRecordsId;
   }
-
-  // get nurse's id from their address 
-    function getNurseIdFromNurseAddress(address nurseAddress) public view returns (uint256) {
-        for (uint i = 0; i < numNurses; i++) {
-            if (nurses[i].owner == nurseAddress) {
-                return i;
-            }
-        }
-
-        return uint256(-1);
-    }
 
 
     /********* GETTERS & SETTERS *********/

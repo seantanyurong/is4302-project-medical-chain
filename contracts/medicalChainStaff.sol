@@ -42,12 +42,6 @@ contract medicalChainStaff {
 
   /********* MODIFIERS *********/
 
-  // prevent doctor from self-diagnosing, doctor cannot write on their own record
-  modifier doctorIsNotPatient(address patientId, address doctorId) {
-    require(patientId != doctorId, "Doctor should not self-diagnose");
-    _;
-  }
-
   modifier isPractitionerApprovedAndPatientRegisteredWithPractitioner(uint256 patientId) {
     string memory role = getSenderRole();
     bool roleIsDoctor = keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")));
@@ -86,7 +80,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   modifier isNurseAndAuthorised(uint256 nurseId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("nurse"))), "This person is not a nurse!");
-    require(nurseContract.getNurseIdFromNurseAddress(msg.sender) == nurseId, "Nurse is not allowed to act on behalf of other doctor");
+    require(nurseContract.getNurseIdFromNurseAddress(msg.sender) == nurseId, "Nurse is not allowed to act on behalf of other nurse");
     _;
   }
 
@@ -202,12 +196,12 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   // OK
   // Researcher: Request to view specific patient data
-  function viewPatientByPatientID(uint256 patientID) public view isResearcherAbleToViewPatientData(patientID) returns (uint256 id,
+  function viewPatientByPatientId(uint256 patientId) public view isResearcherAbleToViewPatientData(patientId) returns (uint256 id,
         string memory firstName,
         string memory lastName,
         string memory emailAddress,
         string memory dob) {
-      return patientContract.getData(patientID);
+      return patientContract.getData(patientId);
   }
 
   // OK

@@ -41,12 +41,6 @@ contract medicalChainPatient {
 
   /********* MODIFIERS *********/
 
-  // prevent doctor from self-diagnosing, doctor cannot write on their own record
-  modifier doctorIsNotPatient(address patientId, address doctorId) {
-    require(patientId != doctorId, "Doctor should not self-diagnose");
-    _;
-  }
-
   modifier isPatientAndAuthorised(uint256 patientId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
     require(patientContract.isValidPatientId(patientId) == true, "Patient ID given is not valid");

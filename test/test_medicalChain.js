@@ -615,12 +615,12 @@ contract("Testing for EHR interaction", function (accounts) {
   });
 });
 
-/************************************ Testing for practitioner's access ************************************/
-/************************************ Testing for practitioner's access ************************************/
-/************************************ Testing for practitioner's access ************************************/
-/************************************ Testing for practitioner's access ************************************/
-/************************************ Testing for practitioner's access ************************************/
-contract("Testing for practitioner's access", function (accounts) {
+/************************************ Testing for practitioner's and researcher's access ************************************/
+/************************************ Testing for practitioner's and researcher's access ************************************/
+/************************************ Testing for practitioner's and researcher's access ************************************/
+/************************************ Testing for practitioner's and researcher's access ************************************/
+/************************************ Testing for practitioner's and researcher's access ************************************/
+contract("Testing for practitioner's and researcher's access", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
     ehrInstance = await EHR.deployed();
@@ -631,7 +631,7 @@ contract("Testing for practitioner's access", function (accounts) {
     researcherInstance = await Researcher.deployed();
   });
 
-  console.log("Testing begins: Testing for practitioner's access");
+  console.log("Testing begins: Testing for practitioner's and researcher's access");
 
   it("Test if adding and removing doctor's access works", async () => {
     // Creating a Patient (id:0) using accounts[2] address
@@ -1033,7 +1033,7 @@ contract(
       // Test: Test if non researcher can call this function
       // Outcome: Correct, unable to call
       await truffleAssert.reverts(
-        medicalChainStaffInstance.viewPatientByPatientID(0, {
+        medicalChainStaffInstance.viewPatientByPatientId(0, {
           from: accounts[4],
         }),
         "This person is not a researcher!"
@@ -1055,14 +1055,14 @@ contract(
       // Test: Test if researcher id 0 can view patient id 1's data (not given approval for research)
       // Outcome: Correct, unable to call
       await truffleAssert.reverts(
-        medicalChainStaffInstance.viewPatientByPatientID(1, {
+        medicalChainStaffInstance.viewPatientByPatientId(1, {
           from: accounts[6],
         }),
         "Patient has not approved data for research purposes"
       );
 
       // Reearcher id 0 retrieve patient id 0's data
-      let patientData = await medicalChainStaffInstance.viewPatientByPatientID(
+      let patientData = await medicalChainStaffInstance.viewPatientByPatientId(
         0,
         {
           from: accounts[6],
