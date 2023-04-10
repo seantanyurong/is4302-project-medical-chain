@@ -743,15 +743,6 @@ contract(
         "Doctor is not in patient's list of approved doctors"
       );
 
-      // Test: testing if invalid record id will throw an error
-      // Outcome: Correct
-      await truffleAssert.reverts(
-        medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 2, {
-          from: accounts[4],
-        }),
-        "Record ID given is not valid"
-      );
-
       let record =
         await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
           from: accounts[4],

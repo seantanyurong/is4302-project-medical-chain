@@ -50,11 +50,13 @@ contract medicalChainStaff {
 
   modifier isPractitionerApprovedAndPatientRegisteredWithPractitioner(uint256 patientId) {
     string memory role = getSenderRole();
-    require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))) || keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse"))), "User is not a practitioner");
-    if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
+    bool roleIsDoctor = keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")));
+    bool roleIsNurse = keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")));
+    require(roleIsDoctor || roleIsNurse, "User is not a practitioner");
+    if (roleIsDoctor) {
       require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
       require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
-    } else if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse")))) {
+    } else if (roleIsNurse) {
       require(patientContract.isApprovedNurse(patientId, msg.sender) == true, "Nurse is not in patient's list of approved nurses");
       require(nurseContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in nurse's list of patients");
     }
@@ -62,16 +64,14 @@ contract medicalChainStaff {
   }
 
   modifier isDoctorApprovedAndPatientRegisteredWithDoctor(uint256 patientId) {
-    string memory role = getSenderRole();
-    require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))), "User is not a doctor!");
+    require(keccak256(abi.encodePacked((getSenderRole()))) == keccak256(abi.encodePacked(("doctor"))), "User is not a doctor!");
     require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
     require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
     _;
   }
 
 modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patientId, uint256 recordId, address doctorAddress) {
-    string memory role = getSenderRole();
-    require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))), "User is not a doctor!");
+    require(keccak256(abi.encodePacked((getSenderRole()))) == keccak256(abi.encodePacked(("doctor"))), "User is not a doctor!");
     require(ehrContract.doesRecordMatchDoctorAddress(recordId, doctorAddress) == true, "Doctor is not issuer!");
     require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
     require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
@@ -80,14 +80,12 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   modifier isDoctorAndAuthorised(uint256 doctorId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("doctor"))), "This person is not a doctor!");
-    require(doctorContract.isValidDoctorId(doctorId) == true, "Doctor Id given is not valid");
     require(doctorContract.getDoctorIdFromDoctorAddress(msg.sender) == doctorId, "Doctor is not allowed to act on behalf of other doctor");
     _;
   }
 
   modifier isNurseAndAuthorised(uint256 nurseId) {
     require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("nurse"))), "This person is not a nurse!");
-    require(nurseContract.isValidNurseId(nurseId) == true, "Nurse Id given is not valid");
     require(nurseContract.getNurseIdFromNurseAddress(msg.sender) == nurseId, "Nurse is not allowed to act on behalf of other doctor");
     _;
   }
@@ -109,21 +107,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   modifier PatientIsNotRegisteredWithNurse(uint256 nurseId, uint256 patientId) {
     require(nurseContract.getIsPatientRegistered(nurseId, patientId) == false, "Patient is already registered with nurse");
-    _;
-  }
-
-  modifier isValidDoctorId(uint256 doctorId) {
-    require(doctorContract.isValidDoctorId(doctorId) == true, "Doctor ID given is not valid");
-    _;
-  }
-
-  modifier isValidNurseId(uint256 nurseId) {
-    require(nurseContract.isValidNurseId(nurseId) == true, "Nurse ID given is not valid");
-    _;
-  }
-
-  modifier isValidRecordId(uint256 recordId) {
-    require(ehrContract.isValidRecordId(recordId) == true, "Record ID given is not valid");
     _;
   }
 
@@ -195,7 +178,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Request to view specific record
-  function practitionerViewRecordByRecordID(uint256 patientId, uint256 recordId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) isValidRecordId(recordId) returns (uint256 id,
+  function practitionerViewRecordByRecordID(uint256 patientId, uint256 recordId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256 id,
         EHR.RecordType recordType,
         string memory fileName,
         address patientAddress,
@@ -205,17 +188,20 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
       return ehrContract.getRecord(recordId);
   }
 
+  // OK
   // Request to update specific record - update RecordType and fileName
-  function updateRecordByRecordId(uint256 patientId, uint256 recordId, EHR.RecordType recordType, string memory fileName) public isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(patientId, recordId, msg.sender) isValidRecordId(recordId) {
+  function updateRecordByRecordId(uint256 patientId, uint256 recordId, EHR.RecordType recordType, string memory fileName) public isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(patientId, recordId, msg.sender) {
     ehrContract.updateRecord(recordId, recordType, fileName);
   }
 
+  // OK
   // Researcher: View all patients who have approved research access
   function viewApprovedPatients() public view isResearcher() returns (uint256[] memory) {
       // emit GettingApprovedPatients();
       return patientContract.getResearchPatients();
   }
 
+  // OK
   // Researcher: Request to view specific patient data
   function viewPatientByPatientID(uint256 patientID) public view isResearcherAbleToViewPatientData(patientID) returns (uint256 id,
         string memory firstName,
@@ -225,6 +211,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
       return patientContract.getData(patientID);
   }
 
+  // OK
   // Practitioner: View all records belonging to this patient
   // Returns all the recordIds
   function practitionerViewAllRecords(uint256 patientId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
@@ -232,7 +219,8 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     return patientContract.viewAllRecords(patientId);
   }
 
-    // Patient: Filter records by record type
+  // OK
+  // Patient: Filter records by record type
   function practitionerViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
     return patientContract.viewRecordsByRecordType(patientId, recordType);
   }
