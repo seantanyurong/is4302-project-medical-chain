@@ -246,7 +246,7 @@ contract Patient {
   }
 
     // Patient: Helper function to check how many records fulfilling the given record type for a patient
-  function numberOfRecordType(uint256 patientId, EHR.RecordType recordType) public view returns(uint256){ // change on what you need to return
+  function numberOfRecordType(uint256 patientId, EHR.RecordType recordType) public view returns(uint256) { // change on what you need to return
     uint256[] memory patientRecordsId = viewAllRecords(patientId);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
     uint256 noOfRecordsMatchingRecordType = 0;

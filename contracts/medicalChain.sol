@@ -102,6 +102,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
     _;
   }
+  
 
   // modifier isPractitionerAbleToViewRecord(uint256 recordId) {
   //   string memory role = getSenderRole();
@@ -113,8 +114,10 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   //   _;
   // }
 
-  modifier isValidPatientId(uint256 patientId) {
+  modifier isPatientAndAuthorised(uint256 patientId) {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
     require(patientContract.isValidPatientId(patientId) == true, "Patient ID given is not valid");
+    require(patientContract.getPatientIdFromPatientAddress(msg.sender) == patientId, "Patient is not allowed to view other patient's records");
     _;
   }
 
@@ -130,11 +133,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   modifier isValidRecordId(uint256 recordId) {
     require(ehrContract.isValidRecordId(recordId) == true, "Record ID given is not valid");
-    _;
-  }
-
-  modifier isPatient() {
-    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
     _;
   }
 
@@ -265,29 +263,29 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Patient: View all records (acknowledged and not acknowledged)
-  function patientViewAllAcknowledgedRecords(uint256 patientId) public view isPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+  function patientViewAllAcknowledgedRecords(uint256 patientId) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
     return patientContract.viewAllAcknowledgedRecords(patientId);
   }
 
   // Patient: View all records (acknowledged and not acknowledged)
-  function patientViewAllRecords(uint256 patientId) public view isPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+  function patientViewAllRecords(uint256 patientId) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
     return patientContract.viewAllRecords(patientId);
   }
 
   // Patient: View all records issued by certain doctor
-  function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isPatient() isValidDoctorId(doctorId) returns (uint256[] memory) {
+  function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isValidDoctorId(doctorId) returns (uint256[] memory) {
     // address doctorAddress = doctorContract.getDoctorAddressFromDoctorId(doctorId);
     return patientContract.viewRecordsByDoctor(patientId, doctorContract.getDoctorAddressFromDoctorId(doctorId));
   }
 
   // Patient: View all records issued by certain nurse
-  function patientViewRecordsByNurse(uint256 patientId, uint256 nurseId) public view isPatient() isValidNurseId(nurseId) returns (uint256[] memory) {
+  function patientViewRecordsByNurse(uint256 patientId, uint256 nurseId) public view isValidNurseId(nurseId) returns (uint256[] memory) {
     // address nurseAddress = nurseContract.getNurseAddressFromNurseId(nurseId);
     return patientContract.viewRecordsByDoctor(patientId, nurseContract.getNurseAddressFromNurseId(nurseId));
   }
 
   // Patient: Filter records by record type
-  function patientViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPatient() isValidPatientId(patientId) returns (uint256[] memory) {
+  function patientViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
     return patientContract.viewRecordsByRecordType(patientId, recordType);
   }
 
@@ -299,7 +297,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
 // Patient: Acknowledge a record that is added to his medical records
-function patientAcknowledgeRecord(uint256 recordId) public isPatient() isValidRecordId(recordId) isRecordBelongToPatient(recordId) {
+function patientAcknowledgeRecord(uint256 recordId) public isValidRecordId(recordId) isRecordBelongToPatient(recordId) {
   emit AcknowledgingRecord();
   // uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
   patientContract.signOffRecord(patientContract.getPatientIdFromPatientAddress(msg.sender), recordId);
