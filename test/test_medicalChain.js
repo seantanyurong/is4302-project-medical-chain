@@ -654,6 +654,61 @@ contract(
       );
     });
 
+    it("Test nurse viewing of specific patient", async() => {
+      let newNurse = await nurseInstance.create(
+        "Maria",
+        "Lee",
+        "marialee@gmail.com",
+        "25/06/1999",
+        {
+          from: accounts[5],
+        }
+      );
+
+      // Test: testing if nurse can call this function before given permission
+      // Outcome: Correct, Unable to call
+      await truffleAssert.reverts(
+        medicalChainInstance.practitionerViewRecordByRecordID(0, 0, {
+          from: accounts[5],
+        }),
+        "Nurse is not in patient's list of approved nurses"
+      );
+
+
+      // Grant nurse access
+      let givingNurseAccess = await medicalChainInstance.giveNurseAccess(
+        0,
+        accounts[5],
+        {
+          from: accounts[2],
+        }
+      );
+
+      // Register patient with nurse
+      let registeringPatient =
+        await medicalChainInstance.registerPatientWithNurse(0, 0, {
+          from: accounts[5],
+        });
+
+      let record = await medicalChainInstance.practitionerViewRecordByRecordID(
+        0,
+        0,
+        {
+          from: accounts[5],
+        }
+      );
+
+      // for viewing of the record and the details
+      // console.log(record);
+
+      // checking that the record data given belongs to record id 0
+      await assert.strictEqual(
+        record["0"]["words"][0],
+        0,
+        "Record given is not the requested one"
+      );
+    });
+
     it("Test researcher viewing of specific patient", async () => {
       let newResearcher = await researcherInstance.create(
         "Maria",
