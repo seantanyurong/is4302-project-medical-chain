@@ -912,6 +912,45 @@ contract(
       );
     });
 
+    it("Test patient viewing of all records by doctor", async () => {
+      // Test: testing if another patient can view patient id 0's records by doctor
+      // Outcome: Correct, unable to view
+      await truffleAssert.reverts(
+        medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[7],
+        }),
+        "Current user is not the intended patient!"
+      );
+      // Test: testing if non-patient can view patient id 0's records by doctor
+      // Outcome: Correct, unable to view
+      await truffleAssert.reverts(
+        medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[4],
+        }),
+        "Patient is not allowed to view other patient's records"
+      );
+      let listOfRecordByDoctor =
+        await medicalChainPatientInstance.patientViewRecordsByDoctor(0, 0, {
+          from: accounts[2],
+        });
+      // checking the length of patient's record is 2
+      assert.strictEqual(
+        listOfRecordByDoctor.length,
+        2,
+        "Records quantity does not match!"
+      );
+      assert.strictEqual(
+        listOfRecordByDoctor[0]["words"][0],
+        0,
+        "Record was not issued by given doctor"
+      );
+      assert.strictEqual(
+        listOfRecordByDoctor[1]["words"][0],
+        1,
+        "Record was not issued by given doctor"
+      );
+    });
+
     //   it("Test practitioner viewing of all patient records", async () => {
     //     // Test: testing if non practitioner can call this function
     //     // Outcome: Correct, unable to call

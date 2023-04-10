@@ -177,7 +177,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Patient: View all records issued by certain doctor
-  function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isValidDoctorId(doctorId) returns (uint256[] memory) {
+  function patientViewRecordsByDoctor(uint256 patientId, uint256 doctorId) public view isPatientAndAuthorised(patientId) isValidDoctorId(doctorId) returns (uint256[] memory) {
     // address doctorAddress = doctorContract.getDoctorAddressFromDoctorId(doctorId);
     return patientContract.viewRecordsByDoctor(patientId, doctorContract.getDoctorAddressFromDoctorId(doctorId));
   }
