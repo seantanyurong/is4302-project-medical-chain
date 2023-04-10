@@ -163,11 +163,11 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     doctorContract.unregisterPatient(doctorId, patientId);
   }
 
-  function registerPatientWithNurse(uint256 nurseId, uint256 patientId) public {
+  function registerPatientWithNurse(uint256 nurseId, uint256 patientId) public isNurseAndAuthorised(nurseId) PatientIsNotRegisteredWithNurse(nurseId, patientId) {
     nurseContract.registerPatient(nurseId, patientId);
   }
 
-  function unregisterPatientWithNurse(uint256 nurseId, uint256 patientId) public {
+  function unregisterPatientWithNurse(uint256 nurseId, uint256 patientId) public isNurseAndAuthorised(nurseId) PatientIsRegisteredWithNurse(nurseId, patientId) {
     nurseContract.registerPatient(nurseId, patientId);
   }
 
