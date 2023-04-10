@@ -136,12 +136,6 @@ contract medicalChainPatient {
     return patientContract.viewRecordsByDoctor(patientId, doctorContract.getDoctorAddressFromDoctorId(doctorId));
   }
 
-  // Patient: View all records issued by certain nurse
-  function patientViewRecordsByNurse(uint256 patientId, uint256 nurseId) public view isValidNurseId(nurseId) returns (uint256[] memory) {
-    // address nurseAddress = nurseContract.getNurseAddressFromNurseId(nurseId);
-    return patientContract.viewRecordsByDoctor(patientId, nurseContract.getNurseAddressFromNurseId(nurseId));
-  }
-
   // Patient: Filter records by record type
   function patientViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPatientAndAuthorised(patientId) returns (uint256[] memory) {
     return patientContract.viewRecordsByRecordType(patientId, recordType);
