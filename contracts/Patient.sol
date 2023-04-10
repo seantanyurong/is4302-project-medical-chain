@@ -30,8 +30,7 @@ contract Patient {
     mapping(uint256 => patient) public patients;
 
     // function to create patient
-    // TO CHECK FOR DUPLICATE ADDRESS, WHETHER SECONDARYUSER IS A REGISTERED PATIENT
-    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) isSecondaryUserRegisteredPatient(_secondaryUser) public returns(uint256) {
+    function create(string memory _firstName, string memory _lastName, string memory _emailAddress, string memory _dob, bool _approvedResearcher, address _secondaryUser) isPatientAlreadyRegistered(msg.sender) public returns(uint256) {
 
         emit testTrigger();
 
@@ -141,11 +140,6 @@ contract Patient {
             }
         }
 
-
-        // testing
-        // result[0] = 0;
-        // result[1] = 1;
-        // result[2] = 2;
         return result;
     }
 
@@ -166,7 +160,6 @@ contract Patient {
     }
 
     function viewAllRecords(uint256 patientId) public view returns (uint256[] memory) {
-        // uint256 patientNoOfRecords = getRecordsCount(patientId);
         uint256[] memory patientRecordsId = new uint256[](getRecordsCount(patientId));
         uint256 indexTracker = 0;
         address patientAddress = getPatientAddress(patientId);
@@ -180,24 +173,8 @@ contract Patient {
     return patientRecordsId;
     }
 
-    // function practitionerViewAllRecords(uint256 patientId) public view returns (uint256[] memory) {
-    //     // uint256 patientNoOfRecords = getRecordsCount(patientId);
-    //     uint256[] memory patientRecordsId = new uint256[](practitionerGetRecordsCount(patientId));
-    //     uint256 indexTracker = 0;
-    //     address patientAddress = getPatientAddress(patientId);
-    //     for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
-    //         if (ehrContract.isRecordBelongToPatient(i, patientAddress)) {
-    //             patientRecordsId[indexTracker] = i;
-    //             indexTracker++;
-    //         }
-    //     }
-
-    // return patientRecordsId;
-    // }
-
     // Patient: View all records (acknowledged and not acknowledged)
   function viewAllAcknowledgedRecords(uint256 patientId) public view returns (uint256[] memory) {
-    // uint256 patientNoOfAcknowledgedRecords = getAcknowledgedRecordsCount(patientId);
     uint256[] memory patientAcknowledgedRecordsId = new uint256[](getAcknowledgedRecordsCount(patientId));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < ehrContract.numEHR(); i++) {
@@ -215,11 +192,9 @@ contract Patient {
   function viewRecordsByDoctor(uint256 patientId, address doctorAddress) public view returns (uint256[] memory) {
     uint256[] memory patientRecordsId = viewAllRecords(patientId);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
-    // uint256 noOfDoctorRecords = numberOfRecordByDoctor(patientId, patientAddress, doctorAddress);
     uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordByDoctor(patientId, doctorAddress));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-    //   uint256 currentRecordId = patientRecordsId[i];
       if (ehrContract.doesRecordMatchDoctorAddress(patientRecordsId[i], doctorAddress)) {
         patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
         indexTracker++;
@@ -235,7 +210,6 @@ contract Patient {
     uint256 noOfPatientRecords = getRecordsCount(patientId);
     uint256 noOfRecordsByDoctorId = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-    //   uint256 currentRecordId = patientRecordsId[i];
       if (ehrContract.doesRecordMatchDoctorAddress(patientRecordsId[i], doctorAddress)) {
         noOfRecordsByDoctorId++;
       }
@@ -248,11 +222,9 @@ contract Patient {
   function viewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view returns (uint256[] memory) {
     uint256[] memory patientRecordsId = viewAllRecords(patientId);
     uint256 noOfPatientRecords = getRecordsCount(patientId);
-    // uint256 noOfFilteredRecords = numberOfRecordType(patientId, patientAddress, recordType);
     uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordType(patientId, recordType));
     uint256 indexTracker = 0;
     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-    //   uint256 currentRecordId = patientRecordsId[i];
       if (ehrContract.doesRecordMatchRecordType(patientRecordsId[i], recordType)) {
         patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
         indexTracker++;
@@ -338,7 +310,6 @@ contract Patient {
     }
 
     function getEmailAddress(uint256 patientId) public view validPatientId(patientId) ownerOnly(patientId) returns(string memory) {
-        // emit testTrigger();
         return patients[patientId].emailAddress;
     }
 
@@ -406,36 +377,3 @@ contract Patient {
         return patients[patientId].owner;
     }
 }
-
-/************************* Removed! Nurse can't issue record! *************************/
-// // Patient: View all records issued by certain nurse
-//   function viewRecordsByNurse(uint256 patientId, address nurseAddress) public view returns (uint256[] memory) {
-//     uint256[] memory patientRecordsId = viewAllRecords(patientId);
-//     uint256 noOfPatientRecords = getRecordsCount(patientId);
-//     // uint256 noOfNurseRecords = numberOfRecordByNurse(patientId, patientAddress, nurseAddress);
-//     uint256[] memory patientRecordsIdFiltered = new uint256[](numberOfRecordByNurse(patientId, nurseAddress));
-//     uint256 indexTracker = 0;
-//     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-//     //   uint256 currentRecordId = patientRecordsId[i];
-//       if (ehrContract.doesRecordMatchDoctorAddress(patientRecordsId[i], nurseAddress)) {
-//         patientRecordsIdFiltered[indexTracker] = patientRecordsId[i];
-//         indexTracker++;
-//       }
-//     }
-//       return patientRecordsIdFiltered;
-//   }
-
-// // Patient: Helper function to check how many records fulfilling the given nurse id
-//   function numberOfRecordByNurse(uint256 patientId, address nurseAddress) public view returns(uint256) { // change on what you need to return
-//     uint256[] memory patientRecordsId = viewAllRecords(patientId);
-//     uint256 noOfPatientRecords = getRecordsCount(patientId);
-//     uint256 noOfRecordsByNurseId = 0;
-//     for (uint256 i = 0; i < noOfPatientRecords; i++) {
-//       uint256 currentRecordId = patientRecordsId[i];
-//       if (ehrContract.doesRecordMatchDoctorAddress(currentRecordId, nurseAddress)) {
-//         noOfRecordsByNurseId++;
-//       }
-//     }
-
-//     return noOfRecordsByNurseId;
-//   }
