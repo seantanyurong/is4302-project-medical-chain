@@ -61,11 +61,15 @@ contract Nurse {
 
 
     /********* FUNCTIONS *********/
-    function registerPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+    function getIsPatientRegistered(uint256 nurseId, uint256 patientId) public view returns (bool) {
+        return nurses[nurseId].patients[patientId];
+    }
+
+    function registerPatient(uint256 nurseId, uint256 patientId) public {
         nurses[nurseId].patients[patientId] = true;
     }
 
-    function unregisterPatient(uint256 nurseId, uint256 patientId) public validNurseId(nurseId) ownerOnly(nurseId) {
+    function unregisterPatient(uint256 nurseId, uint256 patientId) public {
         nurses[nurseId].patients[patientId] = false;
     }
 
@@ -123,6 +127,15 @@ contract Nurse {
 
       return patientRecordsId;
   }
+
+  // get nurse's id from their address 
+    function getNurseIdFromNurseAddress(address nurseAddress) public view returns (uint256) {
+        for (uint i = 0; i < numNurses; i++) {
+            if (nurses[i].owner == nurseAddress) {
+                return i;
+            }
+        }
+    }
 
 
     /********* GETTERS & SETTERS *********/
