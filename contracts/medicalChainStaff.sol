@@ -211,8 +211,8 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Researcher: View all patients who have approved research access
-  function viewApprovedPatients() public isResearcher() returns (uint256[] memory) {
-      emit GettingApprovedPatients();
+  function viewApprovedPatients() public view isResearcher() returns (uint256[] memory) {
+      // emit GettingApprovedPatients();
       return patientContract.getResearchPatients();
   }
 

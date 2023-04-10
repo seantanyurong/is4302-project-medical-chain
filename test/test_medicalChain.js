@@ -70,6 +70,20 @@ contract("Testing for creation", function (accounts) {
 
     truffleAssert.eventEmitted(newPatient, "PatientAdded");
 
+    // Checking if possible to create a duplicate patient using same address
+    await truffleAssert.reverts(patientInstance.create(
+      "Shawn",
+      "Tan",
+      "shawntan@gmail.com",
+      "18/04/2000",
+      true,
+      accounts[3],
+      {
+        from: accounts[2],
+      }
+    ), "Patient already registered!");
+    
+
     await assert.notStrictEqual(
       newPatient,
       undefined,
@@ -578,7 +592,6 @@ contract("Testing for practitioner's access", function (accounts) {
     await assert.ok(!NurseRemoved, "Nurse still has access");
   });
 
-  // Fix getting research patients. Doesn't seem to fetch any.
   it("Test retrieval of patients who gave approval for research", async () => {
     let newResearcher = await researcherInstance.create(
       "Maria",
@@ -614,10 +627,11 @@ contract("Testing for practitioner's access", function (accounts) {
         from: accounts[6],
       });
 
-    //  Checks to see if Researcher getting patients
-    truffleAssert.eventEmitted(viewApprovedPatients, "GettingApprovedPatients");
-
-    console.log(viewApprovedPatients["logs"][0]["args"]);
+    await assert.strictEqual(
+      viewApprovedPatients[0].words[0],
+      0,
+      "Patient record not accessed"
+    );
   });
 });
 
