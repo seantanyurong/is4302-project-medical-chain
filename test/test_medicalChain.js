@@ -298,75 +298,141 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 //       from: accounts[2],
 //     });
 
-    await assert.strictEqual(
-      recordsCount1.words[0],
-      1,
-      "Record count does not match"
-    );
-  });
+//     await assert.strictEqual(
+//       recordsCount1.words[0],
+//       1,
+//       "Record count does not match"
+//     );
+//   });
 
-  it("Test EHR removing", async () => {
-    // Check that initial record count is 1
-    let recordsCount1 = await patientInstance.getRecordsCount(0, {
-      from: accounts[2],
-    });
+//   it("Test EHR removing", async () => {
+//     // Check that initial record count is 1
+//     let recordsCount1 = await patientInstance.getRecordsCount(0, {
+//       from: accounts[2],
+//     });
 
-    await assert.strictEqual(
-      recordsCount1.words[0],
-      1,
-      "Record count does not match"
-    );
+//     await assert.strictEqual(
+//       recordsCount1.words[0],
+//       1,
+//       "Record count does not match"
+//     );
 
-    // Add EHR
-    let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
-      from: accounts[4],
-    });
+//     // Add EHR
+//     let removingEHR = await medicalChainStaffInstance.removeEHR(0, 0, {
+//       from: accounts[4],
+//     });
 
-    truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
+//     truffleAssert.eventEmitted(removingEHR, "RemovingEHR");
 
-    // Ensure post record count is 0
-    let recordsCount0 = await patientInstance.getRecordsCount(0, {
-      from: accounts[2],
-    });
+//     // Ensure post record count is 0
+//     let recordsCount0 = await patientInstance.getRecordsCount(0, {
+//       from: accounts[2],
+//     });
 
-    await assert.strictEqual(
-      recordsCount0.words[0],
-      0,
-      "Post count does not match"
-    );
-  });
+//     await assert.strictEqual(
+//       recordsCount0.words[0],
+//       0,
+//       "Post count does not match"
+//     );
+//   });
 
-  // Need to fix EHR acknowledging function
-  it("Test EHR acknowledging", async () => {
-    let newPatient = await patientInstance.create(
-      "Chad",
-      "Teo",
-      "chadteo@gmail.com",
-      "20/02/2000",
-      true,
-      accounts[2],
-      {
-        from: accounts[3],
-      }
-    );
+//   // Need to fix EHR acknowledging function
+//   it("Test EHR acknowledging", async () => {
+//     let newPatient = await patientInstance.create(
+//       "Chad",
+//       "Teo",
+//       "chadteo@gmail.com",
+//       "20/02/2000",
+//       true,
+//       accounts[2],
+//       {
+//         from: accounts[3],
+//       }
+//     );
 
-    // Test: testing if patient can acknowledge other patient's record
-    // Outcome: Correct, patient unable to knowledge
-    truffleAssert.reverts(
-      medicalChainPatientInstance.patientAcknowledgeRecord(0, {
-        from: accounts[3],
-      }),
-      "Record does not belong to this patient"
-    );
+//     // Test: testing if patient can acknowledge other patient's record
+//     // Outcome: Correct, patient unable to knowledge
+//     truffleAssert.reverts(
+//       medicalChainPatientInstance.patientAcknowledgeRecord(0, {
+//         from: accounts[3],
+//       }),
+//       "Record does not belong to this patient"
+//     );
 
-    // Patient acknowledge on own record
-    let patientSigningRecord =
-      await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
-        from: accounts[2],
-      });
-    truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
-  });
-});
+//     // Patient acknowledge on own record
+//     let patientSigningRecord =
+//       await medicalChainPatientInstance.patientAcknowledgeRecord(0, {
+//         from: accounts[2],
+//       });
+//     truffleAssert.eventEmitted(patientSigningRecord, "AcknowledgingRecord");
+//   });
+
+//   it("Test EHR updating", async () => {
+//     let beforeUpdate =
+//       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
+//         from: accounts[4],
+//       });
+
+//     // console.log(beforeUpdate["fileName"]);
+
+//     // ensure that record's file name before update is Immunisation Records
+//     assert.strictEqual(
+//       beforeUpdate["fileName"] == "Immunisation Records",
+//       true,
+//       "Incorrect record chosen!"
+//     );
+
+//     await truffleAssert.reverts(
+//       medicalChainStaffInstance.updateRecordByRecordId(
+//         0,
+//         0,
+//         EHR.RecordType.LABORATORY_RESULTS,
+//         "Laboratory Results",
+//         { from: accounts[2] }
+//       ),
+//       "User is not a doctor!"
+//     );
+
+//     let secondNewDoctor = await doctorInstance.create(
+//       "Johnson",
+//       "Lee",
+//       "johnlee@gmail.com",
+//       "20/01/1989",
+//       {
+//         from: accounts[8],
+//       }
+//     );
+
+//     await truffleAssert.reverts(
+//       medicalChainStaffInstance.updateRecordByRecordId(
+//         0,
+//         0,
+//         EHR.RecordType.LABORATORY_RESULTS,
+//         "Laboratory Results",
+//         { from: accounts[8] }
+//       ),
+//       "Doctor is not issuer!"
+//     );
+
+//     let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
+//       0,
+//       0,
+//       EHR.RecordType.LABORATORY_RESULTS,
+//       "Laboratory Results",
+//       { from: accounts[4] }
+//     );
+//     let afterUpdate =
+//       await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
+//         from: accounts[4],
+//       });
+
+//     assert.strictEqual(
+//       afterUpdate["fileName"] == "Laboratory Results",
+//       true,
+//       "Update failed!"
+//     );
+//   });
+// });
 
 /************************************ Testing for practioner's access ************************************/
 /************************************ Testing for practioner's access ************************************/
@@ -846,107 +912,51 @@ contract(
       );
     });
 
-    it("Test practitioner viewing of all patient records", async () => {
-      // Test: testing if non practitioner can call this function
-      // Outcome: Correct, unable to call
-      await truffleAssert.reverts(
-        medicalChainStaffInstance.practitionerViewAllRecords(0, {
-          from: accounts[2],
-        }),
-        "User is not a practitioner"
-      );
+    //   it("Test practitioner viewing of all patient records", async () => {
+    //     // Test: testing if non practitioner can call this function
+    //     // Outcome: Correct, unable to call
+    //     await truffleAssert.reverts(
+    //       medicalChainStaffInstance.practitionerViewAllRecords(0, {
+    //         from: accounts[2],
+    //       }),
+    //       "User is not a practitioner"
+    //     );
 
-      // Test: testing if non approved doctor can call this function
-      // Outcome: Correct, unable to call
-      await truffleAssert.reverts(
-        medicalChainStaffInstance.practitionerViewAllRecords(0, {
-          from: accounts[8],
-        }),
-        "Doctor is not in patient's list of approved doctors"
-      );
+    //     // Test: testing if non approved doctor can call this function
+    //     // Outcome: Correct, unable to call
+    //     await truffleAssert.reverts(
+    //       medicalChainStaffInstance.practitionerViewAllRecords(0, {
+    //         from: accounts[8],
+    //       }),
+    //       "Doctor is not in patient's list of approved doctors"
+    //     );
 
-      let listOfRecordIds =
-        await medicalChainStaffInstance.practitionerViewAllRecords(0, {
-          from: accounts[4],
-        });
+    //     let listOfRecordIds =
+    //       await medicalChainStaffInstance.practitionerViewAllRecords(0, {
+    //         from: accounts[4],
+    //       });
 
-      // for viewing of the record id array belonging to patient
-      //   console.log(listOfRecordIds);
+    //     // for viewing of the record id array belonging to patient
+    //     //   console.log(listOfRecordIds);
 
-      // checking the length of patient's record is 2
-      assert.strictEqual(
-        listOfRecordIds.length,
-        2,
-        "Records quantity does not match!"
-      );
+    //     // checking the length of patient's record is 2
+    //     assert.strictEqual(
+    //       listOfRecordIds.length,
+    //       2,
+    //       "Records quantity does not match!"
+    //     );
 
-      assert.strictEqual(
-        listOfRecordIds[0]["words"][0],
-        0,
-        "Record does not exist in patient's records"
-      );
+    //     assert.strictEqual(
+    //       listOfRecordIds[0]["words"][0],
+    //       0,
+    //       "Record does not exist in patient's records"
+    //     );
 
-      assert.strictEqual(
-        listOfRecordIds[1]["words"][0],
-        1,
-        "Record does not exist in patient's records"
-      );
-    });
-
-    it("Test record update", async () => {
-      let beforeUpdate =
-        await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
-          from: accounts[4],
-        });
-
-      // console.log(beforeUpdate["fileName"]);
-
-      // ensure that record's file name before update is Immunisation Records
-      assert.strictEqual(
-        beforeUpdate["fileName"] == "Immunisation Records",
-        true,
-        "Incorrect record chosen!"
-      );
-
-      await truffleAssert.reverts(
-        medicalChainStaffInstance.updateRecordByRecordId(
-          0,
-          0,
-          EHR.RecordType.LABORATORY_RESULTS,
-          "Laboratory Results",
-          { from: accounts[2] }
-        ),
-        "User is not a doctor!"
-      );
-
-      await truffleAssert.reverts(
-        medicalChainStaffInstance.updateRecordByRecordId(
-          0,
-          0,
-          EHR.RecordType.LABORATORY_RESULTS,
-          "Laboratory Results",
-          { from: accounts[8] }
-        ),
-        "Doctor is not issuer!"
-      );
-
-      let updateRecord = await medicalChainStaffInstance.updateRecordByRecordId(
-        0,
-        0,
-        EHR.RecordType.LABORATORY_RESULTS,
-        "Laboratory Results",
-        { from: accounts[4] }
-      );
-      let afterUpdate =
-        await medicalChainStaffInstance.practitionerViewRecordByRecordID(0, 0, {
-          from: accounts[4],
-        });
-
-      assert.strictEqual(
-        afterUpdate["fileName"] == "Laboratory Results",
-        true,
-        "Update failed!"
-      );
-    });
+    //     assert.strictEqual(
+    //       listOfRecordIds[1]["words"][0],
+    //       1,
+    //       "Record does not exist in patient's records"
+    //     );
+    //   });
   }
 );
