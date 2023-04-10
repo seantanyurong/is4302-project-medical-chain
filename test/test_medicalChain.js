@@ -257,7 +257,7 @@ contract("Testing for EHR interaction", function (accounts) {
     researcherInstance = await Researcher.deployed();
   });
 
-  console.log("Testing begins: Testing for practioner's access");
+  console.log("Testing begins: Testing for EHR interaction");
 
   /********* FUNCTIONALITY TESTS *********/
   it("Test EHR adding", async () => {
@@ -484,12 +484,12 @@ contract("Testing for EHR interaction", function (accounts) {
   });
 });
 
-// /************************************ Testing for practioner's access ************************************/
-// /************************************ Testing for practioner's access ************************************/
-// /************************************ Testing for practioner's access ************************************/
-// /************************************ Testing for practioner's access ************************************/
-// /************************************ Testing for practioner's access ************************************/
-contract("Testing for practioner's access", function (accounts) {
+/************************************ Testing for practitioner's access ************************************/
+/************************************ Testing for practitioner's access ************************************/
+/************************************ Testing for practitioner's access ************************************/
+/************************************ Testing for practitioner's access ************************************/
+/************************************ Testing for practitioner's access ************************************/
+contract("Testing for practitioner's access", function (accounts) {
   before(async () => {
     doctorInstance = await Doctor.deployed();
     ehrInstance = await EHR.deployed();
@@ -500,7 +500,7 @@ contract("Testing for practioner's access", function (accounts) {
     researcherInstance = await Researcher.deployed();
   });
 
-  console.log("Testing begins: Testing for practioner's access");
+  console.log("Testing begins: Testing for practitioner's access");
 
   /********* FUNCTIONALITY TESTS *********/
 

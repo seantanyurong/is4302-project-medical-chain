@@ -78,10 +78,37 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     _;
   }
 
-  modifier isPatientAndAuthorised(uint256 patientId) {
-    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("patient"))), "This person is not a patient!");
-    require(patientContract.isValidPatientId(patientId) == true, "Patient ID given is not valid");
-    require(patientContract.getPatientIdFromPatientAddress(msg.sender) == patientId, "Patient is not allowed to view other patient's records");
+  modifier isDoctorAndAuthorised(uint256 doctorId) {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("doctor"))), "This person is not a doctor!");
+    require(doctorContract.isValidDoctorId(doctorId) == true, "Doctor Id given is not valid");
+    require(doctorContract.getDoctorIdFromDoctorAddress(msg.sender) == doctorId, "Doctor is not allowed to act on behalf of other doctor");
+    _;
+  }
+
+  modifier isNurseAndAuthorised(uint256 nurseId) {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("nurse"))), "This person is not a nurse!");
+    require(nurseContract.isValidNurseId(nurseId) == true, "Nurse Id given is not valid");
+    require(nurseContract.getNurseIdFromNurseAddress(msg.sender) == nurseId, "Nurse is not allowed to act on behalf of other doctor");
+    _;
+  }
+
+  modifier PatientIsRegisteredWithDoctor(uint256 doctorId, uint256 patientId) {
+    require(doctorContract.getIsPatientRegistered(doctorId, patientId) == true, "Patient is not registered with doctor");
+    _;
+  }
+
+  modifier PatientIsNotRegisteredWithDoctor(uint256 doctorId, uint256 patientId) {
+    require(doctorContract.getIsPatientRegistered(doctorId, patientId) == false, "Patient is already registered with doctor");
+    _;
+  }
+
+  modifier PatientIsRegisteredWithNurse(uint256 nurseId, uint256 patientId) {
+    require(nurseContract.getIsPatientRegistered(nurseId, patientId) == true, "Patient is not registered with nurse");
+    _;
+  }
+
+  modifier PatientIsNotRegisteredWithNurse(uint256 nurseId, uint256 patientId) {
+    require(nurseContract.getIsPatientRegistered(nurseId, patientId) == false, "Patient is already registered with nurse");
     _;
   }
 
@@ -97,11 +124,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   modifier isValidRecordId(uint256 recordId) {
     require(ehrContract.isValidRecordId(recordId) == true, "Record ID given is not valid");
-    _;
-  }
-
-  modifier isRecordBelongToPatient(uint256 recordId) {
-    require(ehrContract.isRecordBelongToPatient(recordId, msg.sender) == true, "Record does not belong to this patient");
     _;
   }
 
@@ -133,19 +155,19 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
     }
   }
 
-  function registerPatientWithDoctor(uint256 doctorId, uint256 patientId) public {
+  function registerPatientWithDoctor(uint256 doctorId, uint256 patientId) public isDoctorAndAuthorised(doctorId) PatientIsNotRegisteredWithDoctor(doctorId, patientId) {
     doctorContract.registerPatient(doctorId, patientId);
   }
 
-  function unregisterPatientWithDoctor(uint256 doctorId, uint256 patientId) public {
+  function unregisterPatientWithDoctor(uint256 doctorId, uint256 patientId) public isDoctorAndAuthorised(doctorId) PatientIsRegisteredWithDoctor(doctorId, patientId)  {
     doctorContract.unregisterPatient(doctorId, patientId);
   }
 
-  function registerPatientWithNurse(uint256 nurseId, uint256 patientId) public {
+  function registerPatientWithNurse(uint256 nurseId, uint256 patientId) public isNurseAndAuthorised(nurseId) PatientIsNotRegisteredWithNurse(nurseId, patientId) {
     nurseContract.registerPatient(nurseId, patientId);
   }
 
-  function unregisterPatientWithNurse(uint256 nurseId, uint256 patientId) public {
+  function unregisterPatientWithNurse(uint256 nurseId, uint256 patientId) public isNurseAndAuthorised(nurseId) PatientIsRegisteredWithNurse(nurseId, patientId) {
     nurseContract.registerPatient(nurseId, patientId);
   }
 

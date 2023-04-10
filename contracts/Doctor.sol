@@ -100,11 +100,15 @@ contract Doctor {
         return false;
     }
 
-    function registerPatient(uint256 doctorId, uint256 patientId) public validDoctorId(doctorId) ownerOnly(doctorId) {
+    function getIsPatientRegistered(uint256 doctorId, uint256 patientId) public view returns (bool) {
+        return doctors[doctorId].patients[patientId];
+    }
+
+    function registerPatient(uint256 doctorId, uint256 patientId) public {
         doctors[doctorId].patients[patientId] = true;
     }
 
-    function unregisterPatient(uint256 doctorId, uint256 patientId) public validDoctorId(doctorId) ownerOnly(doctorId) {
+    function unregisterPatient(uint256 doctorId, uint256 patientId) public {
         doctors[doctorId].patients[patientId] = false;
     }
 
@@ -164,12 +168,13 @@ contract Doctor {
     }
 
     // get doctor's id from their address 
-    function getDoctorIdFromDoctorAddress(address doctorAddress) public returns (uint256) {
+    function getDoctorIdFromDoctorAddress(address doctorAddress) public view returns (uint256) {
         for (uint i = 0; i < numDoctors; i++) {
             if (doctors[i].owner == doctorAddress) {
                 return i;
             }
         }
-        emit AddressDoesNotBelongToAnyDoctor();
+
+        return uint256(-1);
     }
 }
