@@ -204,11 +204,12 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 //   });
 // });
 
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
-/************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+// /************************************ Testing for EHR interaction ************************************/
+
 // contract("Testing for EHR interaction", function (accounts) {
 //   before(async () => {
 //     doctorInstance = await Doctor.deployed();
@@ -342,11 +343,12 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 //   });
 // });
 
-/************************************ Testing for practioner's access ************************************/
-/************************************ Testing for practioner's access ************************************/
-/************************************ Testing for practioner's access ************************************/
-/************************************ Testing for practioner's access ************************************/
-/************************************ Testing for practioner's access ************************************/
+// /************************************ Testing for practioner's access ************************************/
+// /************************************ Testing for practioner's access ************************************/
+// /************************************ Testing for practioner's access ************************************/
+// /************************************ Testing for practioner's access ************************************/
+// /************************************ Testing for practioner's access ************************************/
+
 // contract("Testing for practioner's access", function (accounts) {
 //   before(async () => {
 //     doctorInstance = await Doctor.deployed();
@@ -516,6 +518,7 @@ var Researcher = artifacts.require("../contracts/Researcher.sol");
 /************************************ Testing for viewing of records (different conditions) ************************************/
 /************************************ Testing for viewing of records (different conditions) ************************************/
 /************************************ Testing for viewing of records (different conditions) ************************************/
+
 contract(
   "Testing for viewing of records (different conditions)",
   function (accounts) {
@@ -621,6 +624,8 @@ contract(
         "Doctor is not in patient's list of approved doctors"
       );
 
+      
+
       // Test: testing if invalid record id will throw an error
       // Outcome: Correct
       await truffleAssert.reverts(
@@ -706,6 +711,18 @@ contract(
     });
 
     // should test for non intended patient to sign other record
+    it("Test patient to sign records that do not belong to them", async () => {
+      // Test: testing if patient can sign off on a record that does not belong to them
+      // Outcome: Correct, unable to call
+      await truffleAssert.reverts(
+        medicalChainInstance.patientAcknowledgeRecord(0, {
+          from: accounts[3],
+        }),
+        "Record does not belong to this patient"
+      );
+
+    })
+
     it("Test patient viewing of all acknowledged records", async () => {
       let signingOff = await medicalChainInstance.patientAcknowledgeRecord(0, {
         from: accounts[2],
