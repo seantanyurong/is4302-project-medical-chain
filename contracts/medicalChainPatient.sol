@@ -196,7 +196,6 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 // Patient: Acknowledge a record that is added to his medical records
 function patientAcknowledgeRecord(uint256 recordId) public isValidRecordId(recordId) isRecordBelongToPatient(recordId) {
   emit AcknowledgingRecord();
-  // uint256 patientId = patientContract.getPatientIdFromPatientAddress(msg.sender);
   patientContract.signOffRecord(patientContract.getPatientIdFromPatientAddress(msg.sender), recordId);
 }
 
