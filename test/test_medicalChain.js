@@ -934,6 +934,66 @@ contract(
       );
     });
 
+    it("Test practitioner viewing of filtered records by record type", async () => {
+      
+      // // Add EHR RecordType IMMUNISATION to Patient Id 0 from Doctor Id 0
+      // let addingEHR3 = await medicalChainStaffInstance.addNewEHR(
+      //   EHR.RecordType.IMMUNISATION,
+      //   0,
+      //   "Immunisation Records",
+      //   {
+      //     from: accounts[4],
+      //   }
+      // );
+
+      // // Test: testing if doctor can call function using patient id 0
+      // // Outcome: Correct, doctor unable to call
+      // await truffleAssert.reverts(
+      //   medicalChainPatientInstance.patientViewRecordsByRecordType(
+      //     0,
+      //     EHR.RecordType.IMMUNISATION,
+      //     { from: accounts[4] }
+      //   ),
+      //   "This person is not a patient!"
+      // );
+
+      // // Test: testing if other patient can call function using patient id 0
+      // // Outcome: Correct, other patient unable to call
+      // await truffleAssert.reverts(
+      //   medicalChainPatientInstance.patientViewRecordsByRecordType(
+      //     0,
+      //     EHR.RecordType.IMMUNISATION,
+      //     { from: accounts[7] }
+      //   ),
+      //   "Patient is not allowed to view other patient's records"
+      // );
+
+      // let listOfFilterRecordIds =
+      //   await medicalChainPatientInstance.patientViewRecordsByRecordType(
+      //     0,
+      //     EHR.RecordType.IMMUNISATION,
+      //     { from: accounts[2] }
+      //   );
+
+      assert.strictEqual(
+        listOfFilterRecordIds.length,
+        2,
+        "Records quantity does not match!"
+      );
+
+      assert.strictEqual(
+        listOfFilterRecordIds[0]["words"][0],
+        0,
+        "Record does not exist in patient's records"
+      );
+
+      assert.strictEqual(
+        listOfFilterRecordIds[1]["words"][0],
+        2,
+        "Record does not exist in patient's records"
+      );
+    });
+
     it("Test patient viewing of all records by doctor", async () => {
       // Test: testing if another patient can view patient id 0's records by doctor
       // Outcome: Correct, unable to view

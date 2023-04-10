@@ -48,15 +48,9 @@ contract medicalChainStaff {
     _;
   }
 
-  modifier isPractitioner() {
-    string memory role = getSenderRole();
-    require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))) || keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse"))), "User is not a practitioner");
-    _;
-  }
-
   modifier isPractitionerApprovedAndPatientRegisteredWithPractitioner(uint256 patientId) {
     string memory role = getSenderRole();
-    // check if sender is a doctor
+    require(keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor"))) || keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("nurse"))), "User is not a practitioner");
     if (keccak256(abi.encodePacked((role))) == keccak256(abi.encodePacked(("doctor")))) {
       require(patientContract.isApprovedDoctor(patientId, msg.sender) == true, "Doctor is not in patient's list of approved doctors");
       require(doctorContract.isPatientInListOfPatients(patientId, msg.sender) == true, "Patient is not in doctor's list of patients");
@@ -112,6 +106,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   modifier isResearcherAbleToViewPatientData(uint256 patientId) {
+    require(keccak256(abi.encodePacked(getSenderRole())) == keccak256(abi.encodePacked(("researcher"))), "This person is not a researcher!");
     require(patientContract.getApprovedReseacher(patientId), "Patient has not approved data for research purposes");
     _;
   }
@@ -178,7 +173,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Request to view specific record
-  function practitionerViewRecordByRecordID(uint256 patientId, uint256 recordId) public view isPractitioner() isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) isValidRecordId(recordId) returns (uint256 id,
+  function practitionerViewRecordByRecordID(uint256 patientId, uint256 recordId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) isValidRecordId(recordId) returns (uint256 id,
         EHR.RecordType recordType,
         string memory fileName,
         address patientAddress,
@@ -200,7 +195,7 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
   }
 
   // Researcher: Request to view specific patient data
-  function viewPatientByPatientID(uint256 patientID) public view isResearcher() isResearcherAbleToViewPatientData(patientID) returns (uint256 id,
+  function viewPatientByPatientID(uint256 patientID) public view isResearcherAbleToViewPatientData(patientID) returns (uint256 id,
         string memory firstName,
         string memory lastName,
         string memory emailAddress,
@@ -210,9 +205,14 @@ modifier isDoctorApprovedAndPatientRegisteredWithDoctorAndIssuer(uint256 patient
 
   // Practitioner: View all records belonging to this patient
   // Returns all the recordIds
-  function practitionerViewAllRecords(uint256 patientId) public view isPractitioner() isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
+  function practitionerViewAllRecords(uint256 patientId) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
     // address patientAddress = patientContract.getPatientAddress(patientId);
     return patientContract.practitionerViewAllRecords(patientId);
+  }
+
+    // Patient: Filter records by record type
+  function practitionerViewRecordsByRecordType(uint256 patientId, EHR.RecordType recordType) public view isPractitionerApprovedAndPatientRegisteredWithPractitioner(patientId) returns (uint256[] memory) {
+    return patientContract.viewRecordsByRecordType(patientId, recordType);
   }
 
 
